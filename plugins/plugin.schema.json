@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orion.local/schemas/plugin.schema.json",
+  "title": "ORION Plugin Manifest",
+  "description": "Declarative contract for future ORION plugins. Loading remains disabled in the foundation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "version",
+    "minimum_orion_version",
+    "entrypoint",
+    "permissions",
+    "signature",
+    "checksum",
+    "author",
+    "description",
+    "commands",
+    "consumed_events",
+    "published_events"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable lowercase plugin identifier."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable plugin name."
+    },
+    "version": {
+      "type": "string",
+      "description": "Plugin semantic version."
+    },
+    "minimum_orion_version": {
+      "type": "string",
+      "description": "Minimum compatible ORION version."
+    },
+    "entrypoint": {
+      "type": "string",
+      "description": "Future isolated plugin entrypoint."
+    },
+    "permissions": {
+      "type": "array",
+      "description": "Explicit capabilities requested by the plugin.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "signature": {
+      "type": "string",
+      "description": "Future detached digital signature metadata."
+    },
+    "checksum": {
+      "type": "string",
+      "description": "Future package integrity digest."
+    },
+    "author": {
+      "type": "string",
+      "description": "Plugin author or publisher."
+    },
+    "description": {
+      "type": "string",
+      "description": "Plugin purpose."
+    },
+    "commands": {
+      "type": "array",
+      "description": "Commands exposed through the future internal API.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "consumed_events": {
+      "type": "array",
+      "description": "Events consumed through the future Event Bus.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "published_events": {
+      "type": "array",
+      "description": "Events published through the future Event Bus.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "Orion",
+  "short_name": "Orion",
+  "description": "Orion PWA local.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090d12",
+  "theme_color": "#0b1118",
+  "categories": ["productivity", "utilities", "games"],
+  "shortcuts": [
+    {
+      "name": "Lord Dragons",
+      "short_name": "Jogar",
+      "description": "Abrir Lord Dragons: The Lost Kingdom.",
+      "url": "/game.html",
+      "icons": [
+        {
+          "src": "/assets/icons/orion-icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "src": "/assets/icons/orion-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/orion-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

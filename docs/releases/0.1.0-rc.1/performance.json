@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "scope": "local-foundation-isolated",
+  "environment": {
+    "platform": "Windows",
+    "python": "3.14.5"
+  },
+  "config": {
+    "startup_iterations": 5,
+    "rest_iterations": 150,
+    "status_iterations": 75,
+    "brain_iterations": 75,
+    "websocket_iterations": 50
+  },
+  "metrics": [
+    {
+      "name": "database_startup",
+      "iterations": 5,
+      "mean_ms": 59.018,
+      "p50_ms": 58.697,
+      "p95_ms": 63.015,
+      "max_ms": 63.015,
+      "threshold_p95_ms": 300,
+      "passed": true
+    },
+    {
+      "name": "rest_health",
+      "iterations": 150,
+      "mean_ms": 3.598,
+      "p50_ms": 2.774,
+      "p95_ms": 8.509,
+      "max_ms": 21.929,
+      "threshold_p95_ms": 30,
+      "passed": true
+    },
+    {
+      "name": "rest_status",
+      "iterations": 75,
+      "mean_ms": 6.985,
+      "p50_ms": 5.904,
+      "p95_ms": 12.534,
+      "max_ms": 28.92,
+      "threshold_p95_ms": 75,
+      "passed": true
+    },
+    {
+      "name": "brain_process",
+      "iterations": 75,
+      "mean_ms": 5.521,
+      "p50_ms": 5.008,
+      "p95_ms": 7.668,
+      "max_ms": 27.268,
+      "threshold_p95_ms": 75,
+      "passed": true
+    },
+    {
+      "name": "websocket_roundtrip",
+      "iterations": 50,
+      "mean_ms": 14.677,
+      "p50_ms": 13.963,
+      "p95_ms": 19.095,
+      "max_ms": 21.383,
+      "threshold_p95_ms": 75,
+      "passed": true
+    }
+  ],
+  "resources": {
+    "wall_seconds": 2.688,
+    "cpu_seconds": 1.641,
+    "cpu_ratio": 0.61,
+    "tracemalloc_peak_mib": 1.561,
+    "threshold_peak_mib": 64,
+    "passed": true
+  },
+  "deferred": [
+    {
+      "metric": "vector_search",
+      "reason": "ChromaDB memory is planned for T0013."
+    },
+    {
+      "metric": "three_scene_load",
+      "reason": "Three.js scene is planned for T0028."
+    },
+    {
+      "metric": "backup_job",
+      "reason": "Backup jobs are planned for T0035."
+    }
+  ],
+  "passed": true
+}

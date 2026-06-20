@@ -1,0 +1,11 @@
+{
+  "id": "20260614-orion-ganhou-tela-principal-visual-com-personagem-2d-e-c",
+  "type": "changed",
+  "summary": "Orion ganhou tela principal visual com personagem 2D e chat continuo.",
+  "details": [
+    "Chat usa WebSocket com fallback REST e renderiza apenas mensagens recentes para manter performance.",
+    "Personagem reage a digitacao, resposta, pensamento, erro e toque."
+  ],
+  "date": "2026-06-14",
+  "version": null
+}

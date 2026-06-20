@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ORION E2E Scenario</title>
+  </head>
+  <body>
+    <main>
+      <h1>ORION E2E Scenario</h1>
+
+      <section aria-labelledby="login-title">
+        <h2 id="login-title">Login</h2>
+        <form id="login-form">
+          <label>
+            Usuario
+            <input data-testid="username" name="username" autocomplete="username" />
+          </label>
+          <label>
+            Senha
+            <input data-testid="password" name="password" type="password" autocomplete="current-password" />
+          </label>
+          <button data-testid="login-submit" type="submit">Entrar</button>
+        </form>
+        <p data-testid="login-error" role="alert"></p>
+      </section>
+
+      <section data-testid="workspace" hidden>
+        <h2>Workspace</h2>
+        <p data-testid="user-profile"></p>
+        <p>WebSocket: <span data-testid="socket-status">desconectado</span></p>
+
+        <section aria-labelledby="chat-title">
+          <h3 id="chat-title">Conversa</h3>
+          <form id="chat-form">
+            <label>
+              Mensagem
+              <input data-testid="chat-input" name="message" />
+            </label>
+            <button data-testid="chat-send" type="submit">Enviar mensagem</button>
+          </form>
+          <div data-testid="chat-feed" aria-live="polite"></div>
+        </section>
+
+        <section aria-labelledby="upload-title">
+          <h3 id="upload-title">Upload</h3>
+          <form id="upload-form">
+            <label>
+              Arquivo
+              <input data-testid="upload-input" name="file" type="file" />
+            </label>
+            <button data-testid="upload-submit" type="submit">Enviar arquivo</button>
+          </form>
+          <p data-testid="upload-status" aria-live="polite"></p>
+        </section>
+
+        <section aria-labelledby="finance-title">
+          <h3 id="finance-title">Financas</h3>
+          <form id="finance-form">
+            <label>
+              Tipo
+              <select data-testid="finance-kind" name="kind">
+                <option value="income">Receita</option>
+                <option value="expense">Despesa</option>
+              </select>
+            </label>
+            <label>
+              Valor
+              <input data-testid="finance-amount" name="amount" inputmode="decimal" />
+            </label>
+            <label>
+              Categoria
+              <input data-testid="finance-category" name="category" />
+            </label>
+            <button data-testid="finance-submit" type="submit">Registrar lancamento</button>
+          </form>
+          <p>Saldo: <output data-testid="finance-balance">0.00</output></p>
+        </section>
+
+        <section aria-labelledby="multiplayer-title">
+          <h3 id="multiplayer-title">Multiplayer</h3>
+          <form id="position-form">
+            <label>
+              Posicao X
+              <input data-testid="position-x" name="x" inputmode="numeric" />
+            </label>
+            <label>
+              Posicao Y
+              <input data-testid="position-y" name="y" inputmode="numeric" />
+            </label>
+            <button data-testid="position-send" type="submit">Sincronizar posicao</button>
+          </form>
+          <div data-testid="position-feed" aria-live="polite"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

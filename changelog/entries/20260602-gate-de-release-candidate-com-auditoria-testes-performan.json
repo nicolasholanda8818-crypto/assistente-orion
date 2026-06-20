@@ -1,0 +1,11 @@
+{
+  "id": "20260602-gate-de-release-candidate-com-auditoria-testes-performan",
+  "type": "added",
+  "summary": "Gate de Release Candidate com auditoria, testes, performance e seguranca.",
+  "details": [
+    "Gera artefato RC, SHA-256 e manifesto.",
+    "Mantem status bloqueado quando ha risco critico aberto."
+  ],
+  "date": "2026-06-02",
+  "version": null
+}

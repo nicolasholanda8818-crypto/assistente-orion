@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#11191f" />
+    <meta name="description" content="Lord Dragons: The Lost Kingdom, RPG 2D pixel art em Phaser." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Lord Dragons" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Lord Dragons: The Lost Kingdom</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/assets/icons/orion-icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/css/lord-dragons.css" />
+  </head>
+  <body>
+    <section class="title-screen" id="title-screen" aria-label="Tela inicial">
+      <div class="title-world" aria-hidden="true">
+        <span class="title-sky"></span>
+        <span class="title-cloud cloud-a"></span>
+        <span class="title-cloud cloud-b"></span>
+        <span class="title-castle"></span>
+        <span class="title-river"></span>
+        <span class="title-forest"></span>
+        <span class="title-flag flag-a"></span>
+        <span class="title-flag flag-b"></span>
+        <span class="title-fog fog-a"></span>
+        <span class="title-fog fog-b"></span>
+        <span class="title-light-particles"></span>
+        <span class="title-depth-light"></span>
+        <span class="title-dragon-breath"></span>
+        <span class="title-dragon-eye eye-a"></span>
+        <span class="title-dragon-eye eye-b"></span>
+        <span class="title-dragon-smoke smoke-a"></span>
+        <span class="title-dragon-smoke smoke-b"></span>
+        <span class="title-wind-lines"></span>
+        <span class="title-logo-sparks"></span>
+      </div>
+      <div class="title-dragon dragon-guardian" aria-hidden="true"></div>
+      <div class="title-dragon dragon-shadow" aria-hidden="true"></div>
+
+      <header class="official-logo" aria-label="Lord Dragons The Lost Kingdom">
+        <span class="logo-mark"></span>
+        <h1>Lord<br />Dragons</h1>
+        <strong>The Lost Kingdom</strong>
+      </header>
+
+      <div class="title-cast">
+        <article class="character-card lyra-card" aria-label="Lyra">
+          <span class="character-sprite sprite-lyra"></span>
+          <b>Lyra</b>
+          <small>Arqueira</small>
+        </article>
+        <article class="character-card ryden-card" aria-label="Ryden">
+          <span class="character-sprite sprite-ryden"></span>
+          <b>Ryden</b>
+          <small>Jovem Guerreiro</small>
+        </article>
+        <article class="character-card altheron-card" aria-label="Altheron">
+          <span class="character-sprite sprite-altheron"></span>
+          <b>Altheron</b>
+          <small>Mago Real</small>
+        </article>
+        <article class="character-card mordrake-card" aria-label="Mordrake">
+          <span class="character-sprite sprite-mordrake"></span>
+          <b>Mordrake</b>
+          <small>Eco Selado</small>
+        </article>
+        <article class="character-card elandor-card" aria-label="Elandor">
+          <span class="character-sprite sprite-elandor"></span>
+          <b>Elandor</b>
+          <small>Elfo Guardiao</small>
+        </article>
+        <article class="character-card duran-card" aria-label="Duran">
+          <span class="character-sprite sprite-duran"></span>
+          <b>Duran</b>
+          <small>Guardiao</small>
+        </article>
+      </div>
+
+      <section class="official-menu" aria-label="Menu principal">
+        <div class="menu-crest" aria-hidden="true"></div>
+        <button id="btn-new-game" class="title-menu-button" data-title-action="new" type="button">Novo Jogo</button>
+        <button id="btn-continue-game" class="title-menu-button" data-title-action="continue" type="button">Continuar</button>
+        <button id="btn-load-game" class="title-menu-button" data-title-action="load" type="button">Carregar Jogo</button>
+        <button id="btn-multiplayer" class="title-menu-button" data-title-action="multiplayer" type="button">Multiplayer</button>
+        <button id="btn-settings" class="title-menu-button" data-title-action="settings" type="button">Configuracoes</button>
+        <button id="btn-credits" class="title-menu-button" data-title-action="credits" type="button">Creditos</button>
+        <button id="btn-exit-game" class="title-menu-button" data-title-action="exit" type="button">Sair</button>
+      </section>
+
+      <aside class="title-subpanel is-hidden" id="title-settings" aria-label="Configuracoes">
+        <h2>Configuracoes</h2>
+        <label>Volume da musica <input id="setting-music" type="range" min="0" max="100" value="70" /></label>
+        <label>Volume dos efeitos <input id="setting-effects" type="range" min="0" max="100" value="80" /></label>
+        <label>Resolucao
+          <select id="setting-resolution">
+            <option>1280x720</option>
+            <option selected>1920x1080</option>
+            <option>2560x1440</option>
+          </select>
+        </label>
+        <label class="setting-row"><input id="setting-fullscreen" type="checkbox" /> Tela cheia</label>
+        <label>Idioma
+          <select id="setting-language">
+            <option selected>Portugues</option>
+            <option>English</option>
+            <option>Español</option>
+          </select>
+        </label>
+        <label>Controles
+          <select id="setting-controls">
+            <option selected>Teclado + Mouse</option>
+            <option>Controle classico</option>
+            <option>Touch mobile</option>
+          </select>
+        </label>
+        <div class="subpanel-actions">
+          <button id="btn-save-settings" type="button">Salvar configuracoes</button>
+          <button data-title-action="close-panel" type="button">Voltar</button>
+        </div>
+      </aside>
+
+      <aside class="title-subpanel is-hidden" id="title-load-panel" aria-label="Carregar jogo">
+        <h2>Carregar Jogo</h2>
+        <p id="load-summary">Nenhum save encontrado.</p>
+        <div class="subpanel-actions">
+          <button id="btn-confirm-load" type="button">Carregar</button>
+          <button data-title-action="close-panel" type="button">Voltar</button>
+        </div>
+      </aside>
+
+      <aside class="title-subpanel title-character-panel is-hidden" id="title-character-panel" aria-label="Criacao de personagem">
+        <h2>Criar Personagem</h2>
+        <p class="character-intro">A demo comeca no Vale dos Dragoes. Personalize Ryden sem revelar sua origem.</p>
+        <div class="title-character-grid">
+          <label>Nome
+            <input id="character-name" type="text" maxlength="18" value="Ryden" autocomplete="off" />
+          </label>
+          <label>Sexo
+            <select id="character-sex">
+              <option value="masculino" selected>Masculino</option>
+              <option value="feminino">Feminino</option>
+            </select>
+          </label>
+          <label>Aparencia
+            <select id="character-appearance">
+              <option value="aventureiro-sombrio" selected>Aventureiro sombrio</option>
+              <option value="guardiao-florestal">Guardiao florestal</option>
+              <option value="aprendiz-real">Aprendiz real</option>
+              <option value="viajante-das-ruinas">Viajante das ruinas</option>
+            </select>
+          </label>
+          <label>Cor do cabelo
+            <select id="character-hair">
+              <option value="ruivo" selected>Ruivo</option>
+              <option value="castanho">Castanho</option>
+              <option value="negro">Negro</option>
+              <option value="prateado">Prateado</option>
+            </select>
+          </label>
+          <label>Cor dos olhos
+            <select id="character-eyes">
+              <option value="dourados" selected>Dourados</option>
+              <option value="azuis">Azuis</option>
+              <option value="verdes">Verdes</option>
+              <option value="ambar">Ambar</option>
+            </select>
+          </label>
+          <label>Classe
+            <select id="character-class">
+              <option value="guerreiro" selected>Guerreiro</option>
+              <option value="mago">Mago</option>
+              <option value="arqueiro">Arqueiro</option>
+              <option value="paladino">Paladino</option>
+              <option value="assassino">Assassino</option>
+              <option value="invocador">Invocador</option>
+            </select>
+          </label>
+        </div>
+        <div class="subpanel-actions">
+          <button id="btn-confirm-character" type="button">Comecar jornada</button>
+          <button data-title-action="close-panel" type="button">Voltar</button>
+        </div>
+      </aside>
+
+      <aside class="title-subpanel is-hidden" id="title-multiplayer-panel" aria-label="Multiplayer">
+        <h2>Multiplayer Local</h2>
+        <p id="multiplayer-summary">Crie uma sessao local para preparar uma aventura cooperativa neste dispositivo.</p>
+        <div class="subpanel-actions">
+          <button id="btn-create-local-session" type="button">Criar sessao</button>
+          <button data-title-action="close-panel" type="button">Voltar</button>
+        </div>
+      </aside>
+
+      <aside class="title-subpanel is-hidden" id="title-credits-panel" aria-label="Creditos">
+        <h2>Creditos</h2>
+        <p>Lord Dragons: The Lost Kingdom</p>
+        <p>RPG 2D criado para uma jornada de exploracao, descoberta e misterio.</p>
+        <div class="subpanel-actions">
+          <button data-title-action="close-panel" type="button">Voltar</button>
+        </div>
+      </aside>
+
+      <footer class="title-tagline">Uma lenda esquecida. Um reino em perigo. A jornada comeca agora.</footer>
+    </section>
+
+    <main class="game-shell">
+      <section class="game-stage" aria-label="Lord Dragons: The Lost Kingdom">
+        <section class="top-hud" aria-label="HUD principal">
+          <span>&#10084;&#65039; <b id="hud-health-mini">100/100</b></span>
+          <span>&#128293; <b id="hud-power-mini">100/100</b></span>
+          <span>&#11088; <b id="hud-level-mini">1</b></span>
+          <span>&#128176; <b id="hud-gold-mini">25</b></span>
+          <span>&#128205; <b id="hud-quest-mini">Fale com Altheron.</b></span>
+        </section>
+        <section class="mini-map" id="mini-map" aria-label="Minimapa">
+          <header>
+            <b>Mapa</b>
+            <button id="btn-minimap-zoom" type="button" aria-label="Aumentar ou diminuir minimapa">+</button>
+          </header>
+          <div class="mini-map-view">
+            <span class="mini-region mini-home" aria-hidden="true"></span>
+            <span class="mini-region mini-forest" aria-hidden="true"></span>
+            <span class="mini-region mini-city" aria-hidden="true"></span>
+            <span class="mini-region mini-danger" aria-hidden="true"></span>
+            <span class="mini-player" id="mini-map-player" aria-hidden="true"></span>
+          </div>
+        </section>
+        <button class="game-menu-toggle" id="btn-game-menu-toggle" type="button" aria-label="Abrir menu do jogo">Menu</button>
+        <div id="lord-dragons-game" class="game-canvas"></div>
+        <nav class="desktop-controls" aria-label="Controles do PC">
+          <button data-control-action="attack" type="button"><b>Espaco</b><span>Atacar</span></button>
+          <button data-control-action="heavy" type="button"><b>Mouse</b><span>Forte</span></button>
+          <button data-control-action="dodge" type="button"><b>Q</b><span>Esquiva</span></button>
+          <button data-control-action="spin" type="button"><b>R</b><span>Giro</span></button>
+          <button data-control-action="special" type="button"><b>F</b><span>Especial</span></button>
+          <button data-control-action="interact" type="button"><b>E</b><span>Interagir</span></button>
+          <button data-control-action="inventory" type="button"><b>I</b><span>Bolsa</span></button>
+          <button data-control-action="map" type="button"><b>M</b><span>Mapa</span></button>
+        </nav>
+        <nav class="mobile-controls" aria-label="Controles mobile">
+          <div class="virtual-joystick" id="virtual-joystick" aria-label="Joystick virtual">
+            <span class="joystick-knob" id="joystick-knob"></span>
+          </div>
+          <div class="mobile-actions" aria-label="Acoes mobile">
+            <button data-mobile-action="attack" data-control-action="attack" type="button">Ataque</button>
+            <button data-mobile-action="heavy" data-control-action="heavy" type="button">Hab. 1</button>
+            <button data-mobile-action="dodge" data-control-action="dodge" type="button">Esquiva</button>
+            <button data-mobile-action="skill" data-control-action="spin" type="button">Hab. 2</button>
+            <button data-mobile-action="special" data-control-action="special" type="button">Hab. 3</button>
+            <button data-mobile-action="interact" data-control-action="interact" type="button">Interagir</button>
+            <button data-mobile-action="inventory" data-control-action="inventory" type="button">Bolsa</button>
+            <button data-mobile-action="map" data-control-action="map" type="button">Mapa</button>
+          </div>
+        </nav>
+        <div class="scanline" aria-hidden="true"></div>
+      </section>
+
+      <aside class="game-panel" aria-label="Estado e acoes">
+        <header class="game-title">
+          <span>Lord Dragons</span>
+          <strong>The Lost Kingdom</strong>
+        </header>
+
+        <section class="hero-stats" aria-label="Status de Ryden">
+          <div><span>Vida</span><meter id="hud-health" min="0" max="100" value="100"></meter><b id="hud-health-text">100/100</b></div>
+          <div><span>Poder</span><meter id="hud-power" min="0" max="100" value="100"></meter><b id="hud-power-text">100/100</b></div>
+          <div><span>Nivel</span><b id="hud-level">1</b></div>
+          <div><span>XP</span><b id="hud-xp">0/100</b></div>
+          <div><span>Ouro</span><b id="hud-gold">25</b></div>
+          <div><span>Periodo</span><b id="hud-daytime">Manha</b></div>
+        </section>
+
+        <section class="quest-box">
+          <h2>Missao</h2>
+          <p id="hud-quest">Fale com Altheron.</p>
+          <small id="hud-hint">Explore os arredores.</small>
+        </section>
+
+        <section class="action-bar" aria-label="Acoes">
+          <button id="btn-attack" type="button">Atacar</button>
+          <button id="btn-heavy-attack" type="button">Golpe Forte</button>
+          <button id="btn-dodge" type="button">Esquivar</button>
+          <button id="btn-special" type="button">Especial</button>
+          <button id="btn-interact" type="button">Interagir</button>
+          <button id="btn-inventory" type="button">Bolsa</button>
+          <button id="btn-equipment" type="button">Equipar</button>
+          <button id="btn-quests" type="button">Missoes</button>
+          <button id="btn-skills" type="button">Habilidades</button>
+          <button id="btn-status" type="button">Status</button>
+          <button id="btn-map" type="button">Mapa</button>
+          <button id="btn-discoveries" type="button">Descobertas</button>
+          <button id="btn-chronicles" type="button">Cronicas</button>
+          <button id="btn-save" type="button">Salvar</button>
+        </section>
+
+        <section class="log-box" aria-label="Eventos">
+          <h2>Diario</h2>
+          <div id="hud-log" role="log" aria-live="polite"></div>
+        </section>
+      </aside>
+    </main>
+
+    <dialog id="game-dialog" class="game-dialog">
+      <form method="dialog">
+        <h2 id="dialog-title">Dialogo</h2>
+        <div id="dialog-body"></div>
+        <menu id="dialog-actions">
+          <button value="close">Fechar</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <script src="/assets/vendor/phaser.min.js"></script>
+    <script type="module" src="/assets/js/lord-dragons/main.js"></script>
+  </body>
+</html>

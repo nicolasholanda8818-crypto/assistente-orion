@@ -1,0 +1,12 @@
+{
+  "id": "20260603-assistente-de-configuracao-inicial-com-senha-administrat",
+  "type": "added",
+  "summary": "Assistente de configuracao inicial com senha administrativa.",
+  "details": [
+    "Primeira execucao coleta dados do usuario, preferencias e senha administrativa.",
+    "Dados ficam em payload AES-256-GCM e senha e derivada com salt antes da persistencia.",
+    "Configuracoes podem ser editadas depois mediante senha administrativa atual."
+  ],
+  "date": "2026-06-03",
+  "version": null
+}

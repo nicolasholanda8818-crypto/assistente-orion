@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Orion">
+  <rect width="512" height="512" rx="96" fill="#090d12"/>
+  <circle cx="256" cy="256" r="150" fill="none" stroke="#4fd7e8" stroke-width="24"/>
+  <circle cx="256" cy="256" r="58" fill="#70e6a8"/>
+  <path d="M120 324c90-130 182-182 272-156" fill="none" stroke="#f2b85b" stroke-width="22" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,12 @@
+{
+  "id": "20260614-modo-persistente-mantem-orion-online-no-windows",
+  "type": "added",
+  "summary": "Modo persistente mantem Orion online no Windows",
+  "details": [
+    "Novo script run_persistent.ps1 reinicia o backend local se ele cair.",
+    "Frontend ganhou heartbeat e reconexao WebSocket infinita com backoff controlado.",
+    "run_dev.ps1 passou a priorizar o Python real antes do alias WindowsApps."
+  ],
+  "date": "2026-06-14",
+  "version": null
+}

@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1118" />
+    <meta name="description" content="Orion PWA local." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Orion" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Orion</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/assets/icons/orion-icon.svg" />
+    <link rel="icon" href="/assets/icons/orion-icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#message-input">Ir para o chat</a>
+    <main class="orion-site" id="app">
+      <div class="galaxy-field" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <header class="site-topbar">
+        <a class="brand brand--compact" href="/" aria-label="Orion inicio">
+          <img src="/assets/icons/orion-icon.svg" alt="" />
+          <span>Orion</span>
+        </a>
+        <nav class="nav-list nav-list--inline" aria-label="Navegacao">
+          <a class="nav-link is-active" href="/" aria-current="page">Assistente</a>
+          <a class="nav-link" href="/game.html">Lord Dragons</a>
+        </nav>
+        <div class="topbar-actions">
+          <button class="button" id="settings-button" type="button" hidden>Configuracoes</button>
+          <button class="button button--primary" id="install-button" type="button" hidden>Instalar</button>
+        </div>
+      </header>
+
+      <section class="orion-stage" id="workspace" tabindex="-1" aria-labelledby="orion-title">
+        <div class="orion-status-row" aria-label="Estado do sistema">
+          <span class="status-pill" id="orion-state-indicator" data-state="online">online</span>
+          <span class="status-pill status-pill--muted">API <strong id="api-status">verificando</strong></span>
+          <span class="status-pill status-pill--muted">WS <strong id="ws-status">desconectado</strong></span>
+          <span class="status-pill status-pill--muted">PWA <strong id="pwa-status">preparando</strong></span>
+          <span class="sr-only" id="backend-detail">-</span>
+          <span class="sr-only" id="database-detail">-</span>
+          <span class="sr-only" id="cache-detail">-</span>
+          <span class="sr-only" id="app-mode">browser</span>
+          <span class="sr-only" id="connection-count">0 mensagens</span>
+        </div>
+
+        <div class="orion-bubble" id="orion-bubble" role="status" aria-live="polite">
+          Estou online, Mestre. Pode falar comigo.
+        </div>
+
+        <div class="living-room" aria-label="Quarto gamer futurista do Orion">
+          <button class="room-object room-monitor" type="button" data-room-object="monitor" aria-label="Interagir com monitor">
+            <span class="monitor-screen"></span>
+            <span class="monitor-base"></span>
+          </button>
+          <button class="room-object room-window" type="button" data-room-object="window" aria-label="Observar janela galactica">
+            <span></span>
+          </button>
+          <button class="room-object room-console" type="button" data-room-object="console" aria-label="Interagir com console">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <button class="room-object room-holo" type="button" data-room-object="holo" aria-label="Ativar holograma">
+            <span></span>
+          </button>
+        </div>
+
+        <button class="orion-avatar" id="orion-avatar" type="button" aria-label="Interagir com Orion">
+          <span class="orion-aura"></span>
+          <span class="orion-shadow"></span>
+          <span class="orion-body">
+            <span class="orion-arm arm-left"><span class="orion-hand"></span></span>
+            <span class="orion-arm arm-right"><span class="orion-hand"></span></span>
+            <span class="orion-coat"></span>
+            <span class="orion-core"></span>
+            <span class="orion-neck"></span>
+            <span class="orion-head">
+              <span class="orion-hair hair-1"></span>
+              <span class="orion-hair hair-2"></span>
+              <span class="orion-hair hair-3"></span>
+              <span class="orion-brow brow-left"></span>
+              <span class="orion-brow brow-right"></span>
+              <span class="orion-eye eye-left"></span>
+              <span class="orion-eye eye-right"></span>
+              <span class="orion-mouth"></span>
+            </span>
+          </span>
+        </button>
+
+        <div class="orion-ambient-3d" id="orion-scene" aria-hidden="true"></div>
+
+        <h1 class="orion-title" id="orion-title">Orion</h1>
+
+        <section class="chat-console" aria-label="Chat com Orion">
+          <div class="chat-log" id="event-feed" role="log" aria-live="polite" aria-relevant="additions"></div>
+          <form class="chat-form" id="message-form">
+            <button class="round-action" id="mic-button" type="button" aria-label="Microfone">🎙</button>
+            <label class="sr-only" for="message-input">Mensagem para Orion</label>
+            <input
+              class="chat-input"
+              id="message-input"
+              type="text"
+              autocomplete="off"
+              placeholder="Fale comigo, Mestre..."
+            />
+            <button class="round-action" id="camera-button" type="button" aria-label="Camera">📷</button>
+            <button class="send-action" type="submit">Enviar</button>
+          </form>
+        </section>
+      </section>
+    </main>
+
+    <section class="onboarding-layer" id="onboarding-layer" hidden>
+      <div class="onboarding-dialog" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+        <div class="onboarding-intro">
+          <span class="badge">Primeira execucao</span>
+          <h2 id="onboarding-title">Configure seu Orion</h2>
+          <p id="onboarding-description">Escolha como o assistente deve se apresentar neste dispositivo.</p>
+        </div>
+
+        <form class="onboarding-form" id="onboarding-form">
+          <label class="form-field" for="onboarding-name">
+            <span>Nome</span>
+            <input
+              class="field"
+              id="onboarding-name"
+              name="name"
+              type="text"
+              maxlength="80"
+              autocomplete="name"
+              required
+            />
+          </label>
+
+          <label class="form-field" id="current-password-field" for="current-admin-password" hidden>
+            <span>Senha administrativa atual</span>
+            <input
+              class="field"
+              id="current-admin-password"
+              name="current_admin_password"
+              type="password"
+              minlength="10"
+              maxlength="128"
+              autocomplete="current-password"
+            />
+          </label>
+
+          <div class="onboarding-split">
+            <label class="form-field" for="admin-password">
+              <span id="admin-password-label">Senha administrativa</span>
+              <input
+                class="field"
+                id="admin-password"
+                name="admin_password"
+                type="password"
+                minlength="10"
+                maxlength="128"
+                autocomplete="new-password"
+                required
+              />
+            </label>
+
+            <label class="form-field" for="admin-password-confirmation">
+              <span id="admin-password-confirmation-label">Confirmar senha</span>
+              <input
+                class="field"
+                id="admin-password-confirmation"
+                name="admin_password_confirmation"
+                type="password"
+                minlength="10"
+                maxlength="128"
+                autocomplete="new-password"
+                required
+              />
+            </label>
+          </div>
+
+          <fieldset class="choice-fieldset">
+            <legend>Preferencias de resposta</legend>
+            <div class="segmented-control">
+              <label>
+                <input name="response_style" type="radio" value="concise" />
+                <span>Objetiva</span>
+              </label>
+              <label>
+                <input name="response_style" type="radio" value="balanced" checked />
+                <span>Equilibrada</span>
+              </label>
+              <label>
+                <input name="response_style" type="radio" value="detailed" />
+                <span>Detalhada</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="choice-fieldset">
+            <legend>Perfil</legend>
+            <div class="choice-grid">
+              <label class="choice-card">
+                <input name="profile" type="radio" value="adult" checked />
+                <span>Adulto</span>
+                <small>Interface completa</small>
+              </label>
+              <label class="choice-card">
+                <input name="profile" type="radio" value="child" />
+                <span>Crianca</span>
+                <small>Base supervisionada</small>
+              </label>
+              <label class="choice-card">
+                <input name="profile" type="radio" value="elderly" />
+                <span>Idoso</span>
+                <small>Texto ampliado</small>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="onboarding-split">
+            <label class="form-field" for="onboarding-voice">
+              <span>Voz</span>
+              <select class="field" id="onboarding-voice" name="voice">
+                <option value="calm">Calma</option>
+                <option value="balanced" selected>Equilibrada</option>
+                <option value="energetic">Energetica</option>
+              </select>
+            </label>
+
+            <fieldset class="choice-fieldset">
+              <legend>Aparencia</legend>
+              <div class="segmented-control">
+                <label>
+                  <input name="appearance" type="radio" value="dark" checked />
+                  <span>Escura</span>
+                </label>
+                <label>
+                  <input name="appearance" type="radio" value="light" />
+                  <span>Clara</span>
+                </label>
+                <label>
+                  <input name="appearance" type="radio" value="high-contrast" />
+                  <span>Contraste</span>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <p class="onboarding-status" id="onboarding-status" role="alert"></p>
+
+          <div class="onboarding-actions">
+            <p>Dados pessoais e credenciais ficam criptografados neste dispositivo.</p>
+            <div class="onboarding-action-buttons">
+              <button class="button" id="onboarding-cancel" type="button" hidden>Cancelar</button>
+              <button class="button button--primary" id="onboarding-submit" type="submit">Concluir configuracao</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <script type="module" src="/assets/js/main.js"></script>
+  </body>
+</html>

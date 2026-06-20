@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orion.local/schemas/changelog-entry.schema.json",
+  "title": "ORION Changelog Entry",
+  "description": "Structured fragment used to generate the ORION changelog.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "type",
+    "summary",
+    "details",
+    "date",
+    "version"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{2,95}$",
+      "description": "Stable lowercase fragment identifier."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "added",
+        "changed",
+        "deprecated",
+        "removed",
+        "fixed",
+        "security"
+      ],
+      "description": "Keep a Changelog category."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "description": "Concise user-facing description."
+    },
+    "details": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 240
+      },
+      "description": "Optional supporting bullets."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Fragment creation date."
+    },
+    "version": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        }
+      ],
+      "description": "Released semantic version or null while unreleased."
+    },
+    "ticket": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^T[0-9]{4}$"
+        }
+      ],
+      "description": "Optional ORION ticket reference."
+    }
+  }
+}

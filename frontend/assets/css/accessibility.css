@@ -1,0 +1,76 @@
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  transform: translateY(-160%);
+  border: 2px solid var(--color-focus-ring);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-canvas);
+  color: var(--color-text-strong);
+  font-weight: var(--font-weight-bold);
+  transition: transform var(--transition-fast);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+[data-profile="elderly"] {
+  font-size: 118%;
+  --control-height: 3.25rem;
+}
+
+[data-profile="elderly"] .nav-link,
+[data-profile="elderly"] .button,
+[data-profile="elderly"] .field {
+  min-height: var(--control-height);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (pointer: coarse) {
+  .button,
+  .field,
+  .nav-link,
+  .tab {
+    min-height: var(--control-height-touch);
+  }
+}
+
+@media (forced-colors: active) {
+  .button,
+  .field,
+  .nav-link,
+  .panel,
+  .scene-panel {
+    border: 1px solid CanvasText;
+  }
+
+  .button--primary {
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+}

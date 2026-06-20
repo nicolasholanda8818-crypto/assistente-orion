@@ -1,0 +1,12 @@
+{
+  "id": "20260614-correcao-total-estabilizou-site-chat-e-visual-do-orion",
+  "type": "fixed",
+  "summary": "Correcao total estabilizou site, chat e visual do Orion",
+  "details": [
+    "Canvas 3D ou fallback local voltou a existir na tela principal.",
+    "Brain local agora responde identidade do criador por intent deterministica.",
+    "Relatorios de bugs, testes, seguranca, performance e matriz de funcionalidades foram atualizados."
+  ],
+  "date": "2026-06-14",
+  "version": null
+}

@@ -1,0 +1,12 @@
+{
+  "id": "20260602-automatic-changelog",
+  "type": "added",
+  "summary": "Sistema de changelog automatico baseado em fragmentos estruturados.",
+  "details": [
+    "CI detecta drift entre fragmentos e CHANGELOG.md.",
+    "Build regenera o artefato antes de criar o pacote de distribuicao.",
+    "Comando assistido cria novas entradas sem edicao manual de JSON."
+  ],
+  "date": "2026-06-02",
+  "version": null
+}

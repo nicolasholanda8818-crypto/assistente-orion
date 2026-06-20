@@ -1,0 +1,12 @@
+{
+  "id": "20260614-orion-living-avatar-adiciona-presenca-viva-ao-pwa",
+  "type": "added",
+  "summary": "Orion Living Avatar adiciona presenca viva ao PWA",
+  "details": [
+    "Criada biblioteca de falas dinamicas, estados emocionais e acoes espontaneas.",
+    "Adicionados objetos interativos no quarto gamer futurista.",
+    "Service worker atualizado para cachear o novo modulo visual."
+  ],
+  "date": "2026-06-14",
+  "version": null
+}

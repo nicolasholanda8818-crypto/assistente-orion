@@ -1,0 +1,1 @@
+"""Cloud hosting readiness contracts."""

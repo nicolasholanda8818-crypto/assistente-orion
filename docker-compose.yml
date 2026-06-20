@@ -1,0 +1,14 @@
+services:
+  orion:
+    build: .
+    container_name: orion
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./database:/app/database
+      - ./storage:/app/storage
+      - ./uploads:/app/uploads
+      - ./models:/app/models
+    restart: unless-stopped

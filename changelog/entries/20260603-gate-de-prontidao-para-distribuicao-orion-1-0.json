@@ -1,0 +1,11 @@
+{
+  "id": "20260603-gate-de-prontidao-para-distribuicao-orion-1-0",
+  "type": "added",
+  "summary": "Gate de prontidao para distribuicao Orion 1.0.",
+  "details": [
+    "Verifica manifesto, artefato, checksum, relatorios e status do RC.",
+    "Bloqueia distribuicao quando o candidato nao esta pronto para revisao administrativa."
+  ],
+  "date": "2026-06-03",
+  "version": null
+}
