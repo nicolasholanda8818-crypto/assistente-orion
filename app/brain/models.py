@@ -20,6 +20,7 @@ class BrainMode(StrEnum):
 class BrainRequest(StrictModel):
     text: str = Field(min_length=1, max_length=2000)
     conversation_id: str = Field(default="local", min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_.-]+$")
+    user_id: str | None = Field(default=None, min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_.-]+$")
 
 
 class MemoryEntry(StrictModel):
@@ -81,6 +82,9 @@ class BrainResponse(StrictModel):
     avatar_mood: str = "neutral"
     avatar_reaction: str = "direct-look"
     suggested_animation: str = "talk"
+    user_name: str | None = None
+    memory_prompt: bool = False
+    conversation_starter: str | None = None
 
 
 class BrainStatus(StrictModel):

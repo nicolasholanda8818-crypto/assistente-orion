@@ -58,3 +58,97 @@ def list_websocket_events(limit: int = 50) -> list[dict[str, Any]]:
             (limit,),
         ).fetchall()
         return [dict(row) for row in rows]
+
+
+def get_user_profile(user_id: str) -> dict[str, Any] | None:
+    with database_connection() as connection:
+        row = connection.execute(
+            """
+            SELECT user_id, display_name, created_at, updated_at, last_seen_at
+            FROM orion_user_profiles
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        ).fetchone()
+        return row_to_dict(row)
+
+
+def ensure_user_profile(user_id: str) -> dict[str, Any]:
+    with database_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO orion_user_profiles (user_id)
+            VALUES (?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                last_seen_at = CURRENT_TIMESTAMP
+            """,
+            (user_id,),
+        )
+        row = connection.execute(
+            """
+            SELECT user_id, display_name, created_at, updated_at, last_seen_at
+            FROM orion_user_profiles
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        ).fetchone()
+        profile = row_to_dict(row)
+        if profile is None:
+            raise RuntimeError("Failed to create Orion user profile.")
+        return profile
+
+
+def set_user_display_name(user_id: str, display_name: str) -> dict[str, Any]:
+    with database_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO orion_user_profiles (user_id, display_name)
+            VALUES (?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                display_name = excluded.display_name,
+                updated_at = CURRENT_TIMESTAMP,
+                last_seen_at = CURRENT_TIMESTAMP
+            """,
+            (user_id, display_name),
+        )
+        row = connection.execute(
+            """
+            SELECT user_id, display_name, created_at, updated_at, last_seen_at
+            FROM orion_user_profiles
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        ).fetchone()
+        profile = row_to_dict(row)
+        if profile is None:
+            raise RuntimeError("Failed to update Orion user profile.")
+        return profile
+
+
+def upsert_user_memory_fact(user_id: str, fact_type: str, fact_value: str) -> None:
+    with database_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO orion_user_memory (user_id, fact_type, fact_value)
+            VALUES (?, ?, ?)
+            ON CONFLICT(user_id, fact_type, fact_value) DO UPDATE SET
+                weight = weight + 1,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (user_id, fact_type, fact_value),
+        )
+
+
+def list_user_memory_facts(user_id: str, limit: int = 20) -> list[dict[str, Any]]:
+    with database_connection() as connection:
+        rows = connection.execute(
+            """
+            SELECT id, user_id, fact_type, fact_value, weight, created_at, updated_at
+            FROM orion_user_memory
+            WHERE user_id = ?
+            ORDER BY weight DESC, updated_at DESC, id DESC
+            LIMIT ?
+            """,
+            (user_id, limit),
+        ).fetchall()
+        return [dict(row) for row in rows]

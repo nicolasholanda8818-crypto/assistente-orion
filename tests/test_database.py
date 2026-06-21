@@ -15,7 +15,7 @@ def test_database_initialization_and_metadata(isolated_settings):
 
     assert metadata["project_name"] == "Orion"
     assert metadata["project_stage"] == "pwa-foundation"
-    assert metadata["schema_version"] == "2"
+    assert metadata["schema_version"] == "3"
     assert status == {
         "status": "ready",
         "metadata_records": 5,
@@ -53,6 +53,25 @@ def test_websocket_event_repository(isolated_settings):
     assert len(events) == 2
     assert events[0]["event_type"] == "test.raw"
     assert events[1]["connection_id"] == "connection-1"
+
+
+def test_user_memory_repository(isolated_settings):
+    initialize_database()
+
+    profile = repositories.ensure_user_profile("browser-db-a")
+    assert profile["user_id"] == "browser-db-a"
+    assert profile["display_name"] is None
+
+    updated = repositories.set_user_display_name("browser-db-a", "Joao")
+    assert updated["display_name"] == "Joao"
+
+    repositories.upsert_user_memory_fact("browser-db-a", "preference", "programacao")
+    repositories.upsert_user_memory_fact("browser-db-a", "preference", "programacao")
+    facts = repositories.list_user_memory_facts("browser-db-a")
+
+    assert facts[0]["fact_type"] == "preference"
+    assert facts[0]["fact_value"] == "programacao"
+    assert facts[0]["weight"] == 2
 
 
 def test_lightweight_migration_adds_connection_id(isolated_settings):

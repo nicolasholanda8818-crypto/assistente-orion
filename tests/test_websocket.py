@@ -53,3 +53,24 @@ def test_websocket_accepts_plain_text(client):
         assert response["type"] == "orion.response"
         assert response["payload"]["message"]
         assert response["payload"]["avatar_mood"]
+
+
+def test_websocket_user_memory_flow(client):
+    with client.websocket_connect("/ws?userId=browser-ws-a") as websocket:
+        ready = websocket.receive_json()
+        assert ready["type"] == "system.ready"
+
+        welcome = websocket.receive_json()
+        assert welcome["type"] == "orion.response"
+        assert welcome["payload"]["intent"] == "user.name.request"
+        assert welcome["payload"]["memoryPrompt"] is True
+
+        websocket.send_json({"message": "Joao", "conversationId": "ws-memory-a", "userId": "browser-ws-a"})
+        broadcast = websocket.receive_json()
+        assert broadcast["type"] == "client.message"
+
+        response = websocket.receive_json()
+        assert response["type"] == "orion.response"
+        assert response["payload"]["intent"] == "user.name.set"
+        assert response["payload"]["userName"] == "Joao"
+        assert "Joao" in response["payload"]["message"]

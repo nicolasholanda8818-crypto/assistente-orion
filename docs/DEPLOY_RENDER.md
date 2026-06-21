@@ -64,11 +64,22 @@ Nunca coloque senha, token ou chave no GitHub.
 
 Para teste publico simples, SQLite local pode funcionar com limitacoes do plano. Para uso real, configure disco persistente ou banco gerenciado quando o Orion evoluir para producao.
 
+A memoria de usuario da Fase 2 usa SQLite. Sem disco persistente no Render, nomes, preferencias, projetos e assuntos podem ser perdidos em redeploy, rebuild ou reinicio do container.
+
 Pastas que precisam persistir em producao:
 
 - `database/`
 - `storage/`
 - `uploads/`
+
+Configuracao recomendada no Render:
+
+```text
+Mount Path: /app/database
+DATABASE_URL=sqlite:////app/database/orion.db
+```
+
+Se tambem quiser manter uploads e armazenamento local, crie discos ou armazenamento externo para `storage/` e `uploads/`.
 
 ## Teste Publico
 
@@ -83,4 +94,3 @@ Pastas que precisam persistir em producao:
 ## Observacoes
 
 Planos gratuitos podem hibernar ou reiniciar. Para 24/7 real, use plano que mantenha o servico ativo.
-

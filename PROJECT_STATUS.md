@@ -207,6 +207,29 @@ Validacao:
 - Endpoints locais de PWA/assets/health retornaram `200`.
 - WebSocket local respondeu `oi` com fallback do Orion.
 
+## Fase 2 - Memoria de Usuario e Personalidade
+
+Data: `2026-06-21`
+
+Resultado:
+
+- [x] Frontend cria `userId` anonimo e estavel por navegador usando `localStorage`.
+- [x] WebSocket envia `userId` por query string e payload, mantendo `wss://` automatico em HTTPS.
+- [x] Backend salva perfis em SQLite na tabela `orion_user_profiles`.
+- [x] Backend salva fatos nao sensiveis em `orion_user_memory`: preferencias, assuntos e projetos.
+- [x] Orion pergunta o nome no primeiro acesso com `userId` novo.
+- [x] Orion salva o nome informado e cumprimenta pelo nome em conversas futuras.
+- [x] Mensagens com senhas, tokens, chaves, CPF, cartoes, PIX ou numeros longos sao ignoradas pela memoria.
+- [x] Fala de silencio do avatar recebeu iniciativa leve sobre dia, projetos e proximos passos.
+- [x] Cache PWA atualizado para `orion-pwa-v26-user-memory`.
+
+Validacao:
+
+- `python -m ruff check app scripts tests`: aprovado.
+- `python -m pytest tests\test_api.py tests\test_websocket.py tests\test_brain.py tests\test_design_system.py -q`: `39 passed, 1 warning`.
+- `python scripts\validate_pwa.py`: aprovado.
+- `node --check frontend\assets\js\main.js frontend\assets\js\socket.js frontend\assets\js\living-avatar.js`: aprovado.
+
 ## Ticket Concluido - Lord Dragons
 
 Data: `2026-06-06`

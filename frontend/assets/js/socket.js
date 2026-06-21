@@ -1,10 +1,14 @@
-export function getSocketUrl() {
+export function getSocketUrl({ userId } = {}) {
   const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  return `${protocol}://${window.location.host}/ws`;
+  const url = new URL(`${protocol}://${window.location.host}/ws`);
+  if (userId) {
+    url.searchParams.set("userId", userId);
+  }
+  return url.toString();
 }
 
-export function createOrionSocket({ onOpen, onMessage, onClose, onError } = {}) {
-  const socket = new WebSocket(getSocketUrl());
+export function createOrionSocket({ userId, onOpen, onMessage, onClose, onError } = {}) {
+  const socket = new WebSocket(getSocketUrl({ userId }));
 
   socket.addEventListener("open", () => onOpen?.(socket));
   socket.addEventListener("message", (event) => {

@@ -12,6 +12,8 @@ O gerador nao abre `database/orion.db` nem le valores persistidos.
 | Tabela | Colunas |
 | --- | --- |
 | `onboarding_profile` | 6 |
+| `orion_user_memory` | 7 |
+| `orion_user_profiles` | 5 |
 | `system_metadata` | 4 |
 | `websocket_events` | 5 |
 
@@ -25,6 +27,28 @@ O gerador nao abre `database/orion.db` nem le valores persistidos.
 | `key_version` | `INTEGER` | sim | `1` | nao |
 | `completed_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
 | `updated_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
+
+## `orion_user_memory`
+
+| Coluna | Tipo | Nao nulo | Padrao | Chave primaria |
+| --- | --- | --- | --- | --- |
+| `id` | `INTEGER` | nao | `-` | sim |
+| `user_id` | `TEXT` | sim | `-` | nao |
+| `fact_type` | `TEXT` | sim | `-` | nao |
+| `fact_value` | `TEXT` | sim | `-` | nao |
+| `weight` | `INTEGER` | sim | `1` | nao |
+| `created_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
+| `updated_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
+
+## `orion_user_profiles`
+
+| Coluna | Tipo | Nao nulo | Padrao | Chave primaria |
+| --- | --- | --- | --- | --- |
+| `user_id` | `TEXT` | nao | `-` | sim |
+| `display_name` | `TEXT` | nao | `-` | nao |
+| `created_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
+| `updated_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
+| `last_seen_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
 
 ## `system_metadata`
 

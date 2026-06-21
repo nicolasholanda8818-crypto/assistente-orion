@@ -4,9 +4,11 @@ import { setupOnboarding } from "./onboarding.js";
 import { registerPwa, setupInstallPrompt } from "./pwa.js";
 import { startScene } from "./scene.js";
 import { createOrionSocket } from "./socket.js";
-import { createLivingAvatar } from "./living-avatar.js?v=24";
+import { createLivingAvatar } from "./living-avatar.js?v=26";
 
 const MAX_VISIBLE_MESSAGES = 42;
+const USER_ID_KEY = "orion:userId";
+const USER_NAME_KEY = "orion:userName";
 const TOUCH_REACTIONS = [
   "Ei, cuidado com o cabelo, Mestre.",
   "Isso fez cócegas.",
@@ -41,7 +43,8 @@ let heartbeatTimer;
 let reconnectDelay = 1200;
 let visibleMessages = 0;
 let typingToken = 0;
-let conversationId = `site-${Date.now().toString(36)}`;
+let userId = getOrionUserId();
+let conversationId = `site-${userId.slice(-10)}-${Date.now().toString(36)}`;
 let livingAvatar;
 
 export function initOrionVisual() {
@@ -221,6 +224,7 @@ export async function sendMessageToOrion(text) {
   const payload = {
     message: cleanText,
     conversationId,
+    userId,
     sentAt: new Date().toISOString(),
   };
 
@@ -236,6 +240,7 @@ export function connectWebSocket() {
   window.clearTimeout(reconnectTimer);
   window.clearInterval(heartbeatTimer);
   socket = createOrionSocket({
+    userId,
     onOpen: () => {
       reconnectDelay = 1200;
       showConnectionStatus("online");
@@ -289,6 +294,7 @@ function handleSocketMessage(message) {
 
   if (message.type === "orion.response") {
     applyAvatarPayload(message.payload || {});
+    rememberUserName(message.payload || {});
     typeOrionMessage(message.payload?.message || message.payload?.text || "Estou aqui, Mestre.");
     return;
   }
@@ -319,13 +325,43 @@ function applyAvatarPayload(payload) {
 
 async function sendMessageWithRestFallback(text) {
   try {
-    const response = await processBrainMessage({ text, conversation_id: conversationId });
+    const response = await processBrainMessage({ text, conversation_id: conversationId, user_id: userId });
+    rememberUserName(response || {});
     await typeOrionMessage(response.message);
   } catch {
     const errorText = "Tive uma falha de conexão, Mestre. Vou tentar novamente.";
     setOrionState("error");
     showOrionBubble(errorText);
     addChatMessage("orion", errorText);
+  }
+}
+
+function getOrionUserId() {
+  try {
+    const existing = window.localStorage.getItem(USER_ID_KEY);
+    if (existing) {
+      return existing;
+    }
+    const randomPart = window.crypto?.randomUUID
+      ? window.crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    const generated = `user-${randomPart}`;
+    window.localStorage.setItem(USER_ID_KEY, generated);
+    return generated;
+  } catch {
+    return `session-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  }
+}
+
+function rememberUserName(payload) {
+  const name = payload.userName || payload.user_name;
+  if (!name) {
+    return;
+  }
+  try {
+    window.localStorage.setItem(USER_NAME_KEY, name);
+  } catch {
+    // User memory is optional when local storage is unavailable.
   }
 }
 

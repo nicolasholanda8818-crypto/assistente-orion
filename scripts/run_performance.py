@@ -155,9 +155,13 @@ def run_performance(
 
                     def websocket_roundtrip() -> None:
                         websocket.send_json({"message": "benchmark"})
-                        response = websocket.receive_json()
-                        if response["type"] != "client.message":
-                            raise RuntimeError("Unexpected WebSocket benchmark response.")
+                        received_types = []
+                        for _ in range(4):
+                            response = websocket.receive_json()
+                            received_types.append(response["type"])
+                            if "client.message" in received_types and "orion.response" in received_types:
+                                return
+                        raise RuntimeError(f"Unexpected WebSocket benchmark responses: {received_types}")
 
                     metrics.append(
                         measure(

@@ -4,9 +4,10 @@ from app.brain.execution import ExecutionService
 from app.brain.knowledge import KnowledgeService
 from app.brain.learning import LearningService
 from app.brain.memory import MemoryService
-from app.brain.models import BrainMode, BrainRequest, BrainResponse, BrainStatus, ContextSummary
+from app.brain.models import BrainMode, BrainRequest, BrainResponse, BrainStatus, ContextSummary, PlanStep
 from app.brain.orion_reasoning import reason_about_message
 from app.brain.planning import PlanningService
+from app.brain.user_memory import UserMemoryService
 from app.tools.dependencies import get_tool_registry
 
 
@@ -19,15 +20,64 @@ class BrainService:
         execution: ExecutionService | None = None,
         learning: LearningService | None = None,
         knowledge: KnowledgeService | None = None,
+        user_memory: UserMemoryService | None = None,
     ) -> None:
         self.memory = memory or MemoryService()
         self.planning = planning or PlanningService()
         self.execution = execution or ExecutionService(get_tool_registry())
         self.learning = learning or LearningService()
         self.knowledge = knowledge or KnowledgeService()
+        self.user_memory = user_memory or UserMemoryService()
 
     def process(self, request: BrainRequest) -> BrainResponse:
-        reasoning = reason_about_message(request.text)
+        user_snapshot = None
+        if request.user_id:
+            user_snapshot = self.user_memory.load(request.user_id)
+            if not user_snapshot.display_name:
+                learned_snapshot = self.user_memory.learn_from_message(
+                    user_id=request.user_id,
+                    text=request.text,
+                    expect_name=True,
+                )
+                if learned_snapshot.display_name:
+                    message = self.user_memory.build_name_saved_message(learned_snapshot)
+                    self.memory.remember(conversation_id=request.conversation_id, role="user", content=request.text)
+                    self.memory.remember(conversation_id=request.conversation_id, role="assistant", content=message)
+                    return self._response(
+                        intent="user.name.set",
+                        message=message,
+                        plan=[],
+                        context=ContextSummary(recent_messages=0, relevant_memories=0, knowledge_hits=0),
+                        emotion="happy",
+                        avatar_mood="happy",
+                        avatar_reaction="wave",
+                        suggested_animation="talk",
+                        user_name=learned_snapshot.display_name,
+                    )
+
+                message, _, starter = self.user_memory.build_welcome_message(user_snapshot)
+                self.memory.remember(conversation_id=request.conversation_id, role="user", content=request.text)
+                self.memory.remember(conversation_id=request.conversation_id, role="assistant", content=message)
+                return self._response(
+                    intent="user.name.request",
+                    message=message,
+                    plan=[],
+                    context=ContextSummary(recent_messages=0, relevant_memories=0, knowledge_hits=0),
+                    emotion="curious",
+                    avatar_mood="curious",
+                    avatar_reaction="direct-look",
+                    suggested_animation="talk",
+                    user_name=None,
+                    memory_prompt=True,
+                    conversation_starter=starter,
+                )
+
+            user_snapshot = self.user_memory.learn_from_message(user_id=request.user_id, text=request.text)
+
+        reasoning = reason_about_message(
+            request.text,
+            user_context=user_snapshot.__dict__ if user_snapshot else None,
+        )
         knowledge_hits = self.knowledge.search(request.text)
         context = self.memory.build_context(
             query=request.text,
@@ -39,14 +89,19 @@ class BrainService:
         message = execution.message
         if plan.intent not in {"system.status", "knowledge.answer", "identity.creator", "identity.user"}:
             message = reasoning.response
+        if user_snapshot and user_snapshot.display_name:
+            message = self._personalize_message(
+                message=message,
+                request=request,
+                intent=plan.intent,
+                snapshot=user_snapshot,
+            )
 
         self.memory.remember(conversation_id=request.conversation_id, role="user", content=request.text)
         self.memory.remember(conversation_id=request.conversation_id, role="assistant", content=message)
         self.learning.record(plan=plan, execution=execution)
 
-        return BrainResponse(
-            correlation_id=uuid4().hex,
-            mode=BrainMode.DETERMINISTIC_FALLBACK,
+        return self._response(
             intent=plan.intent,
             message=message,
             plan=plan.steps,
@@ -56,10 +111,78 @@ class BrainService:
                 knowledge_hits=len(context.knowledge_hits),
             ),
             emotion=reasoning.emotion,
-            keywords=reasoning.keywords,
             avatar_mood=reasoning.avatar_mood,
             avatar_reaction=reasoning.avatar_reaction,
             suggested_animation=reasoning.suggested_animation,
+            keywords=reasoning.keywords,
+            user_name=user_snapshot.display_name if user_snapshot else None,
+            conversation_starter=self.user_memory.build_context_hint(snapshot=user_snapshot, user_text=request.text)
+            if user_snapshot
+            else None,
+        )
+
+    def welcome(self, user_id: str) -> BrainResponse:
+        snapshot = self.user_memory.load(user_id)
+        message, prompt, starter = self.user_memory.build_welcome_message(snapshot)
+        return self._response(
+            intent="user.welcome" if snapshot.display_name else "user.name.request",
+            message=message,
+            plan=[],
+            context=ContextSummary(recent_messages=0, relevant_memories=0, knowledge_hits=0),
+            emotion="happy" if snapshot.display_name else "curious",
+            avatar_mood="happy" if snapshot.display_name else "curious",
+            avatar_reaction="wave" if snapshot.display_name else "direct-look",
+            suggested_animation="talk",
+            user_name=snapshot.display_name,
+            memory_prompt=prompt,
+            conversation_starter=starter,
+        )
+
+    def _personalize_message(self, *, message: str, request: BrainRequest, intent: str, snapshot) -> str:
+        name = snapshot.display_name
+        if intent == "identity.user":
+            return f"Voce e {name}. Eu lembro pelo seu perfil local neste Orion."
+        if intent == "greeting":
+            starter = self.user_memory.build_context_hint(snapshot=snapshot, user_text=request.text)
+            suffix = f" {starter}" if starter else " O que vamos criar agora?"
+            return f"Ola, {name}. E um prazer ve-lo novamente.{suffix}"
+        if intent in {"conversation.reply", "question.general", "technical", "study"}:
+            hint = self.user_memory.build_context_hint(snapshot=snapshot, user_text=request.text)
+            if hint:
+                return f"{message} {hint}"
+        return message
+
+    def _response(
+        self,
+        *,
+        intent: str,
+        message: str,
+        plan: list[PlanStep],
+        context: ContextSummary,
+        emotion: str = "neutral",
+        avatar_mood: str = "neutral",
+        avatar_reaction: str = "direct-look",
+        suggested_animation: str = "talk",
+        keywords: list[str] | None = None,
+        user_name: str | None = None,
+        memory_prompt: bool = False,
+        conversation_starter: str | None = None,
+    ) -> BrainResponse:
+        return BrainResponse(
+            correlation_id=uuid4().hex,
+            mode=BrainMode.DETERMINISTIC_FALLBACK,
+            intent=intent,
+            message=message,
+            plan=plan,
+            context=context,
+            emotion=emotion,
+            keywords=keywords or [],
+            avatar_mood=avatar_mood,
+            avatar_reaction=avatar_reaction,
+            suggested_animation=suggested_animation,
+            user_name=user_name,
+            memory_prompt=memory_prompt,
+            conversation_starter=conversation_starter,
         )
 
     def status(self) -> BrainStatus:
@@ -67,7 +190,7 @@ class BrainService:
             status="ready",
             mode=BrainMode.DETERMINISTIC_FALLBACK,
             components={
-                "memory": "volatile",
+                "memory": "volatile+user-sqlite",
                 "planning": "allowlist",
                 "execution": "side-effect-free",
                 "learning": "metadata-only",
@@ -77,12 +200,13 @@ class BrainService:
                 "conversation.reply",
                 "knowledge.answer",
                 "system.status",
+                "user.name.memory",
             ],
             restrictions=[
                 "localhost-only",
                 "no-sensitive-data",
                 "no-host-actions",
                 "no-external-model",
-                "no-persistent-memory",
+                "no-sensitive-memory",
             ],
         )

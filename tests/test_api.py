@@ -26,6 +26,7 @@ def test_application_status(client):
     assert payload["database"]["metadata_records"] == 5
     assert payload["pwa"]["static_dir"] == "frontend"
     assert payload["brain"]["mode"] == "deterministic-fallback"
+    assert payload["brain"]["components"]["memory"] == "volatile+user-sqlite"
     assert payload["tools"]["enabled"] == 3
     assert payload["models"]["external_calls"] == "disabled"
     assert payload["onboarding"]["required"] is True
@@ -46,7 +47,7 @@ def test_brain_status(client):
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["components"]["memory"] == "volatile"
+    assert payload["components"]["memory"] == "volatile+user-sqlite"
     assert payload["components"]["execution"] == "side-effect-free"
 
 
@@ -57,6 +58,39 @@ def test_brain_process(client):
     payload = response.json()
     assert payload["intent"] == "system.status"
     assert payload["message"] == "Orion Brain esta online em modo local deterministico."
+
+
+def test_brain_process_learns_user_name_and_greets_later(client):
+    first_response = client.post(
+        "/api/brain/process",
+        json={"text": "oi", "conversation_id": "profile-api-a", "user_id": "browser-api-a"},
+    )
+
+    assert first_response.status_code == 200
+    assert first_response.json()["intent"] == "user.name.request"
+    assert first_response.json()["memory_prompt"] is True
+
+    name_response = client.post(
+        "/api/brain/process",
+        json={"text": "meu nome e Joao", "conversation_id": "profile-api-a", "user_id": "browser-api-a"},
+    )
+
+    assert name_response.status_code == 200
+    name_payload = name_response.json()
+    assert name_payload["intent"] == "user.name.set"
+    assert name_payload["user_name"] == "Joao"
+    assert "Joao" in name_payload["message"]
+
+    greeting_response = client.post(
+        "/api/brain/process",
+        json={"text": "oi", "conversation_id": "profile-api-b", "user_id": "browser-api-a"},
+    )
+
+    assert greeting_response.status_code == 200
+    greeting_payload = greeting_response.json()
+    assert greeting_payload["intent"] == "greeting"
+    assert greeting_payload["user_name"] == "Joao"
+    assert "Joao" in greeting_payload["message"]
 
 
 def test_brain_process_rejects_invalid_payload(client):

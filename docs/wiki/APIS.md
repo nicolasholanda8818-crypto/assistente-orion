@@ -12,8 +12,11 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `POST` | `/api/brain/process` | brain | Process Message | `process_message_api_brain_process_post` |
 | `GET` | `/api/brain/status` | brain | Brain Status | `brain_status_api_brain_status_get` |
 | `GET` | `/api/health` | system | Health Check | `health_check_api_health_get` |
+| `GET` | `/api/hosting/status` | hosting | Hosting Status | `hosting_status_api_hosting_status_get` |
 | `GET` | `/api/models` | models | List Models | `list_models_api_models_get` |
 | `GET` | `/api/models/status` | models | Model Runtime Status | `model_runtime_status_api_models_status_get` |
+| `GET` | `/api/monitoring/metrics` | monitoring | Metrics Snapshot | `metrics_snapshot_api_monitoring_metrics_get` |
+| `GET` | `/api/monitoring/prometheus` | monitoring | Prometheus Metrics | `prometheus_metrics_api_monitoring_prometheus_get` |
 | `POST` | `/api/onboarding/complete` | onboarding | Complete Onboarding | `complete_onboarding_api_onboarding_complete_post` |
 | `GET` | `/api/onboarding/profile` | onboarding | Read Onboarding Profile | `read_onboarding_profile_api_onboarding_profile_get` |
 | `PUT` | `/api/onboarding/profile` | onboarding | Update Onboarding Profile | `update_onboarding_profile_api_onboarding_profile_put` |
@@ -21,6 +24,7 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `GET` | `/api/status` | system | Application Status | `application_status_api_status_get` |
 | `GET` | `/api/tools` | tools | List Tools | `list_tools_api_tools_get` |
 | `GET` | `/api/tools/status` | tools | Tools Status | `tools_status_api_tools_status_get` |
+| `GET` | `/healthz` | system | Healthz | `healthz_healthz_get` |
 
 ## WebSocket
 
@@ -48,17 +52,26 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | --- | --- | --- |
 | `conversation_id` | `string` | nao |
 | `text` | `string` | sim |
+| `user_id` | `string / null` | nao |
 
 ### `BrainResponse`
 
 | Campo | Tipo | Obrigatorio |
 | --- | --- | --- |
+| `avatar_mood` | `string` | nao |
+| `avatar_reaction` | `string` | nao |
 | `context` | `ContextSummary` | sim |
+| `conversation_starter` | `string / null` | nao |
 | `correlation_id` | `string` | sim |
+| `emotion` | `string` | nao |
 | `intent` | `string` | sim |
+| `keywords` | `array[string]` | nao |
+| `memory_prompt` | `boolean` | nao |
 | `message` | `string` | sim |
 | `mode` | `BrainMode` | sim |
 | `plan` | `array[PlanStep]` | sim |
+| `suggested_animation` | `string` | nao |
+| `user_name` | `string / null` | nao |
 
 ### `BrainStatus`
 
@@ -78,11 +91,56 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `recent_messages` | `integer` | sim |
 | `relevant_memories` | `integer` | sim |
 
+### `FileStorageStatus`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `backend` | `string` | sim |
+| `bucket` | `string / null` | nao |
+| `configured` | `boolean` | sim |
+| `endpoint_configured` | `boolean` | sim |
+| `local_path` | `string / null` | nao |
+| `notes` | `array[string]` | sim |
+
 ### `HTTPValidationError`
 
 | Campo | Tipo | Obrigatorio |
 | --- | --- | --- |
 | `detail` | `array[ValidationError]` | nao |
+
+### `HorizontalScalingStatus`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `enabled` | `boolean` | sim |
+| `instance_id` | `string` | sim |
+| `notes` | `array[string]` | sim |
+| `session_backend` | `string` | sim |
+| `stateless_http_ready` | `boolean` | sim |
+| `websocket_broker` | `string` | sim |
+| `websocket_ready` | `boolean` | sim |
+
+### `HostingStatus`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `blockers` | `array[string]` | sim |
+| `cloud_ready` | `boolean` | sim |
+| `database` | `ManagedDatabaseStatus` | sim |
+| `deployment_target` | `string` | sim |
+| `horizontal_scaling` | `HorizontalScalingStatus` | sim |
+| `monitoring` | `MonitoringStatus` | sim |
+| `storage` | `FileStorageStatus` | sim |
+
+### `ManagedDatabaseStatus`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `active_runtime` | `string` | sim |
+| `configured` | `boolean` | sim |
+| `notes` | `array[string]` | sim |
+| `provider` | `string` | sim |
+| `url_exposed` | `boolean` | nao |
 
 ### `ModelCatalog`
 
@@ -105,6 +163,16 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `model_name` | `string` | sim |
 | `priority` | `integer` | sim |
 | `provider_id` | `string` | sim |
+
+### `MonitoringStatus`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `enabled` | `boolean` | sim |
+| `metrics_endpoint` | `string` | sim |
+| `notes` | `array[string]` | sim |
+| `prometheus_endpoint` | `string` | sim |
+| `structured_logs` | `boolean` | sim |
 
 ### `NetworkScope`
 

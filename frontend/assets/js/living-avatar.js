@@ -125,6 +125,10 @@ const LINE_LIBRARY = {
     "Silencio detectado. Vou fazer uma pose discreta.",
     "Ainda estou aqui, Mestre.",
     "O quarto ficou quieto. Quase poetico.",
+    "Como esta seu dia por ai?",
+    "Algum projeto merece minha atencao agora?",
+    "Se quiser, podemos transformar uma ideia solta em proximo passo.",
+    "Posso puxar um assunto: o que voce quer melhorar hoje?",
   ],
   opening: [
     "Sistema aberto. Eu ja estava arrumando a postura.",

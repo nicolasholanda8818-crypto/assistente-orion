@@ -15,7 +15,7 @@ def test_brain_status_exposes_separated_components():
 
     assert status.status == "ready"
     assert status.components == {
-        "memory": "volatile",
+        "memory": "volatile+user-sqlite",
         "planning": "allowlist",
         "execution": "side-effect-free",
         "learning": "metadata-only",
