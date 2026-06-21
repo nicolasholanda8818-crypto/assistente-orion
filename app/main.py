@@ -1,5 +1,6 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,6 +41,12 @@ def create_app() -> FastAPI:
     app.include_router(api_router, prefix="/api")
     app.include_router(websocket_router)
 
+    @app.get("/healthz", tags=["system"])
+    def healthz() -> dict[str, str]:
+        return {"status": "ok"}
+
+    static_root = Path(settings.static_dir)
+    app.mount("/assets", StaticFiles(directory=static_root / "assets"), name="assets")
     app.mount("/", StaticFiles(directory=settings.static_dir, html=True), name="frontend")
 
     return app

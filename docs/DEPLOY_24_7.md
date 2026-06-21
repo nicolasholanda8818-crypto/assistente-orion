@@ -68,3 +68,59 @@ Use segredos do provedor para senhas e chaves. Nao coloque segredos no GitHub.
 6. PWA deve carregar.
 7. Visitante nao deve acessar funcoes admin.
 
+## Checklist Render apos deploy
+
+Depois de enviar o commit para o GitHub e executar `Manual Deploy > Deploy latest commit` no Render:
+
+1. Abra `https://seu-app.onrender.com/healthz`.
+2. Confirme a resposta `{"status":"ok"}`.
+3. Abra `https://seu-app.onrender.com/api/health`.
+4. Abra `https://seu-app.onrender.com/assets/js/main.js` e confirme que o arquivo JavaScript carrega.
+5. Abra `https://seu-app.onrender.com/assets/css/styles.css` e confirme que o CSS carrega.
+6. Abra a pagina principal.
+7. Abra o console do navegador e confirme que nao existem erros criticos de `404`, `MIME type`, `Failed to fetch` ou `WebSocket connection failed`.
+8. Envie `oi` no chat.
+9. Confirme que o Orion responde.
+10. Instale ou recarregue o PWA e confirme que a tela nao fica branca.
+
+O frontend deve usar sempre o dominio atual:
+
+```text
+API REST: window.location.origin
+WebSocket HTTP local: ws://window.location.host/ws
+WebSocket HTTPS publico: wss://window.location.host/ws
+```
+
+Nao configure `localhost`, `127.0.0.1` ou IP da rede no JavaScript para producao.
+
+## Cache antigo do PWA
+
+Se o Render estiver correto, mas o navegador ainda mostrar tela branca ou visual antigo, o problema pode ser cache antigo do service worker.
+
+Passos recomendados:
+
+1. Recarregue com `Ctrl + F5`.
+2. Teste em aba anonima.
+3. No navegador, abra DevTools > Application > Service Workers.
+4. Clique em `Unregister` no service worker do Orion.
+5. Em DevTools > Application > Storage, use `Clear site data`.
+6. Abra novamente o link publico.
+
+O cache atual esperado do Orion para esta correcao e:
+
+```text
+orion-pwa-v25-render
+```
+
+## Observacao sobre WebSocket no Render
+
+O Render fornece HTTPS publico. Nesse caso, o navegador bloqueia WebSocket inseguro `ws://` e exige `wss://`.
+
+O frontend do Orion deve montar automaticamente:
+
+```text
+https://...  -> wss://.../ws
+http://...   -> ws://.../ws
+```
+
+Se o chat nao responder no Render, verifique primeiro o console do navegador e a aba Network filtrando por `ws`.

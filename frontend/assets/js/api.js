@@ -1,5 +1,8 @@
+const API_BASE = window.location.origin;
+
 async function request(path, options = {}) {
-  const response = await fetch(path, {
+  const url = new URL(path, API_BASE);
+  const response = await fetch(url, {
     ...options,
     headers: {
       Accept: "application/json",

@@ -1,4 +1,4 @@
-const CACHE_NAME = "orion-pwa-v24";
+const CACHE_NAME = "orion-pwa-v25-render";
 const APP_SHELL = [
   "/",
   "/index.html",

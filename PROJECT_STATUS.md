@@ -185,6 +185,28 @@ Como executar manualmente:
 
 `powershell -ExecutionPolicy Bypass -File .\scripts\run_persistent.ps1`
 
+## Correcao Urgente - Deploy Render
+
+Data: `2026-06-20`
+
+Resultado:
+
+- [x] Rota principal `/` continua servindo o PWA em `frontend/index.html`.
+- [x] Rota explicita `/assets` adicionada para CSS/JS carregarem corretamente em hospedagem publica.
+- [x] Health check `/healthz` adicionado sem quebrar `/api/health`.
+- [x] Fetch REST do frontend usa `window.location.origin` para funcionar no dominio publico do Render.
+- [x] WebSocket existente continua dinamico por `window.location.host` e usa `wss://` sob HTTPS.
+- [x] Service worker atualizado para `orion-pwa-v25-render` para evitar cache antigo apos deploy.
+
+Validacao:
+
+- `python -m ruff check app scripts tests`: aprovado.
+- `python -m pytest tests\test_api.py tests\test_websocket.py tests\test_design_system.py tests\test_brain.py -q`: `37 passed, 1 warning`.
+- `node --check` nos JavaScripts do frontend/E2E: aprovado.
+- `python scripts\validate_pwa.py`: aprovado.
+- Endpoints locais de PWA/assets/health retornaram `200`.
+- WebSocket local respondeu `oi` com fallback do Orion.
+
 ## Ticket Concluido - Lord Dragons
 
 Data: `2026-06-06`

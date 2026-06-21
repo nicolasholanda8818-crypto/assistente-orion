@@ -9,6 +9,13 @@ def test_health_check(client):
     }
 
 
+def test_render_healthz(client):
+    response = client.get("/healthz")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 def test_application_status(client):
     response = client.get("/api/status")
 
@@ -26,6 +33,9 @@ def test_application_status(client):
 
 def test_frontend_pwa_files_are_served(client):
     assert client.get("/").status_code == 200
+    assert client.get("/index.html").status_code == 200
+    assert client.get("/assets/css/styles.css").headers["content-type"].startswith("text/css")
+    assert client.get("/assets/js/main.js").headers["content-type"].startswith("text/javascript")
     assert client.get("/manifest.webmanifest").headers["content-type"].startswith("application/manifest+json")
     assert client.get("/service-worker.js").headers["content-type"].startswith("text/javascript")
     assert client.get("/offline.html").status_code == 200
