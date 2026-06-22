@@ -109,10 +109,12 @@ Passos recomendados:
 O cache atual esperado do Orion para esta correcao e:
 
 ```text
-orion-pwa-v26-user-memory
+orion-pwa-v29-reasoning-avatar
 ```
 
 Na Fase 2, o frontend tambem envia um `userId` anonimo pelo WebSocket para permitir memoria local por navegador. Em producao HTTPS, a conexao esperada continua sendo `wss://seu-app.onrender.com/ws`.
+
+A mesma fase envia metadados leves de conversa no payload do WebSocket, como `reasoningState`, `responseLength`, `urgency` e `shouldSpeak`. Esses campos controlam apenas estados visuais e voz no navegador; eles nao mudam a URL publica nem exigem configuracao extra no Render.
 
 ## Observacao sobre WebSocket no Render
 

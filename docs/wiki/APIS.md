@@ -70,7 +70,12 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `message` | `string` | sim |
 | `mode` | `BrainMode` | sim |
 | `plan` | `array[PlanStep]` | sim |
+| `reasoning_state` | `string (listening, understanding, thinking, clarifying, answering, waiting)` | nao |
+| `response_length` | `string (short, medium, long)` | nao |
+| `should_speak` | `boolean` | nao |
 | `suggested_animation` | `string` | nao |
+| `topic` | `string / null` | nao |
+| `urgency` | `string (low, normal, high)` | nao |
 | `user_name` | `string / null` | nao |
 
 ### `BrainStatus`

@@ -23,6 +23,11 @@ class ReasoningResult:
     suggested_animation: str
     needs_memory: bool
     follow_up_needed: bool
+    topic: str | None
+    urgency: str
+    reasoning_state: str
+    response_length: str
+    should_speak: bool
 
 
 RESPONSE_BANK = {
@@ -31,6 +36,8 @@ RESPONSE_BANK = {
         "Pronto para agir, Mestre. Minha galaxia esta ouvindo.",
         "Sistema acordado. Pode falar comigo.",
         "Fala comigo, Mestre. Estou atento.",
+        "Oi. Cheguei com a aura calibrada e a curiosidade ligada.",
+        "Bom te ver por aqui. Quer conversar ou construir alguma coisa?",
     ],
     "farewell": [
         "Ate logo. Vou manter tudo em ordem por aqui.",
@@ -71,6 +78,8 @@ RESPONSE_BANK = {
     "help": [
         "Claro. Me diga se voce quer que eu explique, organize ou execute um passo.",
         "Eu ajudo. Qual e o objetivo final?",
+        "Eu fico com voce nisso. Quer que eu comece perguntando, explicando ou montando um plano curto?",
+        "Pode deixar comigo. Me diga o que ja existe e o que voce quer mudar primeiro.",
     ],
     "teacher": [
         "Modo professor ativado. Quer uma explicacao curta, exemplos ou exercicios?",
@@ -104,22 +113,37 @@ RESPONSE_BANK = {
         "Entendi uma duvida tecnica. Quer diagnostico, explicacao ou um plano de correcao?",
         "Vamos por partes tecnicas. Qual erro ou comportamento voce quer analisar?",
     ],
+    "memory.recall": [
+        "Se estivermos no mesmo navegador, eu consulto sua memoria local e continuo pelo que voce ja me contou.",
+        "Eu posso lembrar do seu perfil local e dos assuntos seguros que voce mencionou aqui.",
+    ],
     "user.feeling": [
         "Entendi como voce esta se sentindo. Quer que eu simplifique o proximo passo?",
         "Estou contigo. Posso responder com calma e transformar isso em uma acao pequena.",
+        "Respira um pouco. A gente pode escolher uma tarefa minima e tirar o peso do caminho.",
+        "Tudo bem nao saber por onde comecar. Quer que eu te ajude a escolher uma opcao simples?",
     ],
     "request.incomplete": [
         "Captei a intencao, mas preciso de uma pista a mais. Voce quer que eu explique, execute ou organize?",
         "Entendi uma parte. Me diga o objetivo em uma frase curta e eu continuo.",
+        "Quero te ajudar direito. Esse 'isso' e sobre visual, memoria, voz, codigo ou outra coisa?",
+        "Consigo continuar, mas preciso do alvo. Quer melhorar aparencia, conversa, desempenho ou algum modulo?",
     ],
     "question.general": [
         "Boa pergunta. Posso responder com o que sei localmente e pedir detalhes se faltar contexto.",
         "Consigo pensar sobre isso. Voce quer uma resposta curta ou uma explicacao passo a passo?",
+        "Vamos pensar nisso juntos. Posso comecar pelo caminho mais simples.",
+        "Tenho uma leitura inicial, mas posso ajustar se voce me der mais contexto.",
     ],
     "conversation.reply": [
         "Estou acompanhando. Quer continuar nesse assunto ou mudar para outra etapa?",
         "Entendi. Posso te ajudar a organizar o proximo passo.",
         "Certo. Me de mais uma pista e eu transformo isso em uma resposta util.",
+        "Estou com voce nessa. Podemos seguir devagar ou atacar direto o ponto principal.",
+        "Boa. Isso me da um fio para puxar. Quer explorar a ideia ou transformar em acao?",
+        "Faz sentido. Se quiser, eu posso resumir, expandir ou pensar em alternativas.",
+        "Podemos conversar sim. Me conta o que esta passando pela sua cabeca agora.",
+        "Estou presente. Podemos falar leve, pensar em um projeto ou resolver algo pequeno.",
     ],
 }
 
@@ -143,10 +167,32 @@ MOOD_BY_INTENT = {
     "file": ("focused", "point-chat", "talk"),
     "camera": ("curious", "direct-look", "talk"),
     "technical": ("focused", "hand-chin", "talk"),
+    "memory.recall": ("thoughtful", "direct-look", "talk"),
     "user.feeling": ("neutral", "lean-forward", "talk"),
     "request.incomplete": ("curious", "hand-chin", "talk"),
     "question.general": ("thoughtful", "hand-chin", "talk"),
     "conversation.reply": ("neutral", "direct-look", "talk"),
+}
+
+HIGH_URGENCY_TERMS = {
+    "agora",
+    "urgente",
+    "rapido",
+    "rapida",
+    "socorro",
+    "emergencia",
+    "travou",
+    "quebrou",
+    "falhou",
+}
+
+MEDIUM_LENGTH_INTENTS = {
+    "study",
+    "teacher",
+    "technical",
+    "finance",
+    "question.general",
+    "memory.recall",
 }
 
 
@@ -155,9 +201,20 @@ def reason_about_message(user_text: str, user_context: dict | None = None) -> Re
     emotion = classify_emotion(user_text)
     keywords = extract_keywords(user_text)
     entities = extract_entities(user_text)
+    follow_up_needed = needs_follow_up(user_text)
     strategy = choose_response_strategy(intent, emotion, keywords)
-    response = build_contextual_response(user_text=user_text, intent=intent, emotion=emotion)
+    response = build_contextual_response(
+        user_text=user_text,
+        intent=intent,
+        emotion=emotion,
+        variation_seed=str((user_context or {}).get("turn_seed", "")),
+    )
     avatar_mood, avatar_reaction, suggested_animation = choose_avatar_reaction(intent, emotion, keywords)
+    urgency = detect_urgency(keywords)
+    topic = infer_topic(intent=intent, keywords=keywords, entities=entities)
+    reasoning_state = choose_reasoning_state(intent=intent, emotion=emotion, follow_up_needed=follow_up_needed)
+    response_length = choose_response_length(intent=intent, emotion=emotion, follow_up_needed=follow_up_needed)
+    profile_known = bool((user_context or {}).get("profile_known"))
 
     return ReasoningResult(
         intent=intent,
@@ -169,8 +226,14 @@ def reason_about_message(user_text: str, user_context: dict | None = None) -> Re
         avatar_mood=avatar_mood,
         avatar_reaction=avatar_reaction,
         suggested_animation=suggested_animation,
-        needs_memory=bool(user_context) or intent in {"study", "finance", "technical", "conversation.reply"},
-        follow_up_needed=needs_follow_up(user_text),
+        needs_memory=profile_known
+        or intent in {"study", "finance", "technical", "conversation.reply", "memory.recall"},
+        follow_up_needed=follow_up_needed,
+        topic=topic,
+        urgency=urgency,
+        reasoning_state=reasoning_state,
+        response_length=response_length,
+        should_speak=True,
     )
 
 
@@ -184,10 +247,54 @@ def choose_response_strategy(intent: str, emotion: str, keywords: list[str]) -> 
     return "clarifying-question"
 
 
-def build_contextual_response(*, user_text: str, intent: str, emotion: str) -> str:
+def build_contextual_response(*, user_text: str, intent: str, emotion: str, variation_seed: str = "") -> str:
     responses = RESPONSE_BANK.get(intent, RESPONSE_BANK["conversation.reply"])
-    index = int(sha256(f"{user_text}|{intent}|{emotion}".encode()).hexdigest(), 16) % len(responses)
+    seed = f"{user_text}|{intent}|{emotion}|{variation_seed}"
+    index = int(sha256(seed.encode()).hexdigest(), 16) % len(responses)
     return responses[index]
+
+
+def detect_urgency(keywords: list[str]) -> str:
+    if set(keywords) & HIGH_URGENCY_TERMS:
+        return "high"
+    return "normal"
+
+
+def infer_topic(*, intent: str, keywords: list[str], entities: dict[str, list[str]]) -> str | None:
+    modules = entities.get("modules") or []
+    if modules:
+        return modules[0]
+    if intent in {"study", "teacher"}:
+        return "academy"
+    if intent == "technical":
+        return "technology"
+    if intent == "user.feeling":
+        return "wellbeing"
+    if intent == "memory.recall":
+        return "memory"
+    return keywords[0] if keywords else None
+
+
+def choose_reasoning_state(*, intent: str, emotion: str, follow_up_needed: bool) -> str:
+    if intent in {"greeting", "farewell", "identity.self", "identity.creator", "identity.user"}:
+        return "answering"
+    if intent == "memory.recall":
+        return "thinking"
+    if intent == "request.incomplete" or follow_up_needed:
+        return "clarifying"
+    if emotion in {"tired", "sad", "confused"}:
+        return "clarifying"
+    if intent in {"technical", "teacher", "study", "question.general", "memory.recall"}:
+        return "thinking"
+    return "answering"
+
+
+def choose_response_length(*, intent: str, emotion: str, follow_up_needed: bool) -> str:
+    if follow_up_needed or emotion in {"tired", "sad", "confused"}:
+        return "short"
+    if intent in MEDIUM_LENGTH_INTENTS:
+        return "medium"
+    return "short"
 
 
 def choose_avatar_reaction(intent: str, emotion: str, keywords: list[str]) -> tuple[str, str, str]:

@@ -15,7 +15,7 @@ def test_database_initialization_and_metadata(isolated_settings):
 
     assert metadata["project_name"] == "Orion"
     assert metadata["project_stage"] == "pwa-foundation"
-    assert metadata["schema_version"] == "3"
+    assert metadata["schema_version"] == "4"
     assert status == {
         "status": "ready",
         "metadata_records": 5,
@@ -72,6 +72,13 @@ def test_user_memory_repository(isolated_settings):
     assert facts[0]["fact_type"] == "preference"
     assert facts[0]["fact_value"] == "programacao"
     assert facts[0]["weight"] == 2
+
+    repositories.upsert_user_summary("browser-db-a", "Projeto mencionado: jogo")
+    repositories.upsert_user_summary("browser-db-a", "Projeto mencionado: jogo")
+    summaries = repositories.list_user_summaries("browser-db-a")
+
+    assert summaries[0]["summary"] == "Projeto mencionado: jogo"
+    assert summaries[0]["weight"] == 2
 
 
 def test_lightweight_migration_adds_connection_id(isolated_settings):

@@ -22,6 +22,8 @@ INTENT_KEYWORDS = {
     "file": {"arquivo", "pasta", "upload", "download", "documento"},
     "camera": {"camera", "câmera", "foto", "imagem", "visao", "visão"},
     "technical": {"erro", "codigo", "código", "api", "backend", "frontend", "websocket", "pwa", "python"},
+    "memory.recall": {"lembra", "lembrar", "recorda", "recordar", "memoria"},
+    "conversation.reply": {"conversar", "conversa", "papo", "continuar"},
 }
 
 EMOTION_KEYWORDS = {
@@ -99,6 +101,8 @@ def detect_intent(text: str) -> str:
         return "identity.self"
     if "quem sou eu" in normalized:
         return "identity.user"
+    if "lembra de mim" in normalized or "voce lembra de mim" in normalized:
+        return "memory.recall"
     if classify_emotion(text) != "neutral":
         return "user.feeling"
 

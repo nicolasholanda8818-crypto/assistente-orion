@@ -14,6 +14,7 @@ O gerador nao abre `database/orion.db` nem le valores persistidos.
 | `onboarding_profile` | 6 |
 | `orion_user_memory` | 7 |
 | `orion_user_profiles` | 5 |
+| `orion_user_summaries` | 7 |
 | `system_metadata` | 4 |
 | `websocket_events` | 5 |
 
@@ -49,6 +50,18 @@ O gerador nao abre `database/orion.db` nem le valores persistidos.
 | `created_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
 | `updated_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
 | `last_seen_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
+
+## `orion_user_summaries`
+
+| Coluna | Tipo | Nao nulo | Padrao | Chave primaria |
+| --- | --- | --- | --- | --- |
+| `id` | `INTEGER` | nao | `-` | sim |
+| `user_id` | `TEXT` | sim | `-` | nao |
+| `summary` | `TEXT` | sim | `-` | nao |
+| `source_type` | `TEXT` | sim | `'conversation'` | nao |
+| `weight` | `INTEGER` | sim | `1` | nao |
+| `created_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
+| `updated_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
 
 ## `system_metadata`
 

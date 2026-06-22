@@ -30,6 +30,12 @@ Tabela `orion_user_memory`:
 - `project`: projetos mencionados pelo usuario.
 - `weight`: reforco quando o mesmo fato aparece mais de uma vez.
 
+Tabela `orion_user_summaries`:
+
+- `summary`: resumo curto de mensagens nao sensiveis.
+- `source_type`: origem do resumo.
+- `weight`: reforco quando o mesmo resumo aparece novamente.
+
 ## Dados Nao Salvos
 
 O Orion ignora mensagens com indicios de dados sensiveis, incluindo:
@@ -45,9 +51,32 @@ O Orion ignora mensagens com indicios de dados sensiveis, incluindo:
 
 - Render: preservado, com WebSocket usando `wss://` em HTTPS.
 - Docker: preservado, sem novas dependencias externas.
-- PWA: cache atualizado para `orion-pwa-v26-user-memory`.
+- PWA: cache atualizado para `orion-pwa-v29-reasoning-avatar`.
 - Frontend: layout, avatar e cenario preservados.
 - Backend: resposta fallback local preservada.
+
+## Raciocinio Conversacional
+
+O fallback local agora classifica cada mensagem com sinais leves de conversa:
+
+- intencao principal;
+- emocao percebida;
+- topico provavel;
+- urgencia;
+- estado visual de raciocinio;
+- tamanho esperado da resposta;
+- indicacao se a resposta pode ser falada pelo navegador.
+
+Esses sinais sao enviados pela API e pelo WebSocket sem expor cadeia de pensamento interna. O frontend usa apenas estados visuais como `thinking`, `clarifying`, `understanding` e `answering`.
+
+## Voz No Navegador
+
+O Orion usa APIs nativas do navegador quando disponiveis:
+
+- `SpeechRecognition` ou `webkitSpeechRecognition` para ouvir em `pt-BR`.
+- `SpeechSynthesisUtterance` para falar respostas em `pt-BR`.
+
+Nenhum audio e enviado para o backend nesta camada. O navegador transforma a fala em texto localmente ou pelo provedor nativo do navegador, conforme suporte da plataforma.
 
 ## Teste Manual
 
@@ -61,3 +90,9 @@ O Orion ignora mensagens com indicios de dados sensiveis, incluindo:
 8. Envie `gosto de programacao`.
 9. Envie `oi` em outra conversa.
 10. Orion pode mencionar o assunto recorrente em uma resposta curta.
+11. Clique no microfone em um navegador compativel.
+12. Fale uma frase curta.
+13. Orion deve transcrever, responder e falar a resposta.
+14. Envie `estou cansado` e verifique se Orion responde de forma acolhedora.
+15. Envie `quero melhorar isso` e verifique se Orion pede uma pista mais clara.
+16. Envie `lembra de mim?` apos salvar um nome e verifique se Orion reconhece o perfil local.

@@ -25,6 +25,7 @@ def test_application_status(client):
     assert payload["database"]["status"] == "ready"
     assert payload["database"]["metadata_records"] == 5
     assert payload["pwa"]["static_dir"] == "frontend"
+    assert payload["pwa"]["cache_name"] == "orion-pwa-v29-reasoning-avatar"
     assert payload["brain"]["mode"] == "deterministic-fallback"
     assert payload["brain"]["components"]["memory"] == "volatile+user-sqlite"
     assert payload["tools"]["enabled"] == 3
@@ -58,6 +59,8 @@ def test_brain_process(client):
     payload = response.json()
     assert payload["intent"] == "system.status"
     assert payload["message"] == "Orion Brain esta online em modo local deterministico."
+    assert payload["reasoning_state"] == "answering"
+    assert payload["should_speak"] is True
 
 
 def test_brain_process_learns_user_name_and_greets_later(client):
@@ -91,6 +94,55 @@ def test_brain_process_learns_user_name_and_greets_later(client):
     assert greeting_payload["intent"] == "greeting"
     assert greeting_payload["user_name"] == "Joao"
     assert "Joao" in greeting_payload["message"]
+
+
+def test_brain_process_remembers_project_summary(client):
+    client.post(
+        "/api/brain/process",
+        json={"text": "me chamo Marina", "conversation_id": "summary-api-a", "user_id": "browser-api-summary"},
+    )
+    project_response = client.post(
+        "/api/brain/process",
+        json={
+            "text": "Estou criando um jogo de aventura",
+            "conversation_id": "summary-api-a",
+            "user_id": "browser-api-summary",
+        },
+    )
+
+    assert project_response.status_code == 200
+
+    greeting_response = client.post(
+        "/api/brain/process",
+        json={"text": "oi", "conversation_id": "summary-api-b", "user_id": "browser-api-summary"},
+    )
+
+    assert greeting_response.status_code == 200
+    payload = greeting_response.json()
+    assert payload["user_name"] == "Marina"
+    assert "jogo de aventura" in payload["message"]
+
+
+def test_brain_process_does_not_store_memory_recall_as_topic(client):
+    client.post(
+        "/api/brain/process",
+        json={"text": "me chamo Clara", "conversation_id": "recall-api-a", "user_id": "browser-api-recall"},
+    )
+    recall_response = client.post(
+        "/api/brain/process",
+        json={"text": "lembra de mim?", "conversation_id": "recall-api-a", "user_id": "browser-api-recall"},
+    )
+
+    assert recall_response.status_code == 200
+    assert recall_response.json()["intent"] == "memory.recall"
+
+    greeting_response = client.post(
+        "/api/brain/process",
+        json={"text": "oi", "conversation_id": "recall-api-b", "user_id": "browser-api-recall"},
+    )
+
+    assert greeting_response.status_code == 200
+    assert "lembra mim" not in greeting_response.json()["message"]
 
 
 def test_brain_process_rejects_invalid_payload(client):

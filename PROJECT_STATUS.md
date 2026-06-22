@@ -4,7 +4,7 @@
 
 Status: `PROTOTIPO JOGAVEL LORD DRAGONS ADICIONADO COM RC BLOQUEADO`
 
-Status operacional recente: `CORRECAO TOTAL DO SITE/PWA E CHAT CONTINUO APLICADA`
+Status operacional recente: `FASE 2 - MEMORIA, VOZ E RACIOCINIO CONVERSACIONAL EM VALIDACAO`
 
 O workspace contem um prototipo exploratorio nao versionado. Ele nao representa uma versao aprovada do ORION e deve ser auditado antes de qualquer aproveitamento. Nesta etapa, nenhum modulo funcional deve ser expandido.
 
@@ -71,6 +71,9 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Preparacao de distribuicao 1.0 gera relatorio de prontidao e bloqueia promocao insegura.
 - [x] Site/PWA principal exibe Orion 2D animado com fundo galactico e chat continuo.
 - [x] WebSocket responde mensagens com fallback local do Brain e o frontend limita mensagens visiveis para performance.
+- [x] WebSocket expoe metadados leves de conversa (`reasoningState`, `responseLength`, `urgency`, `shouldSpeak`) sem revelar cadeia de pensamento.
+- [x] Frontend usa Web Speech API e SpeechSynthesis API para voz em `pt-BR` quando o navegador suporta.
+- [x] Avatar 2D preservado recebeu microexpressoes contextuais para pensar, pedir esclarecimento, ouvir e responder.
 - [x] Correcao total de 2026-06-14 estabilizou lint, canvas 3D/fallback, chat continuo e resposta de identidade local.
 - [x] Living Avatar adiciona personalidade visual, falas dinamicas, comportamento espontaneo, olhar inteligente e quarto futurista interativo.
 - [x] Modo persistente Windows criado para manter o Orion online e reiniciar o servidor local se ele cair.

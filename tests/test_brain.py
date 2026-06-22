@@ -75,6 +75,8 @@ def test_brain_identifies_current_admin_user_without_external_model():
         ("meu saldo", "finance"),
         ("nao entendi nada", "user.feeling"),
         ("Orion, fala comigo", "greeting"),
+        ("vamos conversar", "conversation.reply"),
+        ("lembra de mim?", "memory.recall"),
         ("mensagem aleatoria de teste", "conversation.reply"),
     ],
 )
@@ -86,6 +88,19 @@ def test_orion_conversation_engine_always_answers_examples(text, expected_intent
     assert response.avatar_mood
     assert response.avatar_reaction
     assert response.suggested_animation
+    assert response.reasoning_state
+    assert response.response_length in {"short", "medium", "long"}
+    assert response.urgency in {"low", "normal", "high"}
+    assert response.should_speak is True
+
+
+@pytest.mark.parametrize("text", ["estou cansado", "quero melhorar isso", "me ajuda", "nao sei o que fazer"])
+def test_orion_reasoning_handles_human_conversation_edges(text):
+    response = BrainService().process(BrainRequest(text=text))
+
+    assert response.message
+    assert response.reasoning_state in {"clarifying", "answering", "thinking"}
+    assert response.avatar_mood
 
 
 def test_orion_intents_extract_keywords_and_emotion():

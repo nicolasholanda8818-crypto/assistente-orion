@@ -48,7 +48,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v26-user-memory";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v29-reasoning-avatar";' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/js/")' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/css/")' in service_worker
     assert '"/assets/css/tokens.css"' in service_worker
@@ -93,5 +93,30 @@ def test_orion_visual_chat_controller_exposes_required_functions():
         "sendMessageToOrion",
         "connectWebSocket",
         "showConnectionStatus",
+        "startVoiceInput",
+        "stopVoiceInput",
+        "speakOrion",
+        "stopOrionSpeech",
     ]:
         assert f"function {function_name}" in main
+
+
+def test_orion_voice_uses_browser_speech_apis():
+    main = read_frontend("assets/js/main.js")
+
+    assert "SpeechRecognition" in main
+    assert "webkitSpeechRecognition" in main
+    assert 'speechRecognition.lang = "pt-BR";' in main
+    assert "SpeechSynthesisUtterance" in main
+    assert 'utterance.lang = "pt-BR";' in main
+
+
+def test_orion_reasoning_visual_contract_is_available():
+    main = read_frontend("assets/js/main.js")
+    stylesheet = read_frontend("assets/css/styles.css")
+
+    assert "applyReasoningVisual" in main
+    assert "reasoningState" in main
+    assert "shouldSpeak" in main
+    assert 'data-reasoning-state="thinking"' in stylesheet
+    assert 'data-voice-state="listening"' in stylesheet

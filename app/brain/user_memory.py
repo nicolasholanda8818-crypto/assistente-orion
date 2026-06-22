@@ -60,6 +60,25 @@ PROJECT_PATTERNS = (
     re.compile(r"\bestou trabalhando em\s+([^.,;!?]{2,80})", re.IGNORECASE),
 )
 
+STYLE_PATTERNS = (
+    re.compile(r"\b(?:responda|fale|explique)\s+([^.,;!?]{2,80})", re.IGNORECASE),
+    re.compile(r"\bgosto de respostas\s+([^.,;!?]{2,80})", re.IGNORECASE),
+    re.compile(r"\bprefiro respostas\s+([^.,;!?]{2,80})", re.IGNORECASE),
+)
+
+MEMORY_SKIP_INTENTS = {
+    "greeting",
+    "farewell",
+    "identity.self",
+    "identity.creator",
+    "identity.user",
+    "memory.recall",
+    "request.incomplete",
+    "user.feeling",
+    "help",
+    "joke",
+}
+
 WELCOME_LINES = (
     "Ola, {name}. E um prazer ve-lo novamente.",
     "Bem-vindo de volta, {name}. Continuo por aqui, atento.",
@@ -98,6 +117,7 @@ class UserMemorySnapshot:
     preferences: list[str] = field(default_factory=list)
     topics: list[str] = field(default_factory=list)
     projects: list[str] = field(default_factory=list)
+    summaries: list[str] = field(default_factory=list)
 
     @property
     def known(self) -> bool:
@@ -115,7 +135,13 @@ class UserMemoryService:
     def load(self, user_id: str) -> UserMemorySnapshot:
         profile = repositories.ensure_user_profile(user_id)
         facts = repositories.list_user_memory_facts(user_id)
-        return snapshot_from_rows(user_id=user_id, display_name=profile.get("display_name"), facts=facts)
+        summaries = repositories.list_user_summaries(user_id)
+        return snapshot_from_rows(
+            user_id=user_id,
+            display_name=profile.get("display_name"),
+            facts=facts,
+            summaries=summaries,
+        )
 
     def learn_from_message(self, *, user_id: str, text: str, expect_name: bool = False) -> UserMemorySnapshot:
         snapshot = self.load(user_id)
@@ -126,8 +152,17 @@ class UserMemoryService:
         if name:
             repositories.set_user_display_name(user_id, name)
 
+        if name:
+            return self.load(user_id)
+
+        if detect_intent(text) in MEMORY_SKIP_INTENTS:
+            return self.load(user_id)
+
         for fact_type, value in extract_memory_facts(text):
             repositories.upsert_user_memory_fact(user_id, fact_type, value)
+        summary = summarize_safe_message(text)
+        if summary:
+            repositories.upsert_user_summary(user_id, summary)
 
         return self.load(user_id)
 
@@ -146,14 +181,20 @@ class UserMemoryService:
         return pick_line(NAME_SAVED_LINES, snapshot.user_id).format(name=name)
 
     def build_context_hint(self, *, snapshot: UserMemorySnapshot, user_text: str) -> str | None:
-        topic = snapshot.strongest_context
+        topic = snapshot.strongest_context or summary_topic(snapshot)
         if not topic or detect_intent(user_text) in {"identity.creator", "system.status"}:
             return None
         line = pick_line(CONTEXT_LINES, f"{snapshot.user_id}|{user_text}|{topic}")
         return line.format(topic=topic)
 
 
-def snapshot_from_rows(*, user_id: str, display_name: str | None, facts: list[dict]) -> UserMemorySnapshot:
+def snapshot_from_rows(
+    *,
+    user_id: str,
+    display_name: str | None,
+    facts: list[dict],
+    summaries: list[dict],
+) -> UserMemorySnapshot:
     grouped: dict[str, list[str]] = {"preference": [], "topic": [], "project": []}
     for fact in facts:
         fact_type = str(fact["fact_type"])
@@ -166,6 +207,7 @@ def snapshot_from_rows(*, user_id: str, display_name: str | None, facts: list[di
         preferences=grouped["preference"][:5],
         topics=grouped["topic"][:5],
         projects=grouped["project"][:5],
+        summaries=[str(summary["summary"]) for summary in summaries[:5]],
     )
 
 
@@ -221,6 +263,13 @@ def extract_memory_facts(text: str) -> list[tuple[str, str]]:
             if value:
                 facts.append(("preference", value))
 
+    for pattern in STYLE_PATTERNS:
+        match = pattern.search(text)
+        if match:
+            value = clean_text_fragment(match.group(1), max_length=72)
+            if value:
+                facts.append(("preference", f"estilo: {value}"))
+
     for pattern in PROJECT_PATTERNS:
         match = pattern.search(text)
         if match:
@@ -244,6 +293,28 @@ def extract_memory_facts(text: str) -> list[tuple[str, str]]:
     return deduped
 
 
+def summarize_safe_message(text: str) -> str | None:
+    if contains_sensitive_data(text):
+        return None
+
+    normalized = normalize_text(text)
+    if len(normalized.split()) < 3:
+        return None
+
+    projects = [value for fact_type, value in extract_memory_facts(text) if fact_type == "project"]
+    if projects:
+        return f"Projeto mencionado: {projects[0]}"
+
+    preferences = [value for fact_type, value in extract_memory_facts(text) if fact_type == "preference"]
+    if preferences:
+        return f"Preferencia mencionada: {preferences[0]}"
+
+    keywords = extract_keywords(text)
+    if keywords:
+        return f"Assunto recente: {' '.join(keywords[:4])}"
+    return None
+
+
 def clean_text_fragment(value: str, *, max_length: int) -> str:
     cleaned = " ".join(value.replace("\n", " ").replace("\r", " ").split())
     cleaned = cleaned.strip(" .,:;!?\"'")
@@ -256,7 +327,20 @@ def build_conversation_starter(snapshot: UserMemorySnapshot) -> str | None:
     context = snapshot.strongest_context
     if context:
         return f"Quer continuar falando sobre {context}?"
+    remembered = summary_topic(snapshot)
+    if remembered:
+        return f"Como esta indo {remembered}?"
     return pick_line(STARTER_LINES, snapshot.user_id)
+
+
+def summary_topic(snapshot: UserMemorySnapshot) -> str | None:
+    if not snapshot.summaries:
+        return None
+    summary = snapshot.summaries[0]
+    for prefix in ("Projeto mencionado: ", "Preferencia mencionada: ", "Assunto recente: "):
+        if summary.startswith(prefix):
+            return summary.replace(prefix, "", 1)
+    return summary.lower()
 
 
 def pick_line(lines: tuple[str, ...], seed: str) -> str:

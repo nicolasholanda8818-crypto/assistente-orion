@@ -4,7 +4,7 @@ import { setupOnboarding } from "./onboarding.js";
 import { registerPwa, setupInstallPrompt } from "./pwa.js";
 import { startScene } from "./scene.js";
 import { createOrionSocket } from "./socket.js";
-import { createLivingAvatar } from "./living-avatar.js?v=26";
+import { createLivingAvatar } from "./living-avatar.js?v=29";
 
 const MAX_VISIBLE_MESSAGES = 42;
 const USER_ID_KEY = "orion:userId";
@@ -46,6 +46,10 @@ let typingToken = 0;
 let userId = getOrionUserId();
 let conversationId = `site-${userId.slice(-10)}-${Date.now().toString(36)}`;
 let livingAvatar;
+let speechRecognition;
+let voiceInputActive = false;
+let voiceReplyEnabled = false;
+let currentReasoningState = "waiting";
 
 export function initOrionVisual() {
   setOrionState("online");
@@ -76,8 +80,11 @@ export function initOrionVisual() {
   });
   elements.micButton.addEventListener("click", () => {
     livingAvatar.microphoneAttention();
-    setOrionState("listening");
-    showOrionBubble("Microfone ainda está em preparação. Por enquanto, escreva para mim.");
+    if (voiceInputActive) {
+      stopVoiceInput();
+    } else {
+      startVoiceInput();
+    }
   });
   elements.cameraButton.addEventListener("click", () => {
     livingAvatar.cameraAttention();
@@ -119,6 +126,41 @@ export function pulseOrionAura(color = "#51f6ff") {
     elements.orionAvatar.classList.add("pulse-aura-now");
     window.setTimeout(() => elements.orionAvatar.classList.remove("pulse-aura-now"), 900);
   });
+}
+
+function setOrionVoiceState(state) {
+  elements.orionAvatar.dataset.voiceState = state;
+  currentReasoningState = state;
+}
+
+function applyReasoningVisual(reasoningState, payload = {}) {
+  const state = reasoningState || "answering";
+  currentReasoningState = state;
+  elements.orionAvatar.dataset.reasoningState = state;
+  elements.orionAvatar.dataset.responseLength = payload.responseLength || payload.response_length || "short";
+  elements.orionAvatar.dataset.urgency = payload.urgency || "normal";
+
+  if (state === "thinking") {
+    setOrionState("thinking");
+    playOrionReaction("hand-chin");
+    pulseOrionAura("#61d8ff");
+    showOrionBubble("Organizando minha resposta...");
+  } else if (state === "clarifying") {
+    setOrionState("curious");
+    playOrionReaction("direct-look");
+    pulseOrionAura("#ffd166");
+    showOrionBubble("Entendi parte disso. Vou pedir uma pista melhor.");
+  } else if (state === "understanding") {
+    setOrionState("thinking");
+    playOrionReaction("attention");
+    showOrionBubble("Entendi. Vou ligar os pontos.");
+  } else if (state === "answering") {
+    setOrionState("speaking");
+  }
+
+  if (payload.urgency === "high") {
+    pulseOrionAura("#ff7a90");
+  }
 }
 
 export function animateEyes(mode = "blink") {
@@ -181,7 +223,7 @@ export function addChatMessage(role, text) {
   return message;
 }
 
-export async function typeOrionMessage(text) {
+export async function typeOrionMessage(text, options = {}) {
   typingToken += 1;
   const currentToken = typingToken;
   const message = addChatMessage("orion", "");
@@ -189,6 +231,7 @@ export async function typeOrionMessage(text) {
 
   animateOrionSpeaking(text);
   showOrionBubble(text.slice(0, 120));
+  speakOrion(text, { shouldSpeak: options.shouldSpeak !== false });
 
   for (const character of text) {
     if (currentToken !== typingToken || document.hidden) {
@@ -200,6 +243,7 @@ export async function typeOrionMessage(text) {
     await wait(delay);
   }
 
+  setOrionVoiceState("waiting");
   setOrionState("online");
 }
 
@@ -217,6 +261,7 @@ export async function sendMessageToOrion(text) {
   }
 
   addChatMessage("user", cleanText);
+  stopOrionSpeech();
   livingAvatar.reactToUserMessage(cleanText);
   animateOrionThinking();
   livingAvatar.noteActivity();
@@ -293,9 +338,12 @@ function handleSocketMessage(message) {
   }
 
   if (message.type === "orion.response") {
-    applyAvatarPayload(message.payload || {});
-    rememberUserName(message.payload || {});
-    typeOrionMessage(message.payload?.message || message.payload?.text || "Estou aqui, Mestre.");
+    const payload = message.payload || {};
+    applyAvatarPayload(payload);
+    rememberUserName(payload);
+    typeOrionMessage(payload.message || payload.text || "Estou aqui, Mestre.", {
+      shouldSpeak: payload.shouldSpeak ?? payload.should_speak ?? true,
+    });
     return;
   }
 
@@ -308,11 +356,29 @@ function handleSocketMessage(message) {
 }
 
 function applyAvatarPayload(payload) {
-  if (payload.avatar_mood) {
-    setOrionMood(payload.avatar_mood);
+  const mood = payload.avatar_mood || payload.avatarMood;
+  const reaction = payload.avatar_reaction || payload.avatarReaction;
+  const reasoningState = payload.reasoningState || payload.reasoning_state;
+
+  if (reasoningState) {
+    applyReasoningVisual(reasoningState, payload);
   }
-  if (payload.avatar_reaction) {
-    playOrionReaction(payload.avatar_reaction);
+  if (mood) {
+    setOrionMood(mood);
+  }
+  if (reaction) {
+    playOrionReaction(reaction);
+  }
+  if (payload.intent === "user.welcome" || payload.intent === "user.name.set" || payload.intent === "greeting") {
+    playOrionReaction("wave");
+    pulseOrionAura("#65ffb6");
+  } else if (payload.intent === "teacher" || payload.intent === "study") {
+    playOrionReaction("teacher");
+    pulseOrionAura("#61d8ff");
+  } else if (payload.intent === "question.general" || payload.intent === "curiosity") {
+    playOrionReaction("hand-chin");
+  } else if (payload.intent === "user.name.request") {
+    playOrionReaction("direct-look");
   }
   if (payload.emotion === "happy") {
     pulseOrionAura("#65ffb6");
@@ -327,12 +393,119 @@ async function sendMessageWithRestFallback(text) {
   try {
     const response = await processBrainMessage({ text, conversation_id: conversationId, user_id: userId });
     rememberUserName(response || {});
-    await typeOrionMessage(response.message);
+    applyAvatarPayload(response || {});
+    await typeOrionMessage(response.message, {
+      shouldSpeak: response?.should_speak ?? response?.shouldSpeak ?? true,
+    });
   } catch {
     const errorText = "Tive uma falha de conexão, Mestre. Vou tentar novamente.";
     setOrionState("error");
     showOrionBubble(errorText);
     addChatMessage("orion", errorText);
+  }
+}
+
+export function startVoiceInput() {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) {
+    setOrionState("error");
+    showOrionBubble("Reconhecimento de voz indisponivel neste navegador. Escreva para mim por enquanto.");
+    return false;
+  }
+
+  stopVoiceInput();
+  voiceReplyEnabled = true;
+  speechRecognition = new Recognition();
+  speechRecognition.lang = "pt-BR";
+  speechRecognition.interimResults = false;
+  speechRecognition.continuous = false;
+
+  speechRecognition.addEventListener("start", () => {
+    voiceInputActive = true;
+    setOrionVoiceState("listening");
+    setOrionState("listening");
+    showOrionBubble("Estou ouvindo.");
+  });
+  speechRecognition.addEventListener("result", (event) => {
+    const transcript = Array.from(event.results)
+      .map((result) => result[0]?.transcript || "")
+      .join(" ")
+      .trim();
+    voiceInputActive = false;
+    if (transcript) {
+      setOrionVoiceState("understanding");
+      applyReasoningVisual("understanding");
+      showOrionBubble(`Ouvi: ${transcript}`);
+      sendMessageToOrion(transcript);
+    }
+  });
+  speechRecognition.addEventListener("error", () => {
+    voiceInputActive = false;
+    setOrionVoiceState("microphone-error");
+    setOrionState("error");
+    showOrionBubble("Nao consegui ouvir direito. Pode tentar de novo ou escrever.");
+  });
+  speechRecognition.addEventListener("end", () => {
+    voiceInputActive = false;
+    if (elements.orionAvatar.dataset.state === "listening") {
+      setOrionVoiceState("waiting");
+      setOrionState("online");
+    }
+  });
+
+  try {
+    speechRecognition.start();
+    return true;
+  } catch {
+    voiceInputActive = false;
+    setOrionVoiceState("microphone-error");
+    showOrionBubble("O microfone ja esta mudando de estado. Tente novamente em um instante.");
+    return false;
+  }
+}
+
+export function stopVoiceInput() {
+  if (!speechRecognition) {
+    voiceInputActive = false;
+    return;
+  }
+  try {
+    speechRecognition.stop();
+  } catch {
+    // Browsers can throw if recognition already stopped.
+  }
+  voiceInputActive = false;
+  speechRecognition = undefined;
+  if (elements.orionAvatar.dataset.state === "listening") {
+    setOrionVoiceState("waiting");
+    setOrionState("online");
+  }
+}
+
+export function speakOrion(text, options = {}) {
+  if (options.shouldSpeak === false || !voiceReplyEnabled || !("speechSynthesis" in window)) {
+    return false;
+  }
+  stopOrionSpeech();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "pt-BR";
+  utterance.rate = 1;
+  utterance.pitch = 1.02;
+  utterance.addEventListener("start", () => {
+    setOrionVoiceState("responding");
+    setOrionState("speaking");
+  });
+  utterance.addEventListener("end", () => {
+    setOrionVoiceState("waiting");
+    setOrionState("online");
+  });
+  window.speechSynthesis.speak(utterance);
+  return true;
+}
+
+export function stopOrionSpeech() {
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
   }
 }
 
@@ -396,6 +569,12 @@ function stateLabel(state) {
     thinking: "pensando",
     speaking: "falando",
     listening: "ouvindo",
+    understanding: "entendendo",
+    clarifying: "perguntando",
+    answering: "respondendo",
+    waiting: "aguardando",
+    responding: "respondendo",
+    "microphone-error": "microfone",
     happy: "feliz",
     annoyed: "irritado",
     error: "preocupado",

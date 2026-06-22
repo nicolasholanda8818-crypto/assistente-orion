@@ -9,6 +9,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Raciocinio conversacional e avatar 2D mais responsivo
+  - Brain fallback classifica intencao, emocao, topico, urgencia, estado visual, tamanho de resposta e permissao de voz.
+  - WebSocket e API preservam campos antigos e adicionam reasoningState, responseLength, urgency e shouldSpeak.
+  - Frontend preserva visual atual e usa microexpressoes leves para ouvir, entender, pensar, pedir esclarecimento e responder.
 - Orion Living Avatar adiciona presenca viva ao PWA
   - Criada biblioteca de falas dinamicas, estados emocionais e acoes espontaneas.
   - Adicionados objetos interativos no quarto gamer futurista.

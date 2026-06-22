@@ -34,6 +34,10 @@ def test_websocket_ready_broadcast_and_audit(client):
         assert response["payload"]["avatar_mood"]
         assert response["payload"]["avatar_reaction"]
         assert response["payload"]["suggested_animation"]
+        assert response["payload"]["reasoningState"]
+        assert response["payload"]["responseLength"] in {"short", "medium", "long"}
+        assert response["payload"]["urgency"] in {"low", "normal", "high"}
+        assert response["payload"]["shouldSpeak"] is True
 
     events = wait_for_event("connection.closed")
     event_types = [event["event_type"] for event in events]

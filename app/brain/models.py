@@ -17,6 +17,9 @@ class BrainMode(StrEnum):
     DETERMINISTIC_FALLBACK = "deterministic-fallback"
 
 
+ReasoningState = Literal["listening", "understanding", "thinking", "clarifying", "answering", "waiting"]
+
+
 class BrainRequest(StrictModel):
     text: str = Field(min_length=1, max_length=2000)
     conversation_id: str = Field(default="local", min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_.-]+$")
@@ -82,6 +85,11 @@ class BrainResponse(StrictModel):
     avatar_mood: str = "neutral"
     avatar_reaction: str = "direct-look"
     suggested_animation: str = "talk"
+    reasoning_state: ReasoningState = "answering"
+    response_length: Literal["short", "medium", "long"] = "short"
+    urgency: Literal["low", "normal", "high"] = "normal"
+    topic: str | None = None
+    should_speak: bool = True
     user_name: str | None = None
     memory_prompt: bool = False
     conversation_starter: str | None = None

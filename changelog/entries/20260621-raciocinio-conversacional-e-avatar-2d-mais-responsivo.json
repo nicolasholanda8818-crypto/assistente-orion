@@ -1,0 +1,12 @@
+{
+  "id": "20260621-raciocinio-conversacional-e-avatar-2d-mais-responsivo",
+  "type": "added",
+  "summary": "Raciocinio conversacional e avatar 2D mais responsivo",
+  "details": [
+    "Brain fallback classifica intencao, emocao, topico, urgencia, estado visual, tamanho de resposta e permissao de voz.",
+    "WebSocket e API preservam campos antigos e adicionam reasoningState, responseLength, urgency e shouldSpeak.",
+    "Frontend preserva visual atual e usa microexpressoes leves para ouvir, entender, pensar, pedir esclarecimento e responder."
+  ],
+  "date": "2026-06-21",
+  "version": null
+}

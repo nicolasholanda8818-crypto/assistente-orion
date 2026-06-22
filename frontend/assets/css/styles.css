@@ -911,6 +911,63 @@ body {
   transform: translateX(-50%) rotate(2deg);
 }
 
+.orion-avatar[data-reasoning-state="thinking"] .orion-brow {
+  transform: translateY(-2px) rotate(-4deg);
+}
+
+.orion-avatar[data-reasoning-state="thinking"] .orion-mouth {
+  width: 18px;
+  height: 6px;
+  border-bottom-width: 2px;
+}
+
+.orion-avatar[data-reasoning-state="clarifying"] .brow-left {
+  transform: translateY(-4px) rotate(-11deg);
+}
+
+.orion-avatar[data-reasoning-state="clarifying"] .brow-right {
+  transform: translateY(1px) rotate(10deg);
+}
+
+.orion-avatar[data-reasoning-state="clarifying"] .orion-mouth {
+  width: 22px;
+  height: 10px;
+  border-bottom-color: rgba(24, 92, 124, 0.9);
+}
+
+.orion-avatar[data-reasoning-state="understanding"] .orion-head,
+.orion-avatar[data-voice-state="understanding"] .orion-head {
+  animation: attentive-nod 0.7s ease-in-out;
+}
+
+.orion-avatar[data-voice-state="listening"] .orion-eye {
+  box-shadow:
+    0 0 18px #b7fbff,
+    0 0 34px rgba(94, 218, 255, 1);
+}
+
+.orion-avatar[data-voice-state="responding"] .orion-aura,
+.orion-avatar[data-reasoning-state="answering"] .orion-aura {
+  filter: hue-rotate(8deg) blur(2px);
+}
+
+.orion-avatar[data-response-length="medium"] .orion-core,
+.orion-avatar[data-response-length="long"] .orion-core {
+  animation: core-think 1.4s ease-in-out infinite;
+}
+
+.orion-avatar[data-urgency="high"] .orion-aura {
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255, 122, 144, 0.38), transparent 24%),
+    radial-gradient(circle at 50% 58%, rgba(24, 135, 255, 0.24), transparent 54%);
+}
+
+.orion-avatar[data-urgency="high"] .orion-eye {
+  box-shadow:
+    0 0 10px #fff,
+    0 0 24px rgba(255, 122, 144, 0.95);
+}
+
 .orion-avatar.blink-now .orion-eye {
   transform: scaleY(0.08);
 }
@@ -966,6 +1023,25 @@ body {
   50% {
     opacity: 1;
     transform: scale(1.15);
+  }
+}
+
+@keyframes core-think {
+  50% {
+    box-shadow:
+      0 0 26px #8ef5ff,
+      0 0 42px rgba(83, 178, 255, 0.62);
+    transform: translateX(-50%) scale(1.08);
+  }
+}
+
+@keyframes attentive-nod {
+  35% {
+    transform: translateX(-50%) translateY(3px) rotate(-2deg);
+  }
+
+  70% {
+    transform: translateX(-50%) translateY(-2px) rotate(1deg);
   }
 }
 

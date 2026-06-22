@@ -152,3 +152,32 @@ def list_user_memory_facts(user_id: str, limit: int = 20) -> list[dict[str, Any]
             (user_id, limit),
         ).fetchall()
         return [dict(row) for row in rows]
+
+
+def upsert_user_summary(user_id: str, summary: str, source_type: str = "conversation") -> None:
+    with database_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO orion_user_summaries (user_id, summary, source_type)
+            VALUES (?, ?, ?)
+            ON CONFLICT(user_id, summary) DO UPDATE SET
+                weight = weight + 1,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (user_id, summary, source_type),
+        )
+
+
+def list_user_summaries(user_id: str, limit: int = 10) -> list[dict[str, Any]]:
+    with database_connection() as connection:
+        rows = connection.execute(
+            """
+            SELECT id, user_id, summary, source_type, weight, created_at, updated_at
+            FROM orion_user_summaries
+            WHERE user_id = ?
+            ORDER BY weight DESC, updated_at DESC, id DESC
+            LIMIT ?
+            """,
+            (user_id, limit),
+        ).fetchall()
+        return [dict(row) for row in rows]
