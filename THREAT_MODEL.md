@@ -5,8 +5,8 @@
 | Campo | Valor |
 | --- | --- |
 | Sistema | ORION |
-| Versao do modelo | 1.5 |
-| Data da revisao | 2026-06-02 |
+| Versao do modelo | 1.6 |
+| Data da revisao | 2026-06-22 |
 | Metodo | STRIDE com analise por superficie |
 | Escopo | Fundacao atual e arquitetura-alvo documentada |
 | Responsavel | Arquitetura e seguranca do ORION |
@@ -42,6 +42,8 @@ A fundacao executavel possui:
 - `GET /api/tools` para catalogo local de ferramentas;
 - `GET /api/models` para catalogo sanitizado de providers desabilitados;
 - `GET /api/onboarding/status`, `POST /api/onboarding/complete`, `GET /api/onboarding/profile` e `PUT /api/onboarding/profile` para configuracao inicial local;
+- `GET /api/files/status`, `POST /api/files/upload`, `GET /api/files`, `GET /api/files/{id}`, `DELETE /api/files/{id}` e `POST /api/files/{id}/analyze`;
+- `POST /api/camera/photo` para fotos capturadas pelo navegador;
 - WebSocket `/ws` para mensagens basicas;
 - Wiki interna gerada para APIs, schema SQLite, plugins e eventos;
 - changelog automatico gerado a partir de fragmentos estruturados;
@@ -51,8 +53,7 @@ A fundacao executavel possui:
 
 Ainda nao existem no backend principal:
 
-- autenticacao e permissoes;
-- uploads de producao;
+- autenticacao e permissoes robustas por role;
 - plugins instalaveis;
 - controle do PC;
 - acesso remoto aprovado.
@@ -226,6 +227,25 @@ Uploads devem ser considerados hostis mesmo quando enviados por administrador.
 Controles de extensao, MIME e assinatura devem ser combinados. Nenhum deles e
 suficiente isoladamente.
 
+### Implementacao Atual De Arquivos
+
+O modulo inicial `app/orion_files` reduz riscos imediatos de upload:
+
+- armazena arquivos fora do frontend publico em `storage/files`;
+- usa ID interno e nome sanitizado;
+- bloqueia extensoes ativas como `.exe`, `.bat`, `.ps1`, `.js`, `.html` e `.svg`;
+- limita tamanho por `FILE_UPLOAD_MAX_BYTES`;
+- amarra metadados a `user_id` local e rejeita acesso a registros de outro usuario;
+- nao executa arquivos enviados;
+- oferece analise local limitada e OCR opcional.
+
+Lacunas ainda abertas antes de exposicao publica ampla:
+
+- `user_id` local nao substitui autenticacao forte;
+- magic bytes e antivirus local ainda nao foram implementados;
+- quotas por usuario e rate limit ainda precisam ser adicionados;
+- parsers avancados/OCR devem rodar com timeout e isolamento quando forem habilitados.
+
 ## WebSockets
 
 WebSocket e uma fronteira externa persistente. CORS nao substitui a validacao de
@@ -386,7 +406,7 @@ permitir promocao operacional sem evidencia reproduzivel.
 | P0 | R01-R05 | T0009, T0012 | acesso remoto permanece desabilitado |
 | P0 | L04 | T0031 | Control nao existe sem confirmacao e auditoria |
 | P0 | P01-P08 | T0033, T0034 | plugins permanecem desabilitados |
-| P0 | U01-U07 | T0020 | uploads de producao permanecem desabilitados |
+| P0 | U01-U07 | T0020 | modulo inicial ativo; falta autenticacao forte, magic bytes, quotas e rate limit |
 | P1 | L01, L06 | T0011, T0012 | cofre e logs antes de dados sensiveis |
 | P1 | R06 | T0036 | update somente apos assinatura, backup e rollback |
 | P1 | R07 | T0037 | telemetria externa somente com opt-in |

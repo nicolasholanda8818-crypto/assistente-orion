@@ -1,4 +1,4 @@
-const CACHE_NAME = "orion-pwa-v30-visual-brain";
+const CACHE_NAME = "orion-pwa-v33-files-vision";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -12,6 +12,7 @@ const APP_SHELL = [
   "/assets/css/components.css",
   "/assets/css/accessibility.css",
   "/assets/js/api.js",
+  "/assets/js/brain-vault.js",
   "/assets/js/design-system.js",
   "/assets/js/main.js",
   "/assets/js/living-avatar.js",
@@ -19,6 +20,7 @@ const APP_SHELL = [
   "/assets/js/pwa.js",
   "/assets/js/scene.js",
   "/assets/js/socket.js",
+  "/assets/js/voice-engine.js",
   "/assets/js/lord-dragons/content.js",
   "/assets/js/lord-dragons/audio.js",
   "/assets/js/lord-dragons/main.js",

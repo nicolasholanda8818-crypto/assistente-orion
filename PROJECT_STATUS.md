@@ -75,6 +75,10 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Frontend usa Web Speech API e SpeechSynthesis API para voz em `pt-BR` quando o navegador suporta.
 - [x] Avatar 2D preservado recebeu microexpressoes contextuais para pensar, pedir esclarecimento, ouvir e responder.
 - [x] Avatar 2D preservado recebeu corpo mais completo, guarda-roupa local por usuario, modos de voz, modo Performance/Ultra Visual, busca web opcional e Modo Cerebro flutuante.
+- [x] Modo Cerebro 3D premium adiciona nucleo neural WebGL com grafo de memoria, Bloom opcional, estados cognitivos e fallback canvas/CSS.
+- [x] Voz avancada declara provedores Azure, ElevenLabs, OpenAI TTS e Coqui TTS local, com fallback SpeechSynthesis API no navegador.
+- [x] Pesquisa web integrada usa confirmacao obrigatoria, resumo com fontes e bloqueio de consultas sensiveis.
+- [x] Orion Files adiciona camera via navegador, upload seguro por usuario, analise local basica, memoria de arquivos e painel PWA.
 - [x] Correcao total de 2026-06-14 estabilizou lint, canvas 3D/fallback, chat continuo e resposta de identidade local.
 - [x] Living Avatar adiciona personalidade visual, falas dinamicas, comportamento espontaneo, olhar inteligente e quarto futurista interativo.
 - [x] Modo persistente Windows criado para manter o Orion online e reiniciar o servidor local se ele cair.
@@ -94,14 +98,14 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 
 ## Ultima Validacao Local
 
-Data: `2026-06-03`
+Data: `2026-06-22`
 
 | Gate | Resultado |
 | --- | --- |
 | Ruff lint e format | aprovado |
 | Sintaxe JavaScript e PWA | aprovado |
-| Pytest backend | `75 passed` na ultima suite completa; onboarding focado `11 passed` apos o assistente de configuracao |
-| Coverage backend | `94.99%` |
+| Pytest backend | `148 passed`, `9 warnings` |
+| Coverage backend | configurado com minimo de 80% |
 | Playwright E2E Chromium | `5 passed` |
 | Onboarding visual desktop e mobile | aprovado |
 | Wiki interna | `5 paginas` geradas e drift check aprovado |
@@ -110,6 +114,7 @@ Data: `2026-06-03`
 | Pip Audit runtime direto | nenhuma vulnerabilidade conhecida |
 | Pip Audit ambiente local | bloqueado por `chromadb 1.5.3` e `python-multipart 0.0.20` instalados fora dos requisitos runtime |
 | Secret scan | aprovado |
+| Orion Files | upload, listagem, analise, exclusao e foto de camera testados |
 | Performance baseline | aprovado em `docs/releases/0.1.0-rc.1/performance.json` |
 | Build release | `dist/orion-foundation.zip` gerado e verificado |
 | Release Candidate | `0.1.0-rc.1` gerado com manifesto e SHA-256, bloqueado para promocao |

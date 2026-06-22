@@ -2,3 +2,5 @@ fastapi==0.136.1
 uvicorn[standard]==0.47.0
 pydantic-settings==2.14.1
 cryptography==48.0.0
+python-multipart==0.0.20
+pypdf==6.4.0

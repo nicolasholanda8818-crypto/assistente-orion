@@ -181,3 +181,143 @@ def list_user_summaries(user_id: str, limit: int = 10) -> list[dict[str, Any]]:
             (user_id, limit),
         ).fetchall()
         return [dict(row) for row in rows]
+
+
+def create_file_record(
+    *,
+    file_id: str,
+    user_id: str,
+    original_name: str,
+    safe_name: str,
+    content_type: str,
+    extension: str,
+    size_bytes: int,
+    category: str,
+    source: str,
+    storage_path: str,
+    description: str | None = None,
+) -> dict[str, Any]:
+    ensure_user_profile(user_id)
+    with database_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO orion_files (
+                id, user_id, original_name, safe_name, content_type, extension,
+                size_bytes, category, source, storage_path, description
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                file_id,
+                user_id,
+                original_name,
+                safe_name,
+                content_type,
+                extension,
+                size_bytes,
+                category,
+                source,
+                storage_path,
+                description,
+            ),
+        )
+        row = connection.execute(
+            """
+            SELECT *
+            FROM orion_files
+            WHERE id = ? AND user_id = ?
+            """,
+            (file_id, user_id),
+        ).fetchone()
+        record = row_to_dict(row)
+        if record is None:
+            raise RuntimeError("Failed to create Orion file record.")
+        return record
+
+
+def list_file_records(user_id: str, limit: int = 50) -> list[dict[str, Any]]:
+    ensure_user_profile(user_id)
+    with database_connection() as connection:
+        rows = connection.execute(
+            """
+            SELECT *
+            FROM orion_files
+            WHERE user_id = ?
+            ORDER BY created_at DESC, id DESC
+            LIMIT ?
+            """,
+            (user_id, limit),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+
+def get_file_record(file_id: str, user_id: str) -> dict[str, Any] | None:
+    ensure_user_profile(user_id)
+    with database_connection() as connection:
+        row = connection.execute(
+            """
+            SELECT *
+            FROM orion_files
+            WHERE id = ? AND user_id = ?
+            """,
+            (file_id, user_id),
+        ).fetchone()
+        return row_to_dict(row)
+
+
+def update_file_analysis(
+    *,
+    file_id: str,
+    user_id: str,
+    analysis_status: str,
+    summary: str,
+    keywords_json: str,
+    description: str | None = None,
+) -> dict[str, Any] | None:
+    ensure_user_profile(user_id)
+    with database_connection() as connection:
+        connection.execute(
+            """
+            UPDATE orion_files
+            SET analysis_status = ?,
+                summary = ?,
+                keywords_json = ?,
+                description = COALESCE(?, description),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ? AND user_id = ?
+            """,
+            (analysis_status, summary, keywords_json, description, file_id, user_id),
+        )
+        row = connection.execute(
+            """
+            SELECT *
+            FROM orion_files
+            WHERE id = ? AND user_id = ?
+            """,
+            (file_id, user_id),
+        ).fetchone()
+        return row_to_dict(row)
+
+
+def delete_file_record(file_id: str, user_id: str) -> dict[str, Any] | None:
+    ensure_user_profile(user_id)
+    with database_connection() as connection:
+        row = connection.execute(
+            """
+            SELECT *
+            FROM orion_files
+            WHERE id = ? AND user_id = ?
+            """,
+            (file_id, user_id),
+        ).fetchone()
+        record = row_to_dict(row)
+        if record is None:
+            return None
+        connection.execute(
+            """
+            DELETE FROM orion_files
+            WHERE id = ? AND user_id = ?
+            """,
+            (file_id, user_id),
+        )
+        return record

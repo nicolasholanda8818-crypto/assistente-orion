@@ -155,3 +155,11 @@ def test_knowledge_search_uses_local_entries():
     hits = KnowledgeService().search("seguranca localhost")
 
     assert hits[0].entry_id == "security-localhost"
+
+
+def test_technical_knowledge_base_contains_deploy_and_support_topics():
+    hits = KnowledgeService().search("docker render websocket pwa")
+
+    contents = " ".join(hit.content.lower() for hit in hits)
+    assert "render" in contents
+    assert "websocket" in contents or "wss" in contents

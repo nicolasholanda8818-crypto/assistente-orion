@@ -25,11 +25,15 @@ def test_application_status(client):
     assert payload["database"]["status"] == "ready"
     assert payload["database"]["metadata_records"] == 5
     assert payload["pwa"]["static_dir"] == "frontend"
-    assert payload["pwa"]["cache_name"] == "orion-pwa-v30-visual-brain"
+    assert payload["pwa"]["cache_name"] == "orion-pwa-v33-files-vision"
     assert payload["brain"]["mode"] == "deterministic-fallback"
     assert payload["brain"]["components"]["memory"] == "volatile+user-sqlite"
     assert payload["tools"]["enabled"] == 3
     assert payload["models"]["external_calls"] == "disabled"
+    assert payload["voice"]["fallback_provider"] == "speech-synthesis"
+    assert payload["web_search"]["requires_user_confirmation"] is True
+    assert payload["files"]["status"] == "ready"
+    assert ".pdf" in payload["files"]["allowed_extensions"]
     assert payload["onboarding"]["required"] is True
 
 
@@ -148,6 +152,38 @@ def test_brain_process_does_not_store_memory_recall_as_topic(client):
 def test_brain_process_rejects_invalid_payload(client):
     assert client.post("/api/brain/process", json={"text": ""}).status_code == 422
     assert client.post("/api/brain/process", json={"text": "status", "unexpected": True}).status_code == 422
+
+
+def test_voice_status_api(client):
+    response = client.get("/api/voice/status")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["fallback_provider"] == "speech-synthesis"
+    assert "teacher" in payload["modes"]
+
+
+def test_web_search_api_requires_permission_before_network(client):
+    response = client.post(
+        "/api/web-search/query",
+        json={"query": "versao mais recente do Python", "allow_external": False},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "permission-required"
+    assert payload["searched_online"] is False
+    assert payload["results"] == []
+
+
+def test_files_status_api(client):
+    response = client.get("/api/files/status")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ready"
+    assert payload["max_upload_bytes"] >= 1_000_000
+    assert ".exe" in payload["blocked_extensions"]
 
 
 def test_tool_catalog(client):

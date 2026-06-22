@@ -15,7 +15,7 @@ def test_database_initialization_and_metadata(isolated_settings):
 
     assert metadata["project_name"] == "Orion"
     assert metadata["project_stage"] == "pwa-foundation"
-    assert metadata["schema_version"] == "4"
+    assert metadata["schema_version"] == "5"
     assert status == {
         "status": "ready",
         "metadata_records": 5,
@@ -79,6 +79,41 @@ def test_user_memory_repository(isolated_settings):
 
     assert summaries[0]["summary"] == "Projeto mencionado: jogo"
     assert summaries[0]["weight"] == 2
+
+
+def test_file_repository_isolated_by_user(isolated_settings):
+    initialize_database()
+
+    record = repositories.create_file_record(
+        file_id="file-db-a",
+        user_id="browser-db-files-a",
+        original_name="erro.txt",
+        safe_name="erro.txt",
+        content_type="text/plain",
+        extension=".txt",
+        size_bytes=32,
+        category="texto",
+        source="upload",
+        storage_path="users/browser-db-files-a/file-db-a_erro.txt",
+    )
+
+    assert record["id"] == "file-db-a"
+    assert repositories.get_file_record("file-db-a", "browser-db-files-a") is not None
+    assert repositories.get_file_record("file-db-a", "browser-db-files-b") is None
+
+    updated = repositories.update_file_analysis(
+        file_id="file-db-a",
+        user_id="browser-db-files-a",
+        analysis_status="ready",
+        summary="Resumo tecnico",
+        keywords_json='["websocket"]',
+    )
+
+    assert updated is not None
+    assert updated["summary"] == "Resumo tecnico"
+    assert repositories.list_file_records("browser-db-files-a")[0]["id"] == "file-db-a"
+    assert repositories.delete_file_record("file-db-a", "browser-db-files-a") is not None
+    assert repositories.get_file_record("file-db-a", "browser-db-files-a") is None
 
 
 def test_lightweight_migration_adds_connection_id(isolated_settings):

@@ -1,0 +1,13 @@
+{
+  "id": "camera-arquivos-visao-e-conhecimento-tecnico-do-orion",
+  "type": "added",
+  "summary": "Adiciona camera, arquivos por usuario, analise local basica e conhecimento tecnico ao Orion.",
+  "details": [
+    "Novas rotas seguras para upload, listagem, detalhes, exclusao, analise de arquivos e foto da camera.",
+    "Frontend ganhou painel Meus Arquivos com camera, pre-visualizacao, upload, lista, analise e exclusao.",
+    "Analise local resume texto, le PDFs com pypdf quando possivel e informa quando OCR opcional for necessario.",
+    "SQLite recebeu tabela orion_files e memoria de arquivos por usuario."
+  ],
+  "date": "2026-06-22",
+  "version": null
+}

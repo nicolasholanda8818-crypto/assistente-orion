@@ -1,0 +1,12 @@
+{
+  "id": "20260622-modo-cerebro-3d-premium-do-orion",
+  "type": "added",
+  "summary": "Modo Cerebro 3D premium do Orion",
+  "details": [
+    "Frontend adiciona o modulo brain-vault.js com cerebro 3D flutuante, particulas neurais, grafo de memoria e Bloom opcional.",
+    "Modo Cerebro ganhou estados visuais para pensar, aprender, pesquisar, lembrar e analisar arquivos sem alterar WebSocket ou backend.",
+    "PWA atualiza o cache para v31 e preserva fallback canvas/CSS quando WebGL ou dependencias externas nao carregam."
+  ],
+  "date": "2026-06-22",
+  "version": null
+}

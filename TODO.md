@@ -27,6 +27,7 @@
 - [x] Criar Orion Living Avatar com personalidade visual, falas dinamicas, acoes espontaneas e cenario interativo.
 - [x] Criar modo persistente Windows para manter Orion online e reconectar WebSocket continuamente.
 - [x] Implementar memoria de usuario por navegador com nome, preferencias, projetos e assuntos nao sensiveis.
+- [x] Implementar camera, arquivos por usuario, analise local basica e memoria de arquivos.
 - [ ] Vendorizar Three.js localmente para PWA offline completo.
 - [ ] Endurecer WebSocket com autenticacao, origin check, rate limit e quotas.
 - [ ] Criar E2E automatizado para o fluxo visual do Orion.

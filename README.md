@@ -48,6 +48,49 @@ perfil idoso ampliado.
 
 Consulte `DESIGN_SYSTEM.md`.
 
+## Modo Cerebro 3D
+
+O Modo Cerebro da PWA possui um nucleo neural premium com Three.js, particulas,
+conexoes energeticas, nos de memoria e estados cognitivos para pensar, aprender,
+pesquisar, lembrar e analisar arquivos. O modulo tenta usar WebGL com Bloom e
+mantem fallback canvas/CSS para celular, PWA offline ou navegadores sem suporte.
+
+As dependencias npm registram o ecossistema visual 3D solicitado, mas o deploy
+principal continua FastAPI servindo frontend estatico.
+
+## Voz Avancada e Pesquisa Web
+
+A PWA possui `voice-engine.js`, que escolhe automaticamente a melhor voz disponivel.
+Quando Azure Speech, ElevenLabs, OpenAI TTS ou Coqui TTS local nao estiverem
+configurados, o Orion usa SpeechSynthesis API com voz `pt-BR`, pausas e variacao
+leve de entonacao. Os modos disponiveis sao `conversation`, `teacher`,
+`assistant` e `narrator`.
+
+O modulo `orion_web_search` permite pesquisa integrada sem abrir Google
+manualmente. O frontend pede confirmacao antes de qualquer consulta externa,
+envia somente a pergunta sanitizada, bloqueia padroes sensiveis e mostra fontes
+no chat quando a internet responde.
+
+## Arquivos, Camera e Analise Local
+
+O modulo `orion_files` adiciona armazenamento de arquivos por usuario, captura de
+foto pelo navegador e analise basica offline. Os arquivos ficam fora do frontend
+publico em `storage/files`, usam nome interno seguro e nunca sao executados.
+
+Endpoints principais:
+
+- `POST /api/files/upload`
+- `GET /api/files?user_id=<id>`
+- `GET /api/files/{id}?user_id=<id>`
+- `DELETE /api/files/{id}?user_id=<id>`
+- `POST /api/files/{id}/analyze`
+- `POST /api/camera/photo`
+
+O sistema aceita imagens, PDFs, textos, documentos e planilhas permitidos pela
+allowlist. Textos sao resumidos localmente; PDFs com texto usam `pypdf`; imagens
+recebem metadados basicos e mensagem clara quando OCR nao estiver configurado.
+Visitantes e usuarios so acessam arquivos associados ao seu `userId` local.
+
 ## Onboarding
 
 Na primeira execucao, a PWA solicita nome, preferencias, perfil, voz e aparencia. Os
@@ -184,6 +227,20 @@ Variaveis principais:
 - `LM_STUDIO_BASE_URL`: endpoint local LM Studio. Padrao: `http://127.0.0.1:1234/v1`
 - `OPENAI_COMPATIBLE_BASE_URL`: endpoint HTTPS remoto opcional
 - `OPENAI_COMPATIBLE_API_KEY_REF`: referencia logica futura do Vault, nunca a chave real
+- `AZURE_SPEECH_KEY_REF`: referencia segura para credencial Azure Speech, nunca a chave real
+- `AZURE_SPEECH_REGION`: regiao Azure Speech quando configurada pelo administrador
+- `ELEVENLABS_API_KEY_REF`: referencia segura para credencial ElevenLabs
+- `OPENAI_TTS_API_KEY_REF`: referencia segura para credencial OpenAI TTS
+- `COQUI_TTS_MODEL_PATH`: caminho local opcional para modelos Coqui TTS
+- `WEB_SEARCH_ENABLED`: habilita o modulo de pesquisa integrada. Padrao: `true`
+- `WEB_SEARCH_PROVIDER`: provedor de pesquisa. Padrao: `duckduckgo-html+mojeek`
+- `WEB_SEARCH_TIMEOUT_SECONDS`: tempo maximo por consulta web
+- `WEB_SEARCH_MAX_RESULTS`: limite de fontes retornadas por consulta
+- `FILE_STORAGE_BACKEND`: backend de arquivos. Padrao: `local`
+- `FILE_STORAGE_PATH`: diretorio seguro dos arquivos. Padrao: `storage/files`
+- `FILE_UPLOAD_MAX_BYTES`: limite por arquivo. Padrao: `15728640`
+- `FILE_ALLOWED_EXTENSIONS`: allowlist de extensoes aceitas
+- `FILE_BLOCKED_EXTENSIONS`: extensoes ativas bloqueadas por seguranca
 - `ADMIN_USERNAME`: usuario admin inicial. Padrao: `admin`
 - `ADMIN_PASSWORD`: segredo local injetado por ambiente durante desenvolvimento. Nunca versionar.
 - `SESSION_EXPIRE_HOURS`: validade do token de sessao.
@@ -263,6 +320,7 @@ Tabelas:
 - `user_preferences`: preferencias persistentes por usuario.
 - `memory_summaries`: resumos gerados a partir da memoria.
 - `websocket_events`: eventos recebidos por WebSocket.
+- `orion_files`: metadados e analises de arquivos por usuario.
 
 O usuario administrador inicial e criado automaticamente se nao existir.
 
@@ -305,6 +363,13 @@ Endpoints autenticados:
 - `PUT /api/memory/preferences`
 - `POST /api/memory/summaries`
 - `GET /api/memory/summaries`
+- `GET /api/files/status`
+- `POST /api/files/upload`
+- `GET /api/files`
+- `GET /api/files/{id}`
+- `DELETE /api/files/{id}`
+- `POST /api/files/{id}/analyze`
+- `POST /api/camera/photo`
 
 Endpoints administrativos:
 

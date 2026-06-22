@@ -57,6 +57,7 @@
 
         <div class="orion-control-deck" id="orion-control-deck" aria-label="Controles do Orion">
           <button class="control-chip" id="brain-mode-button" type="button">Cerebro</button>
+          <button class="control-chip" id="files-panel-button" type="button">Arquivos</button>
           <label class="control-field" for="wardrobe-select">
             <span>Roupa</span>
             <select id="wardrobe-select">
@@ -73,10 +74,10 @@
           <label class="control-field" for="voice-mode-select">
             <span>Voz</span>
             <select id="voice-mode-select">
-              <option value="balanced">Equilibrada</option>
-              <option value="calm">Calma</option>
-              <option value="energetic">Animada</option>
+              <option value="conversation">Conversa</option>
               <option value="teacher">Professor</option>
+              <option value="assistant">Assistente</option>
+              <option value="narrator">Narrador</option>
             </select>
           </label>
           <label class="control-field" for="visual-mode-select">
@@ -148,16 +149,35 @@
         </button>
 
         <section class="brain-mode" id="brain-mode" aria-label="Modo cerebro do Orion" hidden>
-          <div class="brain-shell" aria-hidden="true">
-            <span class="brain-lobe lobe-left"></span>
-            <span class="brain-lobe lobe-right"></span>
-            <span class="brain-stem"></span>
-            <span class="neural-ring ring-a"></span>
-            <span class="neural-ring ring-b"></span>
-            <span class="neural-dot dot-a"></span>
-            <span class="neural-dot dot-b"></span>
-            <span class="neural-dot dot-c"></span>
-            <span class="neural-dot dot-d"></span>
+          <div class="brain-vault" id="brain-vault" data-brain-state="idle">
+            <div class="brain-vault-viewport" id="brain-vault-viewport" aria-hidden="true">
+              <div class="brain-shell" aria-hidden="true">
+                <span class="brain-lobe lobe-left"></span>
+                <span class="brain-lobe lobe-right"></span>
+                <span class="brain-stem"></span>
+                <span class="neural-ring ring-a"></span>
+                <span class="neural-ring ring-b"></span>
+                <span class="neural-dot dot-a"></span>
+                <span class="neural-dot dot-b"></span>
+                <span class="neural-dot dot-c"></span>
+                <span class="neural-dot dot-d"></span>
+              </div>
+            </div>
+            <div class="brain-vault-effects" aria-hidden="true">
+              <span class="brain-effect-vignette"></span>
+              <span class="brain-effect-noise"></span>
+              <span class="brain-effect-aberration"></span>
+            </div>
+            <div class="brain-vault-panel" aria-label="Grafo de memoria do Orion">
+              <span class="brain-state-label" id="brain-state-label">nucleo ocioso</span>
+              <span>Programacao</span>
+              <span>Gestao de TI</span>
+              <span>Usuarios</span>
+              <span>Conversas</span>
+              <span>Projetos</span>
+              <span>Arquivos</span>
+              <span>Lord Dragons</span>
+            </div>
           </div>
           <button class="control-chip control-chip--primary" id="body-mode-button" type="button">Voltar ao Orion</button>
         </section>
@@ -165,6 +185,61 @@
         <section class="web-search-panel" id="web-search-panel" aria-label="Busca web do Orion" hidden>
           <span>Busca web</span>
           <a id="web-search-link" href="https://www.google.com" target="_blank" rel="noreferrer">Abrir resultado</a>
+        </section>
+
+        <section class="file-vision-panel" id="file-vision-panel" aria-label="Camera e arquivos do Orion" hidden>
+          <div class="file-vision-header">
+            <div>
+              <span class="file-vision-kicker">Meus Arquivos</span>
+              <h2>Camera, documentos e conhecimento</h2>
+            </div>
+            <button class="panel-icon-button" id="files-panel-close-button" type="button" aria-label="Fechar arquivos">×</button>
+          </div>
+
+          <div class="file-vision-grid">
+            <section class="file-tool" aria-label="Camera do Orion">
+              <div class="file-tool-heading">
+                <h3>Camera</h3>
+                <span id="camera-status">fechada</span>
+              </div>
+              <video class="camera-preview" id="camera-preview" autoplay playsinline muted hidden></video>
+              <canvas id="camera-canvas" width="960" height="540" hidden></canvas>
+              <img class="photo-preview" id="photo-preview" alt="Foto capturada para analise" hidden />
+              <div class="file-actions">
+                <button class="mini-action" id="camera-open-button" type="button">Abrir</button>
+                <button class="mini-action" id="capture-photo-button" type="button" disabled>Tirar foto</button>
+                <button class="mini-action" id="send-photo-button" type="button" disabled>Enviar foto</button>
+                <button class="mini-action mini-action--quiet" id="camera-close-button" type="button" disabled>Fechar</button>
+              </div>
+            </section>
+
+            <section class="file-tool" aria-label="Envio de arquivos">
+              <div class="file-tool-heading">
+                <h3>Arquivos</h3>
+                <span id="files-status">pronto</span>
+              </div>
+              <input
+                id="orion-file-input"
+                type="file"
+                accept=".bmp,.csv,.doc,.docx,.gif,.jpeg,.jpg,.json,.md,.pdf,.png,.txt,.webp,.xls,.xlsx,image/*,application/pdf,text/*"
+                multiple
+                hidden
+              />
+              <div class="file-drop-zone" id="file-drop-zone" role="button" tabindex="0">
+                Enviar imagens, PDFs, textos, documentos ou planilhas.
+              </div>
+              <div class="file-actions">
+                <button class="mini-action" id="file-upload-button" type="button">Selecionar</button>
+                <button class="mini-action mini-action--quiet" id="refresh-files-button" type="button">Atualizar</button>
+              </div>
+            </section>
+          </div>
+
+          <div class="file-list-header">
+            <span>Arquivos do usuario atual</span>
+            <strong id="file-count">0</strong>
+          </div>
+          <div class="file-list" id="file-list" role="list" aria-live="polite"></div>
         </section>
 
         <div class="orion-ambient-3d" id="orion-scene" aria-hidden="true"></div>

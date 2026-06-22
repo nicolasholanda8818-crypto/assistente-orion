@@ -19,6 +19,54 @@ DEFAULT_KNOWLEDGE = (
         topic="componentes do brain",
         content="O Brain separa memoria, planejamento, execucao, aprendizado e conhecimento.",
     ),
+    KnowledgeEntry(
+        entry_id="programming-python-fastapi",
+        topic="programacao python fastapi",
+        content=(
+            "Em Python com FastAPI, separe rotas, modelos, servicos e repositorios. "
+            "Use validacao Pydantic, consultas parametrizadas e testes de API com TestClient."
+        ),
+    ),
+    KnowledgeEntry(
+        entry_id="frontend-pwa-websocket",
+        topic="frontend pwa websocket",
+        content=(
+            "PWAs precisam de manifest, service worker, cache versionado e caminhos relativos ao host. "
+            "Em HTTPS, WebSocket publico deve usar wss:// com window.location.host."
+        ),
+    ),
+    KnowledgeEntry(
+        entry_id="sqlite-debugging",
+        topic="sqlite banco debugging",
+        content=(
+            "SQLite e adequado para uso local. Prefira migrations idempotentes, chaves por usuario, "
+            "backup do arquivo do banco e isolamento de dados por owner_id."
+        ),
+    ),
+    KnowledgeEntry(
+        entry_id="github-docker-render",
+        topic="git github docker render deploy",
+        content=(
+            "GitHub guarda o codigo. Docker padroniza execucao. Render hospeda o backend 24/7 "
+            "quando o servico inicia FastAPI na porta esperada e recebe variaveis de ambiente seguras."
+        ),
+    ),
+    KnowledgeEntry(
+        entry_id="it-support-network-security",
+        topic="gestao de ti redes seguranca suporte",
+        content=(
+            "No suporte tecnico, leia logs, reproduza o erro, isole rede, permissao, banco e frontend. "
+            "Nunca exponha senhas, tokens, bancos reais ou uploads privados em repositorios publicos."
+        ),
+    ),
+    KnowledgeEntry(
+        entry_id="document-analysis-support",
+        topic="documentos ocr imagens suporte tecnico",
+        content=(
+            "Ao analisar prints e documentos, identifique mensagens de erro, contexto, caminho afetado "
+            "e proximo teste seguro. OCR e leitura avancada devem ser opcionais e autorizados."
+        ),
+    ),
 )
 
 

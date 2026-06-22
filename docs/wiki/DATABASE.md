@@ -12,6 +12,7 @@ O gerador nao abre `database/orion.db` nem le valores persistidos.
 | Tabela | Colunas |
 | --- | --- |
 | `onboarding_profile` | 6 |
+| `orion_files` | 16 |
 | `orion_user_memory` | 7 |
 | `orion_user_profiles` | 5 |
 | `orion_user_summaries` | 7 |
@@ -27,6 +28,27 @@ O gerador nao abre `database/orion.db` nem le valores persistidos.
 | `nonce` | `BLOB` | sim | `-` | nao |
 | `key_version` | `INTEGER` | sim | `1` | nao |
 | `completed_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
+| `updated_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
+
+## `orion_files`
+
+| Coluna | Tipo | Nao nulo | Padrao | Chave primaria |
+| --- | --- | --- | --- | --- |
+| `id` | `TEXT` | nao | `-` | sim |
+| `user_id` | `TEXT` | sim | `-` | nao |
+| `original_name` | `TEXT` | sim | `-` | nao |
+| `safe_name` | `TEXT` | sim | `-` | nao |
+| `content_type` | `TEXT` | sim | `-` | nao |
+| `extension` | `TEXT` | sim | `-` | nao |
+| `size_bytes` | `INTEGER` | sim | `-` | nao |
+| `category` | `TEXT` | sim | `'geral'` | nao |
+| `source` | `TEXT` | sim | `'upload'` | nao |
+| `storage_path` | `TEXT` | sim | `-` | nao |
+| `analysis_status` | `TEXT` | sim | `'pending'` | nao |
+| `summary` | `TEXT` | nao | `-` | nao |
+| `keywords_json` | `TEXT` | sim | `'[]'` | nao |
+| `description` | `TEXT` | nao | `-` | nao |
+| `created_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
 | `updated_at` | `TEXT` | sim | `CURRENT_TIMESTAMP` | nao |
 
 ## `orion_user_memory`

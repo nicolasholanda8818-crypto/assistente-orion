@@ -9,6 +9,19 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Adiciona camera, arquivos por usuario, analise local basica e conhecimento tecnico ao Orion.
+  - Novas rotas seguras para upload, listagem, detalhes, exclusao, analise de arquivos e foto da camera.
+  - Frontend ganhou painel Meus Arquivos com camera, pre-visualizacao, upload, lista, analise e exclusao.
+  - Analise local resume texto, le PDFs com pypdf quando possivel e informa quando OCR opcional for necessario.
+  - SQLite recebeu tabela orion_files e memoria de arquivos por usuario.
+- Voz avancada e pesquisa web integrada do Orion
+  - Frontend adiciona voice-engine.js com selecao automatica de voz, pausas naturais e fallback SpeechSynthesis API.
+  - Backend declara catalogo compativel com Azure Speech, ElevenLabs, OpenAI TTS e Coqui TTS local sem armazenar segredos reais.
+  - Modulo orion_web_search adiciona pesquisa integrada com confirmacao obrigatoria, resumo local, fontes e bloqueio de consultas sensiveis.
+- Modo Cerebro 3D premium do Orion
+  - Frontend adiciona o modulo brain-vault.js com cerebro 3D flutuante, particulas neurais, grafo de memoria e Bloom opcional.
+  - Modo Cerebro ganhou estados visuais para pensar, aprender, pesquisar, lembrar e analisar arquivos sem alterar WebSocket ou backend.
+  - PWA atualiza o cache para v31 e preserva fallback canvas/CSS quando WebGL ou dependencias externas nao carregam.
 - Visual 2D, guarda-roupa e Modo Cerebro do Orion
   - Frontend adiciona corpo 2D mais completo, roupas trocaveis, modos de voz e preferencia visual por usuario local.
   - Modo Cerebro exibe nucleo neural flutuante com retorno ao personagem sem alterar WebSocket ou backend.

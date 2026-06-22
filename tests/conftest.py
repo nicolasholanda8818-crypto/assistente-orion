@@ -16,6 +16,7 @@ def isolated_settings(tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "database_url", f"sqlite:///{database_path.as_posix()}")
     monkeypatch.setattr(settings, "log_dir", str(log_path))
     monkeypatch.setattr(settings, "onboarding_crypto_path", str(tmp_path / "keys" / "onboarding.key"))
+    monkeypatch.setattr(settings, "file_storage_path", str(tmp_path / "files"))
     get_onboarding_service.cache_clear()
 
     yield settings

@@ -46,24 +46,34 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'id="brain-mode-button"' in index
     assert 'id="wardrobe-select"' in index
     assert 'id="voice-mode-select"' in index
+    assert 'value="conversation"' in index
+    assert 'value="narrator"' in index
     assert 'id="visual-mode-select"' in index
     assert 'id="brain-mode"' in index
+    assert 'id="brain-vault-viewport"' in index
+    assert 'id="brain-state-label"' in index
     assert 'id="web-search-panel"' in index
+    assert 'id="file-vision-panel"' in index
+    assert 'id="camera-preview"' in index
+    assert 'id="orion-file-input"' in index
+    assert 'id="file-list"' in index
 
 
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v30-visual-brain";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v33-files-vision";' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/js/")' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/css/")' in service_worker
     assert '"/assets/css/tokens.css"' in service_worker
     assert '"/assets/css/base.css"' in service_worker
     assert '"/assets/css/components.css"' in service_worker
     assert '"/assets/css/accessibility.css"' in service_worker
+    assert '"/assets/js/brain-vault.js"' in service_worker
     assert '"/assets/js/design-system.js"' in service_worker
     assert '"/assets/js/living-avatar.js"' in service_worker
     assert '"/assets/js/onboarding.js"' in service_worker
+    assert '"/assets/js/voice-engine.js"' in service_worker
 
 
 def test_shell_contains_accessible_first_run_onboarding():
@@ -103,18 +113,30 @@ def test_orion_visual_chat_controller_exposes_required_functions():
         "stopVoiceInput",
         "speakOrion",
         "stopOrionSpeech",
+        "openFileVisionPanel",
+        "openCameraPanel",
+        "captureCameraPhoto",
+        "uploadSelectedFiles",
+        "loadUserFiles",
+        "analyzeFileById",
     ]:
         assert f"function {function_name}" in main
 
 
 def test_orion_voice_uses_browser_speech_apis():
     main = read_frontend("assets/js/main.js")
+    voice_engine = read_frontend("assets/js/voice-engine.js")
 
     assert "SpeechRecognition" in main
     assert "webkitSpeechRecognition" in main
     assert 'speechRecognition.lang = "pt-BR";' in main
-    assert "SpeechSynthesisUtterance" in main
-    assert 'utterance.lang = "pt-BR";' in main
+    assert "createOrionVoiceEngine" in main
+    assert "SpeechSynthesisUtterance" in voice_engine
+    assert 'utterance.lang = "pt-BR";' in voice_engine
+    assert "azure-speech" in voice_engine
+    assert "elevenlabs" in voice_engine
+    assert "openai-tts" in voice_engine
+    assert "coqui-local" in voice_engine
 
 
 def test_orion_reasoning_visual_contract_is_available():
@@ -131,6 +153,7 @@ def test_orion_reasoning_visual_contract_is_available():
 def test_orion_visual_modes_and_search_contract_are_available():
     main = read_frontend("assets/js/main.js")
     stylesheet = read_frontend("assets/css/styles.css")
+    brain_vault = read_frontend("assets/js/brain-vault.js")
 
     for function_name in [
         "applyWardrobe",
@@ -144,5 +167,15 @@ def test_orion_visual_modes_and_search_contract_are_available():
 
     assert 'data-outfit="armor"' in stylesheet
     assert ".brain-mode" in stylesheet
+    assert ".brain-vault-viewport" in stylesheet
+    assert "createBrainVault" in main
+    assert "MEMORY_CATEGORIES" in brain_vault
+    assert "bloom" in brain_vault.lower()
     assert ".web-search-panel" in stylesheet
+    assert ".file-vision-panel" in stylesheet
+    assert ".file-row" in stylesheet
+    assert "searchWeb" in main
+    assert "uploadOrionFile" in main
+    assert "uploadCameraPhoto" in main
+    assert "formatWebSearchAnswer" in main
     assert 'data-visual-mode="performance"' in stylesheet

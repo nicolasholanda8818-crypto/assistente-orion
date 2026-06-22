@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     static_dir: str = "frontend"
     log_dir: str = "storage/logs"
     onboarding_crypto_path: str = "storage/keys/onboarding.key"
-    pwa_cache_name: str = "orion-pwa-v30-visual-brain"
+    pwa_cache_name: str = "orion-pwa-v33-files-vision"
     deployment_target: str = "local"
     managed_database_provider: str = "sqlite-local"
     managed_database_url_ref: str | None = None
@@ -25,6 +25,42 @@ class Settings(BaseSettings):
     object_storage_region: str | None = None
     object_storage_access_key_ref: str | None = None
     object_storage_secret_key_ref: str | None = None
+    file_upload_max_bytes: int = 15 * 1024 * 1024
+    file_allowed_extensions: list[str] = [
+        ".bmp",
+        ".csv",
+        ".doc",
+        ".docx",
+        ".gif",
+        ".jpeg",
+        ".jpg",
+        ".json",
+        ".md",
+        ".pdf",
+        ".png",
+        ".txt",
+        ".webp",
+        ".xls",
+        ".xlsx",
+    ]
+    file_blocked_extensions: list[str] = [
+        ".bat",
+        ".cmd",
+        ".com",
+        ".dll",
+        ".exe",
+        ".html",
+        ".hta",
+        ".jar",
+        ".js",
+        ".msi",
+        ".php",
+        ".ps1",
+        ".scr",
+        ".sh",
+        ".svg",
+        ".vbs",
+    ]
     horizontal_replicas_enabled: bool = False
     session_backend: str = "memory"
     websocket_broker: str = "memory"
@@ -37,6 +73,15 @@ class Settings(BaseSettings):
     lm_studio_base_url: str = "http://127.0.0.1:1234/v1"
     openai_compatible_base_url: str | None = None
     openai_compatible_api_key_ref: str | None = None
+    azure_speech_key_ref: str | None = None
+    azure_speech_region: str | None = None
+    elevenlabs_api_key_ref: str | None = None
+    openai_tts_api_key_ref: str | None = None
+    coqui_tts_model_path: str | None = None
+    web_search_enabled: bool = True
+    web_search_provider: str = "duckduckgo-html+mojeek"
+    web_search_timeout_seconds: float = 5.0
+    web_search_max_results: int = 5
 
     model_config = SettingsConfigDict(
         env_file=".env",

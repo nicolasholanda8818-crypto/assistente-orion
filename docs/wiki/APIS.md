@@ -11,6 +11,13 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | --- | --- | --- | --- | --- |
 | `POST` | `/api/brain/process` | brain | Process Message | `process_message_api_brain_process_post` |
 | `GET` | `/api/brain/status` | brain | Brain Status | `brain_status_api_brain_status_get` |
+| `POST` | `/api/camera/photo` | camera | Save Camera Photo | `save_camera_photo_api_camera_photo_post` |
+| `GET` | `/api/files` | files | List Files | `list_files_api_files_get` |
+| `GET` | `/api/files/status` | files | Files Status | `files_status_api_files_status_get` |
+| `POST` | `/api/files/upload` | files | Upload File | `upload_file_api_files_upload_post` |
+| `DELETE` | `/api/files/{file_id}` | files | Delete File | `delete_file_api_files__file_id__delete` |
+| `GET` | `/api/files/{file_id}` | files | Get File | `get_file_api_files__file_id__get` |
+| `POST` | `/api/files/{file_id}/analyze` | files | Analyze File | `analyze_file_api_files__file_id__analyze_post` |
 | `GET` | `/api/health` | system | Health Check | `health_check_api_health_get` |
 | `GET` | `/api/hosting/status` | hosting | Hosting Status | `hosting_status_api_hosting_status_get` |
 | `GET` | `/api/models` | models | List Models | `list_models_api_models_get` |
@@ -24,6 +31,9 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `GET` | `/api/status` | system | Application Status | `application_status_api_status_get` |
 | `GET` | `/api/tools` | tools | List Tools | `list_tools_api_tools_get` |
 | `GET` | `/api/tools/status` | tools | Tools Status | `tools_status_api_tools_status_get` |
+| `GET` | `/api/voice/status` | voice | Voice Status | `voice_status_api_voice_status_get` |
+| `POST` | `/api/web-search/query` | web-search | Web Search Query | `web_search_query_api_web_search_query_post` |
+| `GET` | `/api/web-search/status` | web-search | Web Search Status | `web_search_status_api_web_search_status_get` |
 | `GET` | `/healthz` | system | Healthz | `healthz_healthz_get` |
 
 ## WebSocket
@@ -39,6 +49,15 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | Campo | Tipo | Obrigatorio |
 | --- | --- | --- |
 | - | - | - |
+
+### `Body_upload_file_api_files_upload_post`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `category` | `string` | nao |
+| `description` | `string / null` | nao |
+| `file` | `string` | sim |
+| `user_id` | `string` | sim |
 
 ### `BrainMode`
 
@@ -230,6 +249,78 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `response_style` | `ResponseStyle` | sim |
 | `voice` | `VoiceStyle` | sim |
 
+### `OrionCameraPhotoRequest`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `category` | `string` | nao |
+| `description` | `string / null` | nao |
+| `filename` | `string` | nao |
+| `image_data` | `string` | sim |
+| `user_id` | `string` | sim |
+
+### `OrionFileAnalysisRequest`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `instructions` | `string / null` | nao |
+| `manual_description` | `string / null` | nao |
+| `user_id` | `string` | sim |
+
+### `OrionFileAnalysisResponse`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `file` | `OrionFileRecord` | sim |
+| `keywords` | `array[string]` | sim |
+| `message` | `string` | sim |
+| `summary` | `string` | sim |
+
+### `OrionFileList`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `files` | `array[OrionFileRecord]` | sim |
+
+### `OrionFileRecord`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `analysis_status` | `string (pending, ready, limited, error)` | sim |
+| `category` | `string` | sim |
+| `content_type` | `string` | sim |
+| `created_at` | `string` | sim |
+| `description` | `string / null` | nao |
+| `extension` | `string` | sim |
+| `id` | `string` | sim |
+| `keywords` | `array[string]` | nao |
+| `original_name` | `string` | sim |
+| `safe_name` | `string` | sim |
+| `size_bytes` | `integer` | sim |
+| `source` | `string (upload, camera)` | sim |
+| `summary` | `string / null` | nao |
+| `updated_at` | `string` | sim |
+| `user_id` | `string` | sim |
+
+### `OrionFileUploadResponse`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `file` | `OrionFileRecord` | sim |
+| `message` | `string` | sim |
+
+### `OrionFilesStatus`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `allowed_extensions` | `array[string]` | sim |
+| `blocked_extensions` | `array[string]` | sim |
+| `max_upload_bytes` | `integer` | sim |
+| `restrictions` | `array[string]` | sim |
+| `status` | `string` | sim |
+| `storage_backend` | `string` | sim |
+| `storage_path` | `string` | sim |
+
 ### `PlanStep`
 
 | Campo | Tipo | Obrigatorio |
@@ -325,8 +416,75 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `msg` | `string` | sim |
 | `type` | `string` | sim |
 
+### `VoiceCatalog`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `active_default` | `string` | sim |
+| `automatic_selection` | `boolean` | sim |
+| `fallback_provider` | `string` | sim |
+| `modes` | `array[string]` | sim |
+| `providers` | `array[VoiceProvider]` | sim |
+| `restrictions` | `array[string]` | sim |
+| `status` | `string` | sim |
+
+### `VoiceProvider`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `configured` | `boolean` | sim |
+| `kind` | `string (browser, cloud, local)` | sim |
+| `label` | `string` | sim |
+| `modes` | `array[string]` | sim |
+| `notes` | `array[string]` | sim |
+| `priority` | `integer` | sim |
+| `provider_id` | `string` | sim |
+| `requires_secret` | `boolean` | sim |
+| `runtime` | `string (frontend, backend, local-service)` | sim |
+
 ### `VoiceStyle`
 
 | Campo | Tipo | Obrigatorio |
 | --- | --- | --- |
 | - | - | - |
+
+### `WebSearchRequest`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `allow_external` | `boolean` | nao |
+| `max_results` | `integer` | nao |
+| `query` | `string` | sim |
+
+### `WebSearchResponse`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `message` | `string` | sim |
+| `provider` | `string` | sim |
+| `query` | `string` | sim |
+| `results` | `array[WebSearchResult]` | sim |
+| `searched_online` | `boolean` | sim |
+| `sources_notice` | `string` | sim |
+| `status` | `string (ready, permission-required, blocked, offline, error)` | sim |
+| `summary` | `string` | sim |
+
+### `WebSearchResult`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `snippet` | `string` | sim |
+| `source` | `string` | sim |
+| `title` | `string` | sim |
+| `url` | `string` | sim |
+
+### `WebSearchStatus`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `enabled` | `boolean` | sim |
+| `max_results` | `integer` | sim |
+| `provider` | `string` | sim |
+| `requires_user_confirmation` | `boolean` | sim |
+| `restrictions` | `array[string]` | sim |
+| `status` | `string` | sim |

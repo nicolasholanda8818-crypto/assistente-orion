@@ -1,0 +1,12 @@
+{
+  "id": "20260622-voz-avancada-e-pesquisa-web-integrada-do-orion",
+  "type": "added",
+  "summary": "Voz avancada e pesquisa web integrada do Orion",
+  "details": [
+    "Frontend adiciona voice-engine.js com selecao automatica de voz, pausas naturais e fallback SpeechSynthesis API.",
+    "Backend declara catalogo compativel com Azure Speech, ElevenLabs, OpenAI TTS e Coqui TTS local sem armazenar segredos reais.",
+    "Modulo orion_web_search adiciona pesquisa integrada com confirmacao obrigatoria, resumo local, fontes e bloqueio de consultas sensiveis."
+  ],
+  "date": "2026-06-22",
+  "version": null
+}

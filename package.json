@@ -1,0 +1,13 @@
+{
+  "name": "orion-pwa-visual-foundation",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dependencias opcionais do frontend 3D do Orion; o deploy principal continua FastAPI servindo PWA estatico.",
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
+    "@react-three/postprocessing": "^3.0.4",
+    "@types/three": "^0.184.1",
+    "three": "^0.184.0"
+  }
+}

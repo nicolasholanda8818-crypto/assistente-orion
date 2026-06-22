@@ -2,11 +2,12 @@ const API_BASE = window.location.origin;
 
 async function request(path, options = {}) {
   const url = new URL(path, API_BASE);
+  const isFormData = options.body instanceof FormData;
   const response = await fetch(url, {
     ...options,
     headers: {
       Accept: "application/json",
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body && !isFormData ? { "Content-Type": "application/json" } : {}),
       ...options.headers,
     },
   });
@@ -37,6 +38,58 @@ export function getStatus() {
 
 export function processBrainMessage(payload) {
   return request("/api/brain/process", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function searchWeb(payload) {
+  return request("/api/web-search/query", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function uploadOrionFile({ file, userId, category = "geral", description = "" }) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("user_id", userId);
+  formData.append("category", category);
+  if (description) {
+    formData.append("description", description);
+  }
+  return request("/api/files/upload", {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export function listOrionFiles(userId) {
+  const query = new URLSearchParams({ user_id: userId });
+  return request(`/api/files?${query.toString()}`);
+}
+
+export function getOrionFile(fileId, userId) {
+  const query = new URLSearchParams({ user_id: userId });
+  return request(`/api/files/${fileId}?${query.toString()}`);
+}
+
+export function deleteOrionFile(fileId, userId) {
+  const query = new URLSearchParams({ user_id: userId });
+  return request(`/api/files/${fileId}?${query.toString()}`, {
+    method: "DELETE",
+  });
+}
+
+export function analyzeOrionFile(fileId, payload) {
+  return request(`/api/files/${fileId}/analyze`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function uploadCameraPhoto(payload) {
+  return request("/api/camera/photo", {
     method: "POST",
     body: JSON.stringify(payload),
   });
