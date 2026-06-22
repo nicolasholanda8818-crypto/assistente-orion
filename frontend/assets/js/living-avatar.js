@@ -175,6 +175,26 @@ const OBJECT_LINES = {
     "Esse brilho combina comigo.",
     "Pequeno objeto, grande vontade de parecer misterioso.",
   ],
+  memory: [
+    "Painel de memoria ativo. Prometo guardar so o que for seguro.",
+    "Minha memoria local esta organizada. Pelo menos por enquanto.",
+    "Esse painel cuida do que eu posso lembrar de voce.",
+  ],
+  voice: [
+    "Painel de voz detectado. Vou tentar soar como eu mesmo.",
+    "Configurar minha voz e quase escolher minha postura sonora.",
+    "Voz pronta para ficar calma, animada ou professoral.",
+  ],
+  search: [
+    "Painel de busca pronto. So pesquiso quando voce autorizar.",
+    "Esse monitor pode abrir a web, mas eu continuo funcionando offline.",
+    "Busca web em espera. Nada sai daqui sem permissao.",
+  ],
+  portal: [
+    "Portal de universos detectado. Isso combina perigosamente comigo.",
+    "Esse portal parece chamar Lord Dragons de longe.",
+    "Se isso abrir outro mundo, eu finjo que estava preparado.",
+  ],
 };
 
 const STATE_MAP = {
@@ -184,10 +204,13 @@ const STATE_MAP = {
   speaking: "confident",
   listening: "curious",
   happy: "happy",
+  sad: "sad",
   proud: "confident",
   annoyed: "playful",
   error: "tired",
   focused: "thoughtful",
+  surprised: "surprised",
+  excited: "excited",
   sleepy: "tired",
   teacher: "professor",
   dramatic: "playful",

@@ -74,6 +74,7 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] WebSocket expoe metadados leves de conversa (`reasoningState`, `responseLength`, `urgency`, `shouldSpeak`) sem revelar cadeia de pensamento.
 - [x] Frontend usa Web Speech API e SpeechSynthesis API para voz em `pt-BR` quando o navegador suporta.
 - [x] Avatar 2D preservado recebeu microexpressoes contextuais para pensar, pedir esclarecimento, ouvir e responder.
+- [x] Avatar 2D preservado recebeu corpo mais completo, guarda-roupa local por usuario, modos de voz, modo Performance/Ultra Visual, busca web opcional e Modo Cerebro flutuante.
 - [x] Correcao total de 2026-06-14 estabilizou lint, canvas 3D/fallback, chat continuo e resposta de identidade local.
 - [x] Living Avatar adiciona personalidade visual, falas dinamicas, comportamento espontaneo, olhar inteligente e quarto futurista interativo.
 - [x] Modo persistente Windows criado para manter o Orion online e reiniciar o servidor local se ele cair.

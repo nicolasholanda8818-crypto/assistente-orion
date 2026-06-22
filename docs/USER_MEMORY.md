@@ -51,9 +51,10 @@ O Orion ignora mensagens com indicios de dados sensiveis, incluindo:
 
 - Render: preservado, com WebSocket usando `wss://` em HTTPS.
 - Docker: preservado, sem novas dependencias externas.
-- PWA: cache atualizado para `orion-pwa-v29-reasoning-avatar`.
+- PWA: cache atualizado para `orion-pwa-v30-visual-brain`.
 - Frontend: layout, avatar e cenario preservados.
 - Backend: resposta fallback local preservada.
+- Preferencias visuais por navegador: roupa, modo de voz e modo visual ficam em `localStorage` com chave derivada do `userId` anonimo.
 
 ## Raciocinio Conversacional
 
@@ -96,3 +97,5 @@ Nenhum audio e enviado para o backend nesta camada. O navegador transforma a fal
 14. Envie `estou cansado` e verifique se Orion responde de forma acolhedora.
 15. Envie `quero melhorar isso` e verifique se Orion pede uma pista mais clara.
 16. Envie `lembra de mim?` apos salvar um nome e verifique se Orion reconhece o perfil local.
+17. Troque a roupa do Orion e recarregue a pagina.
+18. A roupa escolhida deve ser restaurada para o mesmo navegador.

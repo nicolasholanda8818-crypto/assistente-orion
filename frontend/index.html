@@ -55,6 +55,39 @@
           Estou online, Mestre. Pode falar comigo.
         </div>
 
+        <div class="orion-control-deck" id="orion-control-deck" aria-label="Controles do Orion">
+          <button class="control-chip" id="brain-mode-button" type="button">Cerebro</button>
+          <label class="control-field" for="wardrobe-select">
+            <span>Roupa</span>
+            <select id="wardrobe-select">
+              <option value="original">Original Orion</option>
+              <option value="casual">Casual</option>
+              <option value="teacher">Professor</option>
+              <option value="elegant">Elegante</option>
+              <option value="future">Futurista</option>
+              <option value="armor">Armadura azul</option>
+              <option value="training">Treino</option>
+              <option value="game">Modo jogo</option>
+            </select>
+          </label>
+          <label class="control-field" for="voice-mode-select">
+            <span>Voz</span>
+            <select id="voice-mode-select">
+              <option value="balanced">Equilibrada</option>
+              <option value="calm">Calma</option>
+              <option value="energetic">Animada</option>
+              <option value="teacher">Professor</option>
+            </select>
+          </label>
+          <label class="control-field" for="visual-mode-select">
+            <span>Visual</span>
+            <select id="visual-mode-select">
+              <option value="performance">Performance</option>
+              <option value="ultra">Ultra Visual</option>
+            </select>
+          </label>
+        </div>
+
         <div class="living-room" aria-label="Quarto gamer futurista do Orion">
           <button class="room-object room-monitor" type="button" data-room-object="monitor" aria-label="Interagir com monitor">
             <span class="monitor-screen"></span>
@@ -71,16 +104,35 @@
           <button class="room-object room-holo" type="button" data-room-object="holo" aria-label="Ativar holograma">
             <span></span>
           </button>
+          <button class="room-object room-memory" type="button" data-room-object="memory" aria-label="Interagir com painel de memoria">
+            <span></span>
+          </button>
+          <button class="room-object room-voice" type="button" data-room-object="voice" aria-label="Interagir com painel de voz">
+            <span></span>
+          </button>
+          <button class="room-object room-search" type="button" data-room-object="search" aria-label="Interagir com painel de busca">
+            <span></span>
+          </button>
+          <button class="room-object room-portal" type="button" data-room-object="portal" aria-label="Interagir com portal de universos">
+            <span></span>
+          </button>
         </div>
 
         <button class="orion-avatar" id="orion-avatar" type="button" aria-label="Interagir com Orion">
           <span class="orion-aura"></span>
           <span class="orion-shadow"></span>
           <span class="orion-body">
+            <span class="orion-shoulder shoulder-left"></span>
+            <span class="orion-shoulder shoulder-right"></span>
             <span class="orion-arm arm-left"><span class="orion-hand"></span></span>
             <span class="orion-arm arm-right"><span class="orion-hand"></span></span>
             <span class="orion-coat"></span>
+            <span class="orion-suit-detail detail-left"></span>
+            <span class="orion-suit-detail detail-right"></span>
             <span class="orion-core"></span>
+            <span class="orion-waist"></span>
+            <span class="orion-leg leg-left"><span class="orion-boot"></span></span>
+            <span class="orion-leg leg-right"><span class="orion-boot"></span></span>
             <span class="orion-neck"></span>
             <span class="orion-head">
               <span class="orion-hair hair-1"></span>
@@ -94,6 +146,26 @@
             </span>
           </span>
         </button>
+
+        <section class="brain-mode" id="brain-mode" aria-label="Modo cerebro do Orion" hidden>
+          <div class="brain-shell" aria-hidden="true">
+            <span class="brain-lobe lobe-left"></span>
+            <span class="brain-lobe lobe-right"></span>
+            <span class="brain-stem"></span>
+            <span class="neural-ring ring-a"></span>
+            <span class="neural-ring ring-b"></span>
+            <span class="neural-dot dot-a"></span>
+            <span class="neural-dot dot-b"></span>
+            <span class="neural-dot dot-c"></span>
+            <span class="neural-dot dot-d"></span>
+          </div>
+          <button class="control-chip control-chip--primary" id="body-mode-button" type="button">Voltar ao Orion</button>
+        </section>
+
+        <section class="web-search-panel" id="web-search-panel" aria-label="Busca web do Orion" hidden>
+          <span>Busca web</span>
+          <a id="web-search-link" href="https://www.google.com" target="_blank" rel="noreferrer">Abrir resultado</a>
+        </section>
 
         <div class="orion-ambient-3d" id="orion-scene" aria-hidden="true"></div>
 

@@ -9,6 +9,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Visual 2D, guarda-roupa e Modo Cerebro do Orion
+  - Frontend adiciona corpo 2D mais completo, roupas trocaveis, modos de voz e preferencia visual por usuario local.
+  - Modo Cerebro exibe nucleo neural flutuante com retorno ao personagem sem alterar WebSocket ou backend.
+  - Busca web opcional abre pesquisa somente com confirmacao e preserva funcionamento offline.
 - Raciocinio conversacional e avatar 2D mais responsivo
   - Brain fallback classifica intencao, emocao, topico, urgencia, estado visual, tamanho de resposta e permissao de voz.
   - WebSocket e API preservam campos antigos e adicionam reasoningState, responseLength, urgency e shouldSpeak.

@@ -109,7 +109,7 @@ Passos recomendados:
 O cache atual esperado do Orion para esta correcao e:
 
 ```text
-orion-pwa-v29-reasoning-avatar
+orion-pwa-v30-visual-brain
 ```
 
 Na Fase 2, o frontend tambem envia um `userId` anonimo pelo WebSocket para permitir memoria local por navegador. Em producao HTTPS, a conexao esperada continua sendo `wss://seu-app.onrender.com/ws`.

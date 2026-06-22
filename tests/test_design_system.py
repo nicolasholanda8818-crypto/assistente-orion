@@ -43,12 +43,18 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'id="orion-bubble"' in index
     assert 'id="mic-button"' in index
     assert 'id="camera-button"' in index
+    assert 'id="brain-mode-button"' in index
+    assert 'id="wardrobe-select"' in index
+    assert 'id="voice-mode-select"' in index
+    assert 'id="visual-mode-select"' in index
+    assert 'id="brain-mode"' in index
+    assert 'id="web-search-panel"' in index
 
 
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v29-reasoning-avatar";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v30-visual-brain";' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/js/")' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/css/")' in service_worker
     assert '"/assets/css/tokens.css"' in service_worker
@@ -120,3 +126,23 @@ def test_orion_reasoning_visual_contract_is_available():
     assert "shouldSpeak" in main
     assert 'data-reasoning-state="thinking"' in stylesheet
     assert 'data-voice-state="listening"' in stylesheet
+
+
+def test_orion_visual_modes_and_search_contract_are_available():
+    main = read_frontend("assets/js/main.js")
+    stylesheet = read_frontend("assets/css/styles.css")
+
+    for function_name in [
+        "applyWardrobe",
+        "applyVoiceMode",
+        "applyVisualMode",
+        "enterBrainMode",
+        "exitBrainMode",
+        "handleOptionalWebSearch",
+    ]:
+        assert f"function {function_name}" in main
+
+    assert 'data-outfit="armor"' in stylesheet
+    assert ".brain-mode" in stylesheet
+    assert ".web-search-panel" in stylesheet
+    assert 'data-visual-mode="performance"' in stylesheet

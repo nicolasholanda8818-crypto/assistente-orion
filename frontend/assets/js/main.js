@@ -4,11 +4,28 @@ import { setupOnboarding } from "./onboarding.js";
 import { registerPwa, setupInstallPrompt } from "./pwa.js";
 import { startScene } from "./scene.js";
 import { createOrionSocket } from "./socket.js";
-import { createLivingAvatar } from "./living-avatar.js?v=29";
+import { createLivingAvatar } from "./living-avatar.js?v=30";
 
 const MAX_VISIBLE_MESSAGES = 42;
 const USER_ID_KEY = "orion:userId";
 const USER_NAME_KEY = "orion:userName";
+const WEB_SEARCH_TERMS = ["pesquise", "pesquisar", "busque", "buscar", "procure", "google"];
+const WARDROBE_LINES = {
+  original: "Visual original carregado. Classico, luminoso e meu.",
+  casual: "Essa roupa casual ficou boa em mim.",
+  teacher: "Jaleco tecnologico ativado. Agora eu pareco ainda mais professor.",
+  elegant: "Visual elegante aprovado. Estou tentando nao parecer convencido.",
+  future: "Modo futurista ligado. Essa energia combina comigo.",
+  armor: "Armadura azul pronta. Visual aprovado para dominar o sistema.",
+  training: "Roupa de treino equipada. Vou fingir que alonguei antes.",
+  game: "Modo jogo ativado. Lord Dragons sentiria orgulho.",
+};
+const VOICE_MODES = {
+  calm: { rate: 0.88, pitch: 0.96, volume: 0.92 },
+  balanced: { rate: 1, pitch: 1.02, volume: 1 },
+  energetic: { rate: 1.08, pitch: 1.08, volume: 1 },
+  teacher: { rate: 0.94, pitch: 1, volume: 1 },
+};
 const TOUCH_REACTIONS = [
   "Ei, cuidado com o cabelo, Mestre.",
   "Isso fez cócegas.",
@@ -34,7 +51,16 @@ const elements = {
   orionAvatar: document.querySelector("#orion-avatar"),
   orionBubble: document.querySelector("#orion-bubble"),
   scene: document.querySelector("#orion-scene"),
+  workspace: document.querySelector("#workspace"),
   orionStateIndicator: document.querySelector("#orion-state-indicator"),
+  brainMode: document.querySelector("#brain-mode"),
+  brainModeButton: document.querySelector("#brain-mode-button"),
+  bodyModeButton: document.querySelector("#body-mode-button"),
+  wardrobeSelect: document.querySelector("#wardrobe-select"),
+  voiceModeSelect: document.querySelector("#voice-mode-select"),
+  visualModeSelect: document.querySelector("#visual-mode-select"),
+  webSearchPanel: document.querySelector("#web-search-panel"),
+  webSearchLink: document.querySelector("#web-search-link"),
 };
 
 let socket;
@@ -50,6 +76,7 @@ let speechRecognition;
 let voiceInputActive = false;
 let voiceReplyEnabled = false;
 let currentReasoningState = "waiting";
+let voiceSettings = VOICE_MODES.balanced;
 
 export function initOrionVisual() {
   setOrionState("online");
@@ -62,6 +89,8 @@ export function initOrionVisual() {
     blinkOrionEyes,
   });
   livingAvatar.start();
+  loadVisualPreferences();
+  bindOrionControls();
   elements.orionAvatar.addEventListener("click", handleOrionTouch);
   elements.orionAvatar.addEventListener("touchstart", handleOrionTouch, { passive: true });
   elements.messageInput.addEventListener("input", () => {
@@ -126,6 +155,143 @@ export function pulseOrionAura(color = "#51f6ff") {
     elements.orionAvatar.classList.add("pulse-aura-now");
     window.setTimeout(() => elements.orionAvatar.classList.remove("pulse-aura-now"), 900);
   });
+}
+
+export function bindOrionControls() {
+  elements.brainModeButton?.addEventListener("click", enterBrainMode);
+  elements.bodyModeButton?.addEventListener("click", exitBrainMode);
+  elements.wardrobeSelect?.addEventListener("change", () => {
+    applyWardrobe(elements.wardrobeSelect.value, { react: true });
+  });
+  elements.voiceModeSelect?.addEventListener("change", () => {
+    applyVoiceMode(elements.voiceModeSelect.value, { react: true });
+  });
+  elements.visualModeSelect?.addEventListener("change", () => {
+    applyVisualMode(elements.visualModeSelect.value, { react: true });
+  });
+}
+
+export function loadVisualPreferences() {
+  const preferences = readUserVisualPreferences();
+  applyWardrobe(preferences.outfit || "original", { persist: false, react: false });
+  applyVoiceMode(preferences.voiceMode || "balanced", { persist: false, react: false });
+  applyVisualMode(preferences.visualMode || defaultVisualMode(), { persist: false, react: false });
+}
+
+export function applyWardrobe(outfit, options = {}) {
+  const selected = WARDROBE_LINES[outfit] ? outfit : "original";
+  elements.orionAvatar.dataset.outfit = selected;
+  if (elements.wardrobeSelect) {
+    elements.wardrobeSelect.value = selected;
+  }
+  if (options.persist !== false) {
+    writeUserVisualPreferences({ outfit: selected });
+  }
+  if (options.react) {
+    playOrionReaction(selected === "teacher" ? "teacher" : selected === "armor" ? "proud" : "pose");
+    setOrionMood(selected === "teacher" ? "professor" : selected === "armor" ? "confident" : "happy");
+    pulseOrionAura(selected === "armor" ? "#ff7a90" : "#65ffb6");
+    showOrionBubble(WARDROBE_LINES[selected]);
+    addChatMessage("orion", WARDROBE_LINES[selected]);
+  }
+}
+
+export function applyVoiceMode(mode, options = {}) {
+  const selected = VOICE_MODES[mode] ? mode : "balanced";
+  voiceSettings = VOICE_MODES[selected];
+  if (elements.voiceModeSelect) {
+    elements.voiceModeSelect.value = selected;
+  }
+  if (options.persist !== false) {
+    writeUserVisualPreferences({ voiceMode: selected });
+  }
+  if (options.react) {
+    const line = selected === "teacher"
+      ? "Voz de professor configurada. Vou explicar com mais calma."
+      : selected === "calm"
+        ? "Voz calma configurada. Menos pressa, mais presenca."
+        : selected === "energetic"
+          ? "Voz animada configurada. Minha aura aprovou."
+          : "Voz equilibrada configurada.";
+    showOrionBubble(line);
+    addChatMessage("orion", line);
+  }
+}
+
+export function applyVisualMode(mode, options = {}) {
+  const selected = mode === "ultra" ? "ultra" : "performance";
+  document.documentElement.dataset.visualMode = selected;
+  document.documentElement.classList.toggle("low-power", selected === "performance");
+  if (elements.visualModeSelect) {
+    elements.visualModeSelect.value = selected;
+  }
+  if (options.persist !== false) {
+    writeUserVisualPreferences({ visualMode: selected });
+  }
+  if (options.react) {
+    const line = selected === "ultra"
+      ? "Ultra Visual ativado. Prometo manter a elegancia sem travar."
+      : "Modo Performance ativado. Ficarei leve e atento.";
+    showOrionBubble(line);
+    addChatMessage("orion", line);
+  }
+}
+
+export function enterBrainMode() {
+  if (!elements.brainMode || !elements.workspace) {
+    return;
+  }
+  elements.brainMode.hidden = false;
+  elements.workspace.classList.add("is-brain-mode");
+  if (elements.brainModeButton) {
+    elements.brainModeButton.hidden = true;
+  }
+  setOrionState("thinking");
+  pulseOrionAura("#61d8ff");
+  showOrionBubble("Modo cerebro ativado. Meu nucleo neural esta flutuando.");
+}
+
+export function exitBrainMode() {
+  if (!elements.brainMode || !elements.workspace) {
+    return;
+  }
+  elements.workspace.classList.remove("is-brain-mode");
+  elements.brainMode.hidden = true;
+  if (elements.brainModeButton) {
+    elements.brainModeButton.hidden = false;
+  }
+  setOrionState("online");
+  showOrionBubble("Voltando ao meu corpo digital.");
+  addChatMessage("orion", "Voltando ao meu corpo digital.");
+}
+
+export async function handleOptionalWebSearch(text) {
+  const query = extractWebSearchQuery(text);
+  if (!query) {
+    return false;
+  }
+
+  if (!window.navigator.onLine) {
+    await typeOrionMessage("Estou sem acesso a internet agora, mas posso tentar responder com o que ja sei.");
+    return true;
+  }
+
+  const allowed = window.confirm(`Posso abrir uma busca no navegador por: ${query}?`);
+  if (!allowed) {
+    await typeOrionMessage("Tudo bem. Eu fico no modo local e respondo com o que ja sei.");
+    return true;
+  }
+
+  const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+  elements.webSearchPanel.hidden = false;
+  elements.webSearchLink.href = url;
+  elements.webSearchLink.textContent = query;
+  playOrionReaction("point-chat");
+  setOrionState("thinking");
+  showOrionBubble("Abrindo busca web no monitor.");
+  window.open(url, "_blank", "noopener,noreferrer");
+  await typeOrionMessage(`Abri uma busca por "${query}". Se quiser, cole aqui o resultado e eu resumo para voce.`);
+  return true;
 }
 
 function setOrionVoiceState(state) {
@@ -265,6 +431,10 @@ export async function sendMessageToOrion(text) {
   livingAvatar.reactToUserMessage(cleanText);
   animateOrionThinking();
   livingAvatar.noteActivity();
+
+  if (await handleOptionalWebSearch(cleanText)) {
+    return;
+  }
 
   const payload = {
     message: cleanText,
@@ -489,8 +659,13 @@ export function speakOrion(text, options = {}) {
   stopOrionSpeech();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "pt-BR";
-  utterance.rate = 1;
-  utterance.pitch = 1.02;
+  utterance.rate = voiceSettings.rate;
+  utterance.pitch = voiceSettings.pitch;
+  utterance.volume = voiceSettings.volume;
+  const preferredVoice = selectPreferredVoice();
+  if (preferredVoice) {
+    utterance.voice = preferredVoice;
+  }
   utterance.addEventListener("start", () => {
     setOrionVoiceState("responding");
     setOrionState("speaking");
@@ -507,6 +682,64 @@ export function stopOrionSpeech() {
   if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
+}
+
+function extractWebSearchQuery(text) {
+  const normalized = normalizeCommand(text).replace(/^orion\s+/, "");
+  const startsWithSearchTerm = WEB_SEARCH_TERMS.some((term) => normalized.startsWith(`${term} `));
+  if (!startsWithSearchTerm) {
+    return "";
+  }
+
+  let query = text.trim();
+  query = query.replace(/^(orion,\s*)?(pesquise|pesquisar|busque|buscar|procure|google)\s+/i, "");
+  query = query.replace(/^(na web|no google|sobre|por)\s+/i, "");
+  return query.trim().slice(0, 180);
+}
+
+function normalizeCommand(text) {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^\w\s,-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function readUserVisualPreferences() {
+  try {
+    return JSON.parse(window.localStorage.getItem(userVisualPreferenceKey()) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function writeUserVisualPreferences(nextValues) {
+  try {
+    const current = readUserVisualPreferences();
+    window.localStorage.setItem(userVisualPreferenceKey(), JSON.stringify({ ...current, ...nextValues }));
+  } catch {
+    // Visual preferences are optional when local storage is unavailable.
+  }
+}
+
+function userVisualPreferenceKey() {
+  return `orion:visual:${userId}`;
+}
+
+function defaultVisualMode() {
+  const lowMemory = (window.navigator.deviceMemory || 4) <= 2;
+  const lowCores = (window.navigator.hardwareConcurrency || 4) <= 2;
+  return lowMemory || lowCores || window.innerWidth < 420 ? "performance" : "ultra";
+}
+
+function selectPreferredVoice() {
+  if (!("speechSynthesis" in window)) {
+    return null;
+  }
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find((voice) => voice.lang === "pt-BR") || voices.find((voice) => voice.lang.startsWith("pt"));
 }
 
 function getOrionUserId() {

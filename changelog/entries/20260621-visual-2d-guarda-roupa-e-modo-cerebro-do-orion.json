@@ -1,0 +1,12 @@
+{
+  "id": "20260621-visual-2d-guarda-roupa-e-modo-cerebro-do-orion",
+  "type": "added",
+  "summary": "Visual 2D, guarda-roupa e Modo Cerebro do Orion",
+  "details": [
+    "Frontend adiciona corpo 2D mais completo, roupas trocaveis, modos de voz e preferencia visual por usuario local.",
+    "Modo Cerebro exibe nucleo neural flutuante com retorno ao personagem sem alterar WebSocket ou backend.",
+    "Busca web opcional abre pesquisa somente com confirmacao e preserva funcionamento offline."
+  ],
+  "date": "2026-06-21",
+  "version": null
+}
