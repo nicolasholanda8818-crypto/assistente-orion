@@ -1,0 +1,13 @@
+{
+  "id": "interface-sidebar-arquivos-inteligentes-e-ligacao-por-voz",
+  "type": "added",
+  "summary": "Organiza a PWA com sidebar, autoanalise de arquivos e modo ligacao por voz.",
+  "details": [
+    "A navegacao principal ganhou sidebar recolhivel para Chat, Cerebro, Arquivos, Lord Dragons, Memoria, Voz, Configuracoes e Instalacao.",
+    "Uploads passam a iniciar analise local automaticamente quando possivel e sugerem pesquisa web relacionada mediante confirmacao.",
+    "Microfone passa a controlar modo ligacao com escuta continua, pausa durante fala do Orion e retomada automatica.",
+    "Catalogo de voz declara modos conversa, assistente, professor, calma, animada, avo e narrador."
+  ],
+  "date": "2026-06-22",
+  "version": null
+}

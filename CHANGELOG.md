@@ -9,6 +9,11 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Organiza a PWA com sidebar, autoanalise de arquivos e modo ligacao por voz.
+  - A navegacao principal ganhou sidebar recolhivel para Chat, Cerebro, Arquivos, Lord Dragons, Memoria, Voz, Configuracoes e Instalacao.
+  - Uploads passam a iniciar analise local automaticamente quando possivel e sugerem pesquisa web relacionada mediante confirmacao.
+  - Microfone passa a controlar modo ligacao com escuta continua, pausa durante fala do Orion e retomada automatica.
+  - Catalogo de voz declara modos conversa, assistente, professor, calma, animada, avo e narrador.
 - Adiciona camera, arquivos por usuario, analise local basica e conhecimento tecnico ao Orion.
   - Novas rotas seguras para upload, listagem, detalhes, exclusao, analise de arquivos e foto da camera.
   - Frontend ganhou painel Meus Arquivos com camera, pre-visualizacao, upload, lista, analise e exclusao.

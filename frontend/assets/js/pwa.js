@@ -11,27 +11,36 @@ export async function registerPwa() {
   }
 }
 
-export function setupInstallPrompt(button) {
+export function setupInstallPrompt(targets) {
+  const buttons = Array.isArray(targets) ? targets.filter(Boolean) : [targets].filter(Boolean);
   let deferredPrompt = null;
+
+  function setButtonsHidden(hidden) {
+    buttons.forEach((button) => {
+      button.hidden = hidden;
+    });
+  }
 
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
     deferredPrompt = event;
-    button.hidden = false;
+    setButtonsHidden(false);
   });
 
-  button.addEventListener("click", async () => {
-    if (!deferredPrompt) {
-      return;
-    }
+  buttons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      if (!deferredPrompt) {
+        return;
+      }
 
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    button.hidden = true;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      setButtonsHidden(true);
+    });
   });
 
   window.addEventListener("appinstalled", () => {
-    button.hidden = true;
+    setButtonsHidden(true);
   });
 }

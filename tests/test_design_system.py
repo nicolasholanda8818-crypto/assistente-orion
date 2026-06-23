@@ -35,6 +35,11 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     index = read_frontend("index.html")
 
     assert 'class="skip-link"' in index
+    assert 'id="sidebar-toggle"' in index
+    assert 'id="orion-sidebar"' in index
+    assert 'data-sidebar-action="brain"' in index
+    assert 'data-sidebar-action="files"' in index
+    assert 'data-sidebar-action="voice"' in index
     assert 'aria-current="page"' in index
     assert 'for="message-input"' in index
     assert 'role="log"' in index
@@ -47,6 +52,9 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'id="wardrobe-select"' in index
     assert 'id="voice-mode-select"' in index
     assert 'value="conversation"' in index
+    assert 'value="calm"' in index
+    assert 'value="animated"' in index
+    assert 'value="grandma"' in index
     assert 'value="narrator"' in index
     assert 'id="visual-mode-select"' in index
     assert 'id="brain-mode"' in index
@@ -62,7 +70,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v33-files-vision";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v34-sidebar-voice-call";' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/js/")' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/css/")' in service_worker
     assert '"/assets/css/tokens.css"' in service_worker
@@ -113,6 +121,11 @@ def test_orion_visual_chat_controller_exposes_required_functions():
         "stopVoiceInput",
         "speakOrion",
         "stopOrionSpeech",
+        "bindSidebarControls",
+        "toggleSidebar",
+        "startVoiceCallMode",
+        "stopVoiceCallMode",
+        "toggleVoiceCallMode",
         "openFileVisionPanel",
         "openCameraPanel",
         "captureCameraPhoto",
@@ -130,9 +143,12 @@ def test_orion_voice_uses_browser_speech_apis():
     assert "SpeechRecognition" in main
     assert "webkitSpeechRecognition" in main
     assert 'speechRecognition.lang = "pt-BR";' in main
+    assert "voiceCallActive" in main
     assert "createOrionVoiceEngine" in main
     assert "SpeechSynthesisUtterance" in voice_engine
     assert 'utterance.lang = "pt-BR";' in voice_engine
+    assert "grandma" in voice_engine
+    assert "animated" in voice_engine
     assert "azure-speech" in voice_engine
     assert "elevenlabs" in voice_engine
     assert "openai-tts" in voice_engine
@@ -173,9 +189,13 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "bloom" in brain_vault.lower()
     assert ".web-search-panel" in stylesheet
     assert ".file-vision-panel" in stylesheet
+    assert ".orion-sidebar" in stylesheet
+    assert ".sidebar-link" in stylesheet
     assert ".file-row" in stylesheet
     assert "searchWeb" in main
     assert "uploadOrionFile" in main
     assert "uploadCameraPhoto" in main
     assert "formatWebSearchAnswer" in main
+    assert "performWebSearch" in main
+    assert "suggestWebResearchForFile" in main
     assert 'data-visual-mode="performance"' in stylesheet

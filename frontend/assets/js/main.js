@@ -57,8 +57,10 @@ const WARDROBE_LINES = {
 };
 const VOICE_MODE_ALIASES = {
   balanced: "conversation",
-  calm: "assistant",
+  calm: "calm",
   energetic: "conversation",
+  animated: "animated",
+  grandma: "grandma",
   conversation: "conversation",
   assistant: "assistant",
   teacher: "teacher",
@@ -66,8 +68,11 @@ const VOICE_MODE_ALIASES = {
 };
 const VOICE_MODE_LINES = {
   conversation: "Voz de conversa configurada. Mais suave e natural.",
-  teacher: "Voz de professor configurada. Vou explicar com pausas melhores.",
   assistant: "Voz de assistente configurada. Calma, clara e objetiva.",
+  teacher: "Voz de professor configurada. Vou explicar com pausas melhores.",
+  calm: "Voz calma configurada. Vou falar com mais suavidade.",
+  animated: "Voz animada configurada. Mais energia, sem perder clareza.",
+  grandma: "Modo avo configurado. Mais paciencia, carinho e pausas.",
   narrator: "Voz de narrador configurada. Mais pausada e cinematografica.",
 };
 const TOUCH_REACTIONS = [
@@ -80,12 +85,21 @@ const elements = {
   apiStatus: document.querySelector("#api-status"),
   wsStatus: document.querySelector("#ws-status"),
   pwaStatus: document.querySelector("#pwa-status"),
+  sidebarApiStatus: document.querySelector("#sidebar-api-status"),
+  sidebarWsStatus: document.querySelector("#sidebar-ws-status"),
   backendDetail: document.querySelector("#backend-detail"),
   databaseDetail: document.querySelector("#database-detail"),
   cacheDetail: document.querySelector("#cache-detail"),
   appMode: document.querySelector("#app-mode"),
   settingsButton: document.querySelector("#settings-button"),
   installButton: document.querySelector("#install-button"),
+  sidebarInstallButton: document.querySelector("#sidebar-install-button"),
+  app: document.querySelector("#app"),
+  sidebar: document.querySelector("#orion-sidebar"),
+  sidebarToggle: document.querySelector("#sidebar-toggle"),
+  sidebarCloseButton: document.querySelector("#sidebar-close-button"),
+  sidebarBackdrop: document.querySelector("#sidebar-backdrop"),
+  sidebarActionButtons: document.querySelectorAll("[data-sidebar-action]"),
   eventFeed: document.querySelector("#event-feed"),
   eventCount: document.querySelector("#connection-count"),
   messageForm: document.querySelector("#message-form"),
@@ -142,6 +156,9 @@ let voiceEngine;
 let speechRecognition;
 let voiceInputActive = false;
 let voiceReplyEnabled = false;
+let voiceCallActive = false;
+let voiceRecognitionPausedForSpeech = false;
+let voiceRestartTimer;
 let currentReasoningState = "waiting";
 let voiceMode = "conversation";
 let cameraStream;
@@ -165,6 +182,7 @@ export function initOrionVisual() {
   voiceEngine = createOrionVoiceEngine({ getMode: () => voiceMode });
   loadVisualPreferences();
   bindOrionControls();
+  bindSidebarControls();
   bindFileVisionControls();
   elements.orionAvatar.addEventListener("click", handleOrionTouch);
   elements.orionAvatar.addEventListener("touchstart", handleOrionTouch, { passive: true });
@@ -184,11 +202,7 @@ export function initOrionVisual() {
   });
   elements.micButton.addEventListener("click", () => {
     livingAvatar.microphoneAttention();
-    if (voiceInputActive) {
-      stopVoiceInput();
-    } else {
-      startVoiceInput();
-    }
+    toggleVoiceCallMode();
   });
   elements.cameraButton.addEventListener("click", () => {
     livingAvatar.cameraAttention();
@@ -247,6 +261,92 @@ export function bindOrionControls() {
   elements.visualModeSelect?.addEventListener("change", () => {
     applyVisualMode(elements.visualModeSelect.value, { react: true });
   });
+}
+
+export function bindSidebarControls() {
+  elements.sidebarToggle?.addEventListener("click", toggleSidebar);
+  elements.sidebarCloseButton?.addEventListener("click", closeSidebar);
+  elements.sidebarBackdrop?.addEventListener("click", closeSidebar);
+  elements.sidebarActionButtons?.forEach((button) => {
+    button.addEventListener("click", () => {
+      handleSidebarAction(button.dataset.sidebarAction);
+      closeSidebar();
+    });
+  });
+  document.querySelectorAll(".orion-sidebar a").forEach((link) => {
+    link.addEventListener("click", closeSidebar);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && elements.app?.classList.contains("is-sidebar-open")) {
+      closeSidebar();
+    }
+  });
+}
+
+export function openSidebar() {
+  elements.app?.classList.add("is-sidebar-open");
+  if (elements.sidebar) {
+    elements.sidebar.setAttribute("aria-hidden", "false");
+  }
+  if (elements.sidebarToggle) {
+    elements.sidebarToggle.setAttribute("aria-expanded", "true");
+  }
+  if (elements.sidebarBackdrop) {
+    elements.sidebarBackdrop.hidden = false;
+  }
+}
+
+export function closeSidebar() {
+  elements.app?.classList.remove("is-sidebar-open");
+  if (elements.sidebar) {
+    elements.sidebar.setAttribute("aria-hidden", "true");
+  }
+  if (elements.sidebarToggle) {
+    elements.sidebarToggle.setAttribute("aria-expanded", "false");
+  }
+  if (elements.sidebarBackdrop) {
+    elements.sidebarBackdrop.hidden = true;
+  }
+}
+
+export function toggleSidebar() {
+  if (elements.app?.classList.contains("is-sidebar-open")) {
+    closeSidebar();
+  } else {
+    openSidebar();
+  }
+}
+
+function setSidebarActive(action) {
+  elements.sidebarActionButtons?.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.sidebarAction === action);
+  });
+}
+
+function handleSidebarAction(action) {
+  setSidebarActive(action);
+  if (action === "assistant") {
+    if (!elements.brainMode?.hidden) {
+      exitBrainMode();
+    }
+    if (!elements.fileVisionPanel?.hidden) {
+      closeFileVisionPanel();
+    }
+    elements.messageInput?.focus();
+    showOrionBubble("Modo assistente pronto. O chat esta limpo para continuar.");
+  } else if (action === "brain") {
+    enterBrainMode();
+  } else if (action === "files") {
+    openFileVisionPanel();
+  } else if (action === "memory") {
+    enterBrainMode();
+    setBrainVaultState("remembering", "Usuarios");
+    showOrionBubble("Abrindo meu mapa de memoria local.");
+  } else if (action === "voice") {
+    toggleVoiceCallMode();
+  } else if (action === "settings") {
+    elements.settingsButton?.click();
+  }
 }
 
 export function bindFileVisionControls() {
@@ -411,7 +511,7 @@ export async function uploadSelectedFiles(fileList) {
         userId,
         category: inferFileCategory(file),
       });
-      handleUploadedFile(response);
+      handleUploadedFile(response, { autoAnalyze: true });
     } catch (error) {
       const message = error.message || `Nao consegui enviar ${file.name}.`;
       addChatMessage("orion", message);
@@ -514,6 +614,7 @@ export async function analyzeFileById(fileId, instructions = "") {
       reasoning_state: "answering",
     });
     await typeOrionMessage(response.message || response.summary);
+    suggestWebResearchForFile(response.file, response.keywords || [], response.summary);
     await loadUserFiles();
   } catch (error) {
     setFilesStatus("erro");
@@ -544,8 +645,35 @@ function handleUploadedFile(response, options = {}) {
   showOrionBubble("Arquivo recebido. Estou olhando para o monitor.");
   addChatMessage("orion", response.message || `Recebi ${file.original_name}.`);
   if (options.autoAnalyze) {
-    analyzeFileById(file.id, "Analise esta foto capturada pela camera.");
+    const instruction = file.source === "camera"
+      ? "Analise esta foto capturada pela camera."
+      : "Analise este arquivo e sugira proximos passos.";
+    analyzeFileById(file.id, instruction);
   }
+}
+
+function suggestWebResearchForFile(file, keywords = [], summary = "") {
+  const technicalTerms = ["erro", "deploy", "render", "docker", "websocket", "fastapi", "pwa", "api"];
+  const queryTerms = [...keywords, file.original_name]
+    .join(" ")
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((term) => term.length > 2)
+    .slice(0, 8);
+  const hasTechnicalClue = technicalTerms.some((term) => `${summary} ${queryTerms.join(" ")}`.toLowerCase().includes(term));
+  const query = queryTerms.length
+    ? queryTerms.join(" ")
+    : `${file.category} ${file.extension.replace(".", "")}`;
+  const message = hasTechnicalClue
+    ? "Analisei o arquivo. Quer que eu pesquise fontes atuais relacionadas a esse erro ou assunto?"
+    : "Analisei o arquivo. Quer que eu pesquise fontes atuais relacionadas ao conteudo?";
+  const node = addChatMessage("orion", message);
+  const action = document.createElement("button");
+  action.className = "mini-action chat-inline-action";
+  action.type = "button";
+  action.textContent = "Pesquisar fontes";
+  action.addEventListener("click", () => performWebSearch(query, { category: "Arquivos" }));
+  node.append(action);
 }
 
 function setCameraStatus(status) {
@@ -752,21 +880,27 @@ export async function handleOptionalWebSearch(text) {
   if (!query) {
     return false;
   }
+  await performWebSearch(query, { originalText: text, category: "Projetos" });
+  return true;
+}
 
+export async function performWebSearch(query, options = {}) {
   if (!window.navigator.onLine) {
     await typeOrionMessage("Estou sem acesso a internet agora, mas posso tentar responder com o que ja sei.");
-    return true;
+    return;
   }
 
   const allowed = window.confirm(`Posso pesquisar na internet por: ${query}? Nao enviarei memorias pessoais, senhas ou dados privados.`);
   if (!allowed) {
-    await sendMessageWithRestFallback(text);
-    return true;
+    if (options.originalText) {
+      await sendMessageWithRestFallback(options.originalText);
+    }
+    return;
   }
 
   playOrionReaction("point-chat");
   setOrionState("thinking");
-  setBrainVaultState("searching", "Projetos");
+  setBrainVaultState("searching", options.category || "Projetos");
   showOrionBubble("Pesquisando fontes online...");
   try {
     const response = await searchWeb({
@@ -779,7 +913,6 @@ export async function handleOptionalWebSearch(text) {
   } catch {
     await typeOrionMessage("Nao consegui acessar fontes online agora, mas posso responder com o conhecimento disponivel.");
   }
-  return true;
 }
 
 function setOrionVoiceState(state) {
@@ -1049,7 +1182,11 @@ export function showConnectionStatus(status) {
     offline: "reconectando",
     error: "erro",
   };
-  elements.wsStatus.textContent = labels[status] || status;
+  const label = labels[status] || status;
+  elements.wsStatus.textContent = label;
+  if (elements.sidebarWsStatus) {
+    elements.sidebarWsStatus.textContent = label;
+  }
 }
 
 function handleSocketMessage(message) {
@@ -1142,15 +1279,62 @@ async function sendMessageWithRestFallback(text) {
   }
 }
 
-export function startVoiceInput() {
+export function toggleVoiceCallMode() {
+  if (voiceCallActive) {
+    return stopVoiceCallMode();
+  }
+  return startVoiceCallMode();
+}
+
+export function startVoiceCallMode() {
+  voiceCallActive = true;
+  voiceReplyEnabled = true;
+  voiceRecognitionPausedForSpeech = false;
+  elements.micButton?.classList.add("is-active");
+  setOrionVoiceState("ligando");
+  setOrionState("listening");
+  showOrionBubble("Estou ouvindo.");
+  addChatMessage("system", "Modo ligacao por voz iniciado.");
+  return startVoiceInput({ continuous: true });
+}
+
+export function stopVoiceCallMode() {
+  voiceCallActive = false;
+  voiceRecognitionPausedForSpeech = false;
+  window.clearTimeout(voiceRestartTimer);
+  elements.micButton?.classList.remove("is-active");
+  stopVoiceInput({ keepCallState: true });
+  stopOrionSpeech({ keepCallState: true });
+  setOrionVoiceState("encerrado");
+  setOrionState("online");
+  showOrionBubble("Ligacao por voz encerrada.");
+  addChatMessage("system", "Modo ligacao por voz encerrado.");
+  return true;
+}
+
+export function restartVoiceCallListening() {
+  if (!voiceCallActive || document.hidden) {
+    return;
+  }
+  window.clearTimeout(voiceRestartTimer);
+  voiceRestartTimer = window.setTimeout(() => {
+    if (voiceCallActive && !voiceInputActive && !voiceRecognitionPausedForSpeech) {
+      startVoiceInput({ continuous: true });
+    }
+  }, 450);
+}
+
+export function startVoiceInput(options = {}) {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) {
     setOrionState("error");
     showOrionBubble("Reconhecimento de voz indisponivel neste navegador. Escreva para mim por enquanto.");
+    voiceCallActive = false;
+    elements.micButton?.classList.remove("is-active");
     return false;
   }
 
-  stopVoiceInput();
+  stopVoiceInput({ keepCallState: true });
   voiceReplyEnabled = true;
   speechRecognition = new Recognition();
   speechRecognition.lang = "pt-BR";
@@ -1170,6 +1354,7 @@ export function startVoiceInput() {
       .trim();
     voiceInputActive = false;
     if (transcript) {
+      voiceRecognitionPausedForSpeech = true;
       setOrionVoiceState("understanding");
       applyReasoningVisual("understanding");
       showOrionBubble(`Ouvi: ${transcript}`);
@@ -1181,12 +1366,18 @@ export function startVoiceInput() {
     setOrionVoiceState("microphone-error");
     setOrionState("error");
     showOrionBubble("Nao consegui ouvir direito. Pode tentar de novo ou escrever.");
+    if (voiceCallActive) {
+      restartVoiceCallListening();
+    }
   });
   speechRecognition.addEventListener("end", () => {
     voiceInputActive = false;
     if (elements.orionAvatar.dataset.state === "listening") {
       setOrionVoiceState("waiting");
       setOrionState("online");
+    }
+    if (voiceCallActive && !voiceRecognitionPausedForSpeech) {
+      restartVoiceCallListening();
     }
   });
 
@@ -1201,7 +1392,7 @@ export function startVoiceInput() {
   }
 }
 
-export function stopVoiceInput() {
+export function stopVoiceInput(options = {}) {
   if (!speechRecognition) {
     voiceInputActive = false;
     return;
@@ -1213,6 +1404,10 @@ export function stopVoiceInput() {
   }
   voiceInputActive = false;
   speechRecognition = undefined;
+  if (!options.keepCallState) {
+    voiceCallActive = false;
+    elements.micButton?.classList.remove("is-active");
+  }
   if (elements.orionAvatar.dataset.state === "listening") {
     setOrionVoiceState("waiting");
     setOrionState("online");
@@ -1223,12 +1418,24 @@ export function speakOrion(text, options = {}) {
   if (options.shouldSpeak === false || !voiceReplyEnabled) {
     return false;
   }
+  if (voiceCallActive) {
+    voiceRecognitionPausedForSpeech = true;
+    stopVoiceInput({ keepCallState: true });
+  }
   setOrionVoiceState("responding");
   setOrionState("speaking");
-  return voiceEngine?.speak(text, { mode: voiceMode, shouldSpeak: true }) || false;
+  return voiceEngine?.speak(text, {
+    mode: voiceMode,
+    shouldSpeak: true,
+    onEnd: () => {
+      setOrionVoiceState("waiting");
+      voiceRecognitionPausedForSpeech = false;
+      restartVoiceCallListening();
+    },
+  }) || false;
 }
 
-export function stopOrionSpeech() {
+export function stopOrionSpeech(_options = {}) {
   voiceEngine?.stop();
 }
 
@@ -1352,11 +1559,17 @@ async function loadBackendStatus() {
     const status = await getStatus();
 
     elements.apiStatus.textContent = health.status;
+    if (elements.sidebarApiStatus) {
+      elements.sidebarApiStatus.textContent = health.status;
+    }
     elements.backendDetail.textContent = status.backend;
     elements.databaseDetail.textContent = status.database.status;
     elements.cacheDetail.textContent = status.pwa.cache_name;
   } catch (error) {
     elements.apiStatus.textContent = "offline";
+    if (elements.sidebarApiStatus) {
+      elements.sidebarApiStatus.textContent = "offline";
+    }
     elements.backendDetail.textContent = error.message;
   }
 }
@@ -1374,6 +1587,7 @@ function stateLabel(state) {
   const labels = {
     online: "online",
     typing: "ouvindo",
+    ligando: "ligando",
     thinking: "pensando",
     speaking: "falando",
     listening: "ouvindo",
@@ -1382,6 +1596,8 @@ function stateLabel(state) {
     answering: "respondendo",
     waiting: "aguardando",
     responding: "respondendo",
+    pausado: "pausado",
+    encerrado: "encerrado",
     "microphone-error": "microfone",
     happy: "feliz",
     annoyed: "irritado",
@@ -1431,7 +1647,7 @@ async function boot() {
   const swResult = await registerPwa();
   elements.pwaStatus.textContent = swResult.ok ? "registrado" : "indisponivel";
 
-  setupInstallPrompt(elements.installButton);
+  setupInstallPrompt([elements.installButton, elements.sidebarInstallButton]);
 }
 
 boot();

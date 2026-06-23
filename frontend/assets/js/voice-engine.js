@@ -1,7 +1,9 @@
 const MODE_ALIASES = {
   balanced: "conversation",
-  calm: "assistant",
+  calm: "calm",
   energetic: "conversation",
+  animated: "animated",
+  grandma: "grandma",
   teacher: "teacher",
   conversation: "conversation",
   assistant: "assistant",
@@ -12,6 +14,9 @@ const MODE_PROFILES = {
   conversation: { rate: 0.98, pitch: 1.02, volume: 1, pause: 150 },
   teacher: { rate: 0.9, pitch: 1, volume: 1, pause: 240 },
   assistant: { rate: 0.94, pitch: 0.98, volume: 0.94, pause: 190 },
+  calm: { rate: 0.86, pitch: 0.96, volume: 0.92, pause: 260 },
+  animated: { rate: 1.06, pitch: 1.08, volume: 1, pause: 120 },
+  grandma: { rate: 0.82, pitch: 0.98, volume: 0.94, pause: 330 },
   narrator: { rate: 0.86, pitch: 0.92, volume: 1, pause: 310 },
 };
 
@@ -61,6 +66,7 @@ export function createOrionVoiceEngine({ getMode } = {}) {
     try {
       if (provider.id !== "speech-synthesis") {
         provider.speak(text, { mode: selectedMode, profile, language: "pt-BR" });
+        options.onEnd?.();
         return true;
       }
       speakWithSpeechSynthesis(text, {
@@ -68,6 +74,7 @@ export function createOrionVoiceEngine({ getMode } = {}) {
         currentToken: () => speechToken,
         profile,
         mode: selectedMode,
+        onEnd: options.onEnd,
       });
       return true;
     } catch {
@@ -77,6 +84,7 @@ export function createOrionVoiceEngine({ getMode } = {}) {
         currentToken: () => speechToken,
         profile: MODE_PROFILES.conversation,
         mode: "conversation",
+        onEnd: options.onEnd,
       });
     }
   }
@@ -117,7 +125,7 @@ function customProviders() {
   });
 }
 
-function speakWithSpeechSynthesis(text, { token, currentToken, profile, mode }) {
+function speakWithSpeechSynthesis(text, { token, currentToken, profile, mode, onEnd }) {
   if (!("speechSynthesis" in window)) {
     return false;
   }
@@ -127,6 +135,9 @@ function speakWithSpeechSynthesis(text, { token, currentToken, profile, mode }) 
 
   function speakSegment(index) {
     if (token !== currentToken() || index >= segments.length) {
+      if (index >= segments.length) {
+        onEnd?.();
+      }
       return;
     }
     const utterance = new SpeechSynthesisUtterance(segments[index].text);
@@ -239,13 +250,16 @@ function scoreVoice(voice) {
 function naturalRate(baseRate, index, mode) {
   const wave = Math.sin(index * 1.7) * 0.025;
   const narratorDrop = mode === "narrator" ? -0.02 : 0;
-  return clamp(baseRate + wave + narratorDrop, 0.72, 1.16);
+  const animatedLift = mode === "animated" ? 0.02 : 0;
+  return clamp(baseRate + wave + narratorDrop + animatedLift, 0.72, 1.16);
 }
 
 function naturalPitch(basePitch, index, mode) {
   const wave = Math.cos(index * 1.3) * 0.035;
   const teacherLift = mode === "teacher" ? 0.02 : 0;
-  return clamp(basePitch + wave + teacherLift, 0.78, 1.22);
+  const animatedLift = mode === "animated" ? 0.03 : 0;
+  const calmDrop = mode === "calm" || mode === "grandma" ? -0.02 : 0;
+  return clamp(basePitch + wave + teacherLift + animatedLift + calmDrop, 0.78, 1.22);
 }
 
 function normalizeMode(value) {

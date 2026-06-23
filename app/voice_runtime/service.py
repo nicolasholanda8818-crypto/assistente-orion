@@ -3,7 +3,7 @@ from pathlib import Path
 from app.core.config import settings
 from app.voice_runtime.models import VoiceCatalog, VoiceProvider
 
-VOICE_MODES = ["conversation", "teacher", "assistant", "narrator"]
+VOICE_MODES = ["conversation", "assistant", "teacher", "calm", "animated", "grandma", "narrator"]
 
 
 class VoiceRuntimeService:

@@ -48,6 +48,13 @@ perfil idoso ampliado.
 
 Consulte `DESIGN_SYSTEM.md`.
 
+## Interface Principal
+
+A tela principal usa uma sidebar recolhivel para manter o chat e o avatar com mais
+espaco. A navegacao lateral centraliza Chat, Cerebro, Arquivos, Lord Dragons,
+Memoria, Voz, Configuracoes e Instalacao PWA. No mobile, o menu abre por um botao
+compacto e fecha apos a escolha do modulo.
+
 ## Modo Cerebro 3D
 
 O Modo Cerebro da PWA possui um nucleo neural premium com Three.js, particulas,
@@ -63,8 +70,12 @@ principal continua FastAPI servindo frontend estatico.
 A PWA possui `voice-engine.js`, que escolhe automaticamente a melhor voz disponivel.
 Quando Azure Speech, ElevenLabs, OpenAI TTS ou Coqui TTS local nao estiverem
 configurados, o Orion usa SpeechSynthesis API com voz `pt-BR`, pausas e variacao
-leve de entonacao. Os modos disponiveis sao `conversation`, `teacher`,
-`assistant` e `narrator`.
+leve de entonacao. Os modos disponiveis sao `conversation`, `assistant`,
+`teacher`, `calm`, `animated`, `grandma` e `narrator`.
+
+O microfone inicia o modo ligacao por voz: Orion escuta, processa a fala, pausa o
+reconhecimento enquanto responde em voz alta e volta a ouvir automaticamente ate o
+usuario encerrar.
 
 O modulo `orion_web_search` permite pesquisa integrada sem abrir Google
 manualmente. O frontend pede confirmacao antes de qualquer consulta externa,
@@ -89,7 +100,9 @@ Endpoints principais:
 O sistema aceita imagens, PDFs, textos, documentos e planilhas permitidos pela
 allowlist. Textos sao resumidos localmente; PDFs com texto usam `pypdf`; imagens
 recebem metadados basicos e mensagem clara quando OCR nao estiver configurado.
-Visitantes e usuarios so acessam arquivos associados ao seu `userId` local.
+Visitantes e usuarios so acessam arquivos associados ao seu `userId` local. A PWA
+analisa automaticamente quando possivel e oferece pesquisa web relacionada somente
+apos confirmacao do usuario.
 
 ## Onboarding
 

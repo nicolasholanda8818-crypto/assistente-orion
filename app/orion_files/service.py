@@ -500,7 +500,7 @@ def detect_jpeg_dimensions(content: bytes) -> tuple[int, int] | None:
 
 def build_analysis_message(status: str, summary: str) -> str:
     if status == "ready":
-        return f"Li o arquivo. {summary}"
+        return f"Li o arquivo. {summary} Posso explicar, criar um resumo de estudo ou pesquisar fontes atuais."
     if status == "limited":
-        return f"Analise basica concluida. {summary}"
+        return f"Analise basica concluida. {summary} Posso organizar isso e pesquisar referencias se voce autorizar."
     return summary

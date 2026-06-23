@@ -79,6 +79,9 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Voz avancada declara provedores Azure, ElevenLabs, OpenAI TTS e Coqui TTS local, com fallback SpeechSynthesis API no navegador.
 - [x] Pesquisa web integrada usa confirmacao obrigatoria, resumo com fontes e bloqueio de consultas sensiveis.
 - [x] Orion Files adiciona camera via navegador, upload seguro por usuario, analise local basica, memoria de arquivos e painel PWA.
+- [x] Interface principal recebeu sidebar recolhivel estilo chat moderno para Chat, Cerebro, Arquivos, Lord Dragons, Memoria, Voz e Configuracoes.
+- [x] Uploads agora disparam autoanalise quando possivel e sugerem pesquisa web relacionada com confirmacao do usuario.
+- [x] Voz recebeu modo ligacao continuo em `pt-BR`, pausando reconhecimento enquanto Orion fala.
 - [x] Correcao total de 2026-06-14 estabilizou lint, canvas 3D/fallback, chat continuo e resposta de identidade local.
 - [x] Living Avatar adiciona personalidade visual, falas dinamicas, comportamento espontaneo, olhar inteligente e quarto futurista interativo.
 - [x] Modo persistente Windows criado para manter o Orion online e reiniciar o servidor local se ele cair.

@@ -37,6 +37,7 @@ def test_file_upload_list_analyze_and_delete_flow(client):
     assert analyzed["file"]["analysis_status"] == "ready"
     assert "erro-websocket.txt" in analyzed["summary"]
     assert "websocket" in analyzed["keywords"]
+    assert "pesquisar fontes atuais" in analyzed["message"]
 
     delete_response = client.delete(f"/api/files/{uploaded['id']}", params={"user_id": "browser-files-a"})
     assert delete_response.status_code == 200

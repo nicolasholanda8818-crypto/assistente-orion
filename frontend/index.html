@@ -24,6 +24,18 @@
       </div>
 
       <header class="site-topbar">
+        <button
+          class="sidebar-toggle"
+          id="sidebar-toggle"
+          type="button"
+          aria-label="Abrir menu do Orion"
+          aria-controls="orion-sidebar"
+          aria-expanded="false"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <a class="brand brand--compact" href="/" aria-label="Orion inicio">
           <img src="/assets/icons/orion-icon.svg" alt="" />
           <span>Orion</span>
@@ -37,6 +49,55 @@
           <button class="button button--primary" id="install-button" type="button" hidden>Instalar</button>
         </div>
       </header>
+
+      <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
+      <aside class="orion-sidebar" id="orion-sidebar" aria-label="Navegacao principal do Orion" aria-hidden="true">
+        <div class="sidebar-header">
+          <div class="brand brand--compact">
+            <img src="/assets/icons/orion-icon.svg" alt="" />
+            <span>Orion</span>
+          </div>
+          <button class="panel-icon-button" id="sidebar-close-button" type="button" aria-label="Fechar menu">×</button>
+        </div>
+        <nav class="sidebar-nav" aria-label="Modulos do Orion">
+          <button class="sidebar-link is-active" type="button" data-sidebar-action="assistant">
+            <span class="sidebar-mark">C</span>
+            <span>Chat</span>
+          </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="brain">
+            <span class="sidebar-mark">B</span>
+            <span>Cerebro</span>
+          </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="files">
+            <span class="sidebar-mark">F</span>
+            <span>Arquivos</span>
+          </button>
+          <a class="sidebar-link" href="/game.html">
+            <span class="sidebar-mark">G</span>
+            <span>Lord Dragons</span>
+          </a>
+          <button class="sidebar-link" type="button" data-sidebar-action="memory">
+            <span class="sidebar-mark">M</span>
+            <span>Memoria</span>
+          </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="voice">
+            <span class="sidebar-mark">V</span>
+            <span>Voz</span>
+          </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="settings">
+            <span class="sidebar-mark">S</span>
+            <span>Configuracoes</span>
+          </button>
+          <button class="sidebar-link sidebar-link--install" id="sidebar-install-button" type="button" hidden>
+            <span class="sidebar-mark">P</span>
+            <span>Instalar PWA</span>
+          </button>
+        </nav>
+        <div class="sidebar-footer">
+          <span>API <strong id="sidebar-api-status">...</strong></span>
+          <span>WS <strong id="sidebar-ws-status">...</strong></span>
+        </div>
+      </aside>
 
       <section class="orion-stage" id="workspace" tabindex="-1" aria-labelledby="orion-title">
         <div class="orion-status-row" aria-label="Estado do sistema">
@@ -75,8 +136,11 @@
             <span>Voz</span>
             <select id="voice-mode-select">
               <option value="conversation">Conversa</option>
-              <option value="teacher">Professor</option>
               <option value="assistant">Assistente</option>
+              <option value="teacher">Professor</option>
+              <option value="calm">Calma</option>
+              <option value="animated">Animada</option>
+              <option value="grandma">Modo avo</option>
               <option value="narrator">Narrador</option>
             </select>
           </label>
