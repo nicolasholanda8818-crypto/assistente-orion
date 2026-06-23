@@ -4,7 +4,7 @@
 
 Status: `PROTOTIPO JOGAVEL LORD DRAGONS ADICIONADO COM RC BLOQUEADO`
 
-Status operacional recente: `FASE 2 - MEMORIA, VOZ E RACIOCINIO CONVERSACIONAL EM VALIDACAO`
+Status operacional recente: `FASE 1 - INTELIGENCIA CONVERSACIONAL COM CONTINUIDADE EM VALIDACAO`
 
 O workspace contem um prototipo exploratorio nao versionado. Ele nao representa uma versao aprovada do ORION e deve ser auditado antes de qualquer aproveitamento. Nesta etapa, nenhum modulo funcional deve ser expandido.
 
@@ -82,6 +82,8 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Interface principal recebeu sidebar recolhivel estilo chat moderno para Chat, Cerebro, Arquivos, Lord Dragons, Memoria, Voz e Configuracoes.
 - [x] Uploads agora disparam autoanalise quando possivel e sugerem pesquisa web relacionada com confirmacao do usuario.
 - [x] Voz recebeu modo ligacao continuo em `pt-BR`, pausando reconhecimento enquanto Orion fala.
+- [x] Inteligencia conversacional Fase 1 adiciona continuidade por usuario, objetivos, preferencias, estados recentes e perguntas inteligentes.
+- [x] Sistemas `orion_intent`, `orion_memory` e `orion_reasoning` mantem resposta local sem expor cadeia interna de pensamento.
 - [x] Correcao total de 2026-06-14 estabilizou lint, canvas 3D/fallback, chat continuo e resposta de identidade local.
 - [x] Living Avatar adiciona personalidade visual, falas dinamicas, comportamento espontaneo, olhar inteligente e quarto futurista interativo.
 - [x] Modo persistente Windows criado para manter o Orion online e reiniciar o servidor local se ele cair.
@@ -101,13 +103,13 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 
 ## Ultima Validacao Local
 
-Data: `2026-06-22`
+Data: `2026-06-23`
 
 | Gate | Resultado |
 | --- | --- |
 | Ruff lint e format | aprovado |
 | Sintaxe JavaScript e PWA | aprovado |
-| Pytest backend | `148 passed`, `9 warnings` |
+| Pytest backend | `156 passed`, `9 warnings` |
 | Coverage backend | configurado com minimo de 80% |
 | Playwright E2E Chromium | `5 passed` |
 | Onboarding visual desktop e mobile | aprovado |
@@ -118,6 +120,7 @@ Data: `2026-06-22`
 | Pip Audit ambiente local | bloqueado por `chromadb 1.5.3` e `python-multipart 0.0.20` instalados fora dos requisitos runtime |
 | Secret scan | aprovado |
 | Orion Files | upload, listagem, analise, exclusao e foto de camera testados |
+| Inteligencia conversacional | memoria, retorno, objetivos, API REST e WebSocket aprovados |
 | Performance baseline | aprovado em `docs/releases/0.1.0-rc.1/performance.json` |
 | Build release | `dist/orion-foundation.zip` gerado e verificado |
 | Release Candidate | `0.1.0-rc.1` gerado com manifesto e SHA-256, bloqueado para promocao |
@@ -234,6 +237,28 @@ Resultado:
 - [x] Mensagens com senhas, tokens, chaves, CPF, cartoes, PIX ou numeros longos sao ignoradas pela memoria.
 - [x] Fala de silencio do avatar recebeu iniciativa leve sobre dia, projetos e proximos passos.
 - [x] Cache PWA atualizado para `orion-pwa-v26-user-memory`.
+
+## Fase 1 - Inteligencia Conversacional
+
+Data: `2026-06-23`
+
+Resultado:
+
+- [x] `orion_intent` criado para analise deterministica de intencao, emocao, palavras-chave e necessidade de esclarecimento.
+- [x] `orion_memory` criado para compor continuidade, perguntas inteligentes e iniciativa leve por usuario.
+- [x] Memoria por usuario agora registra objetivos e estados emocionais recentes em `orion_user_summaries`.
+- [x] Orion reconhece retorno do usuario, como `voltei`, e pode retomar um estado recente como cansaco ou preocupacao.
+- [x] Respostas foram personalizadas com nome, projetos, objetivos, preferencias e arquivos analisados quando presentes.
+- [x] API REST e WebSocket usam o mesmo `BrainService`, mantendo fallback local e compatibilidade com Render.
+
+Validacao executada:
+
+- `python -m ruff check app scripts tests`: aprovado.
+- `python -m pytest tests -q`: `156 passed`, `9 warnings`.
+- `python scripts\validate_pwa.py`: aprovado.
+- `python scripts\generate_changelog.py --check`: aprovado.
+- `python scripts\generate_wiki.py --check`: aprovado.
+- `python scripts\check_secrets.py`: aprovado.
 
 Validacao:
 

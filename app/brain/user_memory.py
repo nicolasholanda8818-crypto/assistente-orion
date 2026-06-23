@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass, field
 from hashlib import sha256
 
-from app.brain.orion_intents import detect_intent, extract_keywords, normalize_text
+from app.brain.orion_intents import classify_emotion, detect_intent, extract_keywords, normalize_text
 from app.db import repositories
 
 SENSITIVE_TERMS = {
@@ -60,6 +60,18 @@ PROJECT_PATTERNS = (
     re.compile(r"\bestou trabalhando em\s+([^.,;!?]{2,80})", re.IGNORECASE),
 )
 
+GOAL_PATTERNS = (
+    re.compile(r"\bmeu objetivo (?:e|eh|é)\s+([^.,;!?]{2,100})", re.IGNORECASE),
+    re.compile(r"\bminha meta (?:e|eh|é)\s+([^.,;!?]{2,100})", re.IGNORECASE),
+    re.compile(r"\bquero conseguir\s+([^.,;!?]{2,100})", re.IGNORECASE),
+    re.compile(r"\bpreciso terminar\s+([^.,;!?]{2,100})", re.IGNORECASE),
+)
+
+RECURRING_TOPIC_PATTERNS = (
+    re.compile(r"\bsempre falo de\s+([^.,;!?]{2,80})", re.IGNORECASE),
+    re.compile(r"\bassunto recorrente (?:e|eh|é)\s+([^.,;!?]{2,80})", re.IGNORECASE),
+)
+
 STYLE_PATTERNS = (
     re.compile(r"\b(?:responda|fale|explique)\s+([^.,;!?]{2,80})", re.IGNORECASE),
     re.compile(r"\bgosto de respostas\s+([^.,;!?]{2,80})", re.IGNORECASE),
@@ -74,7 +86,6 @@ MEMORY_SKIP_INTENTS = {
     "identity.user",
     "memory.recall",
     "request.incomplete",
-    "user.feeling",
     "help",
     "joke",
 }
@@ -117,6 +128,9 @@ class UserMemorySnapshot:
     preferences: list[str] = field(default_factory=list)
     topics: list[str] = field(default_factory=list)
     projects: list[str] = field(default_factory=list)
+    goals: list[str] = field(default_factory=list)
+    recent_feelings: list[str] = field(default_factory=list)
+    documents: list[str] = field(default_factory=list)
     summaries: list[str] = field(default_factory=list)
 
     @property
@@ -125,10 +139,26 @@ class UserMemorySnapshot:
 
     @property
     def strongest_context(self) -> str | None:
-        for values in (self.projects, self.preferences, self.topics):
+        for values in (self.projects, self.goals, self.preferences, self.topics, self.documents):
             if values:
                 return values[0]
         return None
+
+    @property
+    def primary_project(self) -> str | None:
+        return self.projects[0] if self.projects else None
+
+    @property
+    def primary_goal(self) -> str | None:
+        return self.goals[0] if self.goals else None
+
+    @property
+    def recent_feeling(self) -> str | None:
+        return self.recent_feelings[0] if self.recent_feelings else None
+
+    @property
+    def primary_document(self) -> str | None:
+        return self.documents[0] if self.documents else None
 
 
 class UserMemoryService:
@@ -155,12 +185,15 @@ class UserMemoryService:
         if name:
             return self.load(user_id)
 
-        if detect_intent(text) in MEMORY_SKIP_INTENTS:
+        intent = detect_intent(text)
+        summary = summarize_safe_message(text)
+        if intent in MEMORY_SKIP_INTENTS:
+            if summary and summary.startswith("Estado recente: "):
+                repositories.upsert_user_summary(user_id, summary, source_type="emotion")
             return self.load(user_id)
 
         for fact_type, value in extract_memory_facts(text):
             repositories.upsert_user_memory_fact(user_id, fact_type, value)
-        summary = summarize_safe_message(text)
         if summary:
             repositories.upsert_user_summary(user_id, summary)
 
@@ -201,14 +234,35 @@ def snapshot_from_rows(
         if fact_type in grouped:
             grouped[fact_type].append(str(fact["fact_value"]))
 
+    parsed_summaries = parse_summary_rows(summaries)
+
     return UserMemorySnapshot(
         user_id=user_id,
         display_name=display_name,
         preferences=grouped["preference"][:5],
         topics=grouped["topic"][:5],
         projects=grouped["project"][:5],
+        goals=parsed_summaries["goals"][:5],
+        recent_feelings=parsed_summaries["feelings"][:5],
+        documents=parsed_summaries["documents"][:5],
         summaries=[str(summary["summary"]) for summary in summaries[:5]],
     )
+
+
+def parse_summary_rows(summaries: list[dict]) -> dict[str, list[str]]:
+    parsed: dict[str, list[str]] = {"goals": [], "feelings": [], "documents": []}
+    for row in summaries:
+        summary = str(row["summary"])
+        source_type = str(row.get("source_type") or "")
+        if summary.startswith("Objetivo mencionado: "):
+            parsed["goals"].append(summary.replace("Objetivo mencionado: ", "", 1))
+        elif summary.startswith("Estado recente: "):
+            parsed["feelings"].append(summary.replace("Estado recente: ", "", 1))
+        elif source_type == "file" and summary.startswith("Arquivo "):
+            name = summary.replace("Arquivo ", "", 1).split(":", 1)[0].strip()
+            if name:
+                parsed["documents"].append(name)
+    return parsed
 
 
 def contains_sensitive_data(text: str) -> bool:
@@ -277,8 +331,15 @@ def extract_memory_facts(text: str) -> list[tuple[str, str]]:
             if value:
                 facts.append(("project", value))
 
+    for pattern in RECURRING_TOPIC_PATTERNS:
+        match = pattern.search(text)
+        if match:
+            value = clean_text_fragment(match.group(1), max_length=72)
+            if value:
+                facts.append(("topic", value))
+
     intent = detect_intent(text)
-    if intent in {"study", "finance", "games", "music", "technical", "teacher"}:
+    if intent in {"study", "finance", "games", "music", "technical", "teacher", "goal.setting"}:
         for keyword in extract_keywords(text)[:3]:
             if keyword not in {normalize_text(term) for term in SENSITIVE_TERMS}:
                 facts.append(("topic", keyword))
@@ -298,12 +359,21 @@ def summarize_safe_message(text: str) -> str | None:
         return None
 
     normalized = normalize_text(text)
+
+    feeling = summarize_feeling(text)
+    if feeling:
+        return f"Estado recente: {feeling}"
+
     if len(normalized.split()) < 3:
         return None
 
     projects = [value for fact_type, value in extract_memory_facts(text) if fact_type == "project"]
     if projects:
         return f"Projeto mencionado: {projects[0]}"
+
+    goal = extract_goal(text)
+    if goal:
+        return f"Objetivo mencionado: {goal}"
 
     preferences = [value for fact_type, value in extract_memory_facts(text) if fact_type == "preference"]
     if preferences:
@@ -312,6 +382,29 @@ def summarize_safe_message(text: str) -> str | None:
     keywords = extract_keywords(text)
     if keywords:
         return f"Assunto recente: {' '.join(keywords[:4])}"
+    return None
+
+
+def extract_goal(text: str) -> str | None:
+    for pattern in GOAL_PATTERNS:
+        match = pattern.search(text)
+        if match:
+            return clean_text_fragment(match.group(1), max_length=90)
+    return None
+
+
+def summarize_feeling(text: str) -> str | None:
+    emotion = classify_emotion(text)
+    if emotion == "tired":
+        return "cansado"
+    if emotion == "sad":
+        return "triste"
+    if emotion == "worried":
+        return "preocupado"
+    if emotion == "confused":
+        return "confuso"
+    if emotion == "angry":
+        return "irritado"
     return None
 
 
@@ -324,6 +417,14 @@ def clean_text_fragment(value: str, *, max_length: int) -> str:
 
 
 def build_conversation_starter(snapshot: UserMemorySnapshot) -> str | None:
+    if snapshot.recent_feeling:
+        return f"Da ultima vez voce parecia {snapshot.recent_feeling}. Como voce esta agora?"
+    if snapshot.primary_project:
+        return f"Como esta indo {snapshot.primary_project}?"
+    if snapshot.primary_goal:
+        return f"Quer avancar um passo em {snapshot.primary_goal}?"
+    if snapshot.primary_document:
+        return f"Quer retomar o arquivo {snapshot.primary_document}?"
     context = snapshot.strongest_context
     if context:
         return f"Quer continuar falando sobre {context}?"
@@ -337,7 +438,13 @@ def summary_topic(snapshot: UserMemorySnapshot) -> str | None:
     if not snapshot.summaries:
         return None
     summary = snapshot.summaries[0]
-    for prefix in ("Projeto mencionado: ", "Preferencia mencionada: ", "Assunto recente: "):
+    for prefix in (
+        "Projeto mencionado: ",
+        "Objetivo mencionado: ",
+        "Estado recente: ",
+        "Preferencia mencionada: ",
+        "Assunto recente: ",
+    ):
         if summary.startswith(prefix):
             return summary.replace(prefix, "", 1)
     return summary.lower()

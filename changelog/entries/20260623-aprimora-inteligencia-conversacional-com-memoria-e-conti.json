@@ -1,0 +1,12 @@
+{
+  "id": "20260623-aprimora-inteligencia-conversacional-com-memoria-e-conti",
+  "type": "added",
+  "summary": "Aprimora inteligencia conversacional com memoria e continuidade por usuario.",
+  "details": [
+    "Brain passa a reconhecer retorno, objetivos, preferencias, estados emocionais recentes e contexto persistente por usuario.",
+    "Novas fachadas orion_intent e orion_memory deixam parser de intencoes e memoria conversacional explicitos.",
+    "API e WebSocket preservam fallback local e retornam respostas mais naturais com perguntas de continuidade."
+  ],
+  "date": "2026-06-23",
+  "version": null
+}

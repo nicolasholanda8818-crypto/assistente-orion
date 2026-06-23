@@ -6,6 +6,7 @@ WORD_PATTERN = re.compile(r"[a-z0-9]+")
 INTENT_KEYWORDS = {
     "greeting": {"oi", "ola", "olá", "eai", "bom", "boa", "fala"},
     "farewell": {"tchau", "adeus", "sair", "encerrar", "ate", "até"},
+    "returning": {"voltei", "retornei", "cheguei"},
     "identity.self": {"quem", "voce", "você", "orion"},
     "identity.creator": {"criou", "criador", "fez", "dono"},
     "study": {"estudar", "estudo", "materia", "matematica", "portugues", "programacao", "aula", "revisar"},
@@ -23,12 +24,15 @@ INTENT_KEYWORDS = {
     "camera": {"camera", "câmera", "foto", "imagem", "visao", "visão"},
     "technical": {"erro", "codigo", "código", "api", "backend", "frontend", "websocket", "pwa", "python"},
     "memory.recall": {"lembra", "lembrar", "recorda", "recordar", "memoria"},
+    "goal.setting": {"meta", "objetivo", "objetivos", "conseguir", "terminar", "finalizar"},
+    "preference.update": {"gosto", "prefiro", "preferencia", "preferencias"},
     "conversation.reply": {"conversar", "conversa", "papo", "continuar"},
 }
 
 EMOTION_KEYWORDS = {
     "tired": {"cansado", "cansada", "sono", "exausto", "exausta"},
     "sad": {"triste", "mal", "desanimado", "desanimada"},
+    "worried": {"preocupado", "preocupada", "ansioso", "ansiosa", "nervoso", "nervosa"},
     "happy": {"feliz", "bom", "otimo", "ótimo", "legal", "gostei"},
     "confused": {"confuso", "confusa", "duvida", "dúvida", "nao", "não", "entendi"},
     "angry": {"irritado", "irritada", "raiva", "chato"},
@@ -103,10 +107,14 @@ def detect_intent(text: str) -> str:
         return "identity.user"
     if "lembra de mim" in normalized or "voce lembra de mim" in normalized:
         return "memory.recall"
+    if "de volta" in normalized or "voltei" in normalized or "retornei" in normalized:
+        return "returning"
     if classify_emotion(text) != "neutral":
         return "user.feeling"
 
     for intent, keywords in INTENT_KEYWORDS.items():
+        if intent == "identity.self" and not is_question(text):
+            continue
         normalized_keywords = {normalize_text(keyword) for keyword in keywords}
         if tokens & normalized_keywords:
             return intent

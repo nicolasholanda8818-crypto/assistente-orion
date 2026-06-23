@@ -9,6 +9,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Aprimora inteligencia conversacional com memoria e continuidade por usuario.
+  - Brain passa a reconhecer retorno, objetivos, preferencias, estados emocionais recentes e contexto persistente por usuario.
+  - Novas fachadas orion_intent e orion_memory deixam parser de intencoes e memoria conversacional explicitos.
+  - API e WebSocket preservam fallback local e retornam respostas mais naturais com perguntas de continuidade.
 - Organiza a PWA com sidebar, autoanalise de arquivos e modo ligacao por voz.
   - A navegacao principal ganhou sidebar recolhivel para Chat, Cerebro, Arquivos, Lord Dragons, Memoria, Voz, Configuracoes e Instalacao.
   - Uploads passam a iniciar analise local automaticamente quando possivel e sugerem pesquisa web relacionada mediante confirmacao.

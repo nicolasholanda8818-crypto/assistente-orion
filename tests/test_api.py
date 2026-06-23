@@ -27,7 +27,8 @@ def test_application_status(client):
     assert payload["pwa"]["static_dir"] == "frontend"
     assert payload["pwa"]["cache_name"] == "orion-pwa-v34-sidebar-voice-call"
     assert payload["brain"]["mode"] == "deterministic-fallback"
-    assert payload["brain"]["components"]["memory"] == "volatile+user-sqlite"
+    assert payload["brain"]["components"]["memory"] == "volatile+user-sqlite+continuity"
+    assert payload["brain"]["components"]["orion_memory"] == "profile-facts-summaries"
     assert payload["tools"]["enabled"] == 3
     assert payload["models"]["external_calls"] == "disabled"
     assert payload["voice"]["fallback_provider"] == "speech-synthesis"
@@ -52,7 +53,7 @@ def test_brain_status(client):
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["components"]["memory"] == "volatile+user-sqlite"
+    assert payload["components"]["memory"] == "volatile+user-sqlite+continuity"
     assert payload["components"]["execution"] == "side-effect-free"
 
 
@@ -125,6 +126,57 @@ def test_brain_process_remembers_project_summary(client):
     payload = greeting_response.json()
     assert payload["user_name"] == "Marina"
     assert "jogo de aventura" in payload["message"]
+
+
+def test_brain_process_connects_feeling_after_user_returns(client):
+    client.post(
+        "/api/brain/process",
+        json={"text": "me chamo Nicolas", "conversation_id": "continuity-api-a", "user_id": "browser-api-cont"},
+    )
+    feeling_response = client.post(
+        "/api/brain/process",
+        json={"text": "estou cansado", "conversation_id": "continuity-api-a", "user_id": "browser-api-cont"},
+    )
+
+    assert feeling_response.status_code == 200
+    assert feeling_response.json()["emotion"] == "tired"
+
+    return_response = client.post(
+        "/api/brain/process",
+        json={"text": "voltei", "conversation_id": "continuity-api-b", "user_id": "browser-api-cont"},
+    )
+
+    assert return_response.status_code == 200
+    payload = return_response.json()
+    assert payload["intent"] == "returning"
+    assert "Nicolas" in payload["message"]
+    assert "Conseguiu descansar" in payload["message"]
+
+
+def test_brain_process_remembers_goals_without_new_schema(client):
+    client.post(
+        "/api/brain/process",
+        json={"text": "me chamo Lara", "conversation_id": "goal-api-a", "user_id": "browser-api-goal"},
+    )
+    goal_response = client.post(
+        "/api/brain/process",
+        json={
+            "text": "meu objetivo e publicar o Orion no Render",
+            "conversation_id": "goal-api-a",
+            "user_id": "browser-api-goal",
+        },
+    )
+
+    assert goal_response.status_code == 200
+    assert goal_response.json()["intent"] == "goal.setting"
+
+    recall_response = client.post(
+        "/api/brain/process",
+        json={"text": "lembra de mim?", "conversation_id": "goal-api-b", "user_id": "browser-api-goal"},
+    )
+
+    assert recall_response.status_code == 200
+    assert "publicar o Orion no Render" in recall_response.json()["message"]
 
 
 def test_brain_process_does_not_store_memory_recall_as_topic(client):

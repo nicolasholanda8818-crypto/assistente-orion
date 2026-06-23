@@ -28,6 +28,7 @@
 - [x] Criar modo persistente Windows para manter Orion online e reconectar WebSocket continuamente.
 - [x] Implementar memoria de usuario por navegador com nome, preferencias, projetos e assuntos nao sensiveis.
 - [x] Implementar camera, arquivos por usuario, analise local basica e memoria de arquivos.
+- [x] Implementar inteligencia conversacional Fase 1 com continuidade, objetivos, emocoes contextuais e iniciativa leve.
 - [ ] Vendorizar Three.js localmente para PWA offline completo.
 - [ ] Endurecer WebSocket com autenticacao, origin check, rate limit e quotas.
 - [ ] Criar E2E automatizado para o fluxo visual do Orion.

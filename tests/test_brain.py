@@ -5,9 +5,12 @@ from app.brain.knowledge import KnowledgeService
 from app.brain.learning import LearningService
 from app.brain.memory import MemoryService
 from app.brain.models import BrainPlan, BrainRequest, ContextSnapshot, PlanStep
+from app.brain.orion_intent import analyze_intent
 from app.brain.orion_intents import classify_emotion, detect_intent, extract_keywords, is_question
+from app.brain.orion_memory import build_orion_memory_context
 from app.brain.planning import PlanningService
 from app.brain.service import BrainService
+from app.brain.user_memory import UserMemorySnapshot
 
 
 def test_brain_status_exposes_separated_components():
@@ -15,13 +18,17 @@ def test_brain_status_exposes_separated_components():
 
     assert status.status == "ready"
     assert status.components == {
-        "memory": "volatile+user-sqlite",
+        "memory": "volatile+user-sqlite+continuity",
         "planning": "allowlist",
         "execution": "side-effect-free",
         "learning": "metadata-only",
         "knowledge": "local-static",
+        "orion_reasoning": "intent-emotion-context",
+        "orion_memory": "profile-facts-summaries",
+        "orion_intent": "deterministic-parser",
     }
     assert "no-host-actions" in status.restrictions
+    assert "user.context.continuity" in status.capabilities
 
 
 def test_brain_processes_status_and_records_volatile_context():
@@ -77,6 +84,9 @@ def test_brain_identifies_current_admin_user_without_external_model():
         ("Orion, fala comigo", "greeting"),
         ("vamos conversar", "conversation.reply"),
         ("lembra de mim?", "memory.recall"),
+        ("voltei", "returning"),
+        ("meu objetivo e publicar o Orion", "goal.setting"),
+        ("prefiro respostas curtas", "preference.update"),
         ("mensagem aleatoria de teste", "conversation.reply"),
     ],
 )
@@ -106,8 +116,33 @@ def test_orion_reasoning_handles_human_conversation_edges(text):
 def test_orion_intents_extract_keywords_and_emotion():
     assert detect_intent("me ajuda com um erro no backend") == "help"
     assert classify_emotion("estou cansado") == "tired"
+    assert classify_emotion("estou preocupado") == "worried"
     assert "backend" in extract_keywords("me ajuda com um erro no backend")
     assert is_question("quem e voce?")
+
+
+def test_orion_intent_analysis_marks_memory_relevant_context():
+    analysis = analyze_intent("meu objetivo e melhorar o Orion")
+
+    assert analysis.intent == "goal.setting"
+    assert analysis.should_remember is True
+    assert analysis.needs_clarification is False
+
+
+def test_orion_memory_context_prioritizes_feeling_continuity():
+    snapshot = UserMemorySnapshot(
+        user_id="browser-brain-context",
+        display_name="Nicolas",
+        projects=["Orion"],
+        goals=["publicar o Orion"],
+        recent_feelings=["cansado"],
+    )
+
+    context = build_orion_memory_context(snapshot=snapshot, user_text="voltei", intent="returning")
+
+    assert context.has_persistent_context is True
+    assert context.continuity_hint == "Mais cedo voce comentou que estava cansado. Conseguiu descansar?"
+    assert "nome: Nicolas" in context.profile_summary
 
 
 def test_memory_isolated_by_conversation():

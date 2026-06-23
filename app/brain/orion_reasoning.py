@@ -44,6 +44,11 @@ RESPONSE_BANK = {
         "Combinado. Fico em espera, mas continuo atento.",
         "Encerrando a conversa por agora. Quando voltar, eu continuo daqui.",
     ],
+    "returning": [
+        "Bem-vindo de volta. Eu mantive o fio da conversa por aqui.",
+        "Detectei seu retorno. Quer continuar de onde paramos?",
+        "Voce voltou. Posso retomar o contexto anterior com calma.",
+    ],
     "identity.self": [
         "Eu sou o Orion, seu assistente local em evolucao, com chat, avatar, PWA e memoria planejada.",
         "Sou o Orion: um assistente pessoal local, futurista e um pouco dramatico quando precisa.",
@@ -117,6 +122,16 @@ RESPONSE_BANK = {
         "Se estivermos no mesmo navegador, eu consulto sua memoria local e continuo pelo que voce ja me contou.",
         "Eu posso lembrar do seu perfil local e dos assuntos seguros que voce mencionou aqui.",
     ],
+    "goal.setting": [
+        "Boa meta. Posso lembrar disso e ajudar a quebrar em passos pequenos.",
+        "Objetivo registrado mentalmente. Qual seria o primeiro passo realista?",
+        "Gostei da direcao. Vamos transformar esse objetivo em um plano simples?",
+    ],
+    "preference.update": [
+        "Perfeito. Vou levar essa preferencia em conta nas proximas respostas.",
+        "Entendido. Isso me ajuda a ajustar melhor o jeito de conversar com voce.",
+        "Preferencia anotada no meu contexto local, sem guardar nada sensivel.",
+    ],
     "user.feeling": [
         "Entendi como voce esta se sentindo. Quer que eu simplifique o proximo passo?",
         "Estou contigo. Posso responder com calma e transformar isso em uma acao pequena.",
@@ -150,6 +165,7 @@ RESPONSE_BANK = {
 MOOD_BY_INTENT = {
     "greeting": ("happy", "wave", "talk"),
     "farewell": ("neutral", "wave", "idle"),
+    "returning": ("happy", "wave", "talk"),
     "identity.self": ("confident", "direct-look", "talk"),
     "identity.creator": ("proud", "proud", "talk"),
     "identity.user": ("happy", "direct-look", "talk"),
@@ -168,6 +184,8 @@ MOOD_BY_INTENT = {
     "camera": ("curious", "direct-look", "talk"),
     "technical": ("focused", "hand-chin", "talk"),
     "memory.recall": ("thoughtful", "direct-look", "talk"),
+    "goal.setting": ("focused", "attention", "talk"),
+    "preference.update": ("happy", "soft-nod", "talk"),
     "user.feeling": ("neutral", "lean-forward", "talk"),
     "request.incomplete": ("curious", "hand-chin", "talk"),
     "question.general": ("thoughtful", "hand-chin", "talk"),
@@ -193,6 +211,7 @@ MEDIUM_LENGTH_INTENTS = {
     "finance",
     "question.general",
     "memory.recall",
+    "goal.setting",
 }
 
 
@@ -227,7 +246,8 @@ def reason_about_message(user_text: str, user_context: dict | None = None) -> Re
         avatar_reaction=avatar_reaction,
         suggested_animation=suggested_animation,
         needs_memory=profile_known
-        or intent in {"study", "finance", "technical", "conversation.reply", "memory.recall"},
+        or intent
+        in {"study", "finance", "technical", "conversation.reply", "memory.recall", "goal.setting", "returning"},
         follow_up_needed=follow_up_needed,
         topic=topic,
         urgency=urgency,
@@ -238,8 +258,12 @@ def reason_about_message(user_text: str, user_context: dict | None = None) -> Re
 
 
 def choose_response_strategy(intent: str, emotion: str, keywords: list[str]) -> str:
-    if emotion in {"tired", "sad", "confused"}:
+    if emotion in {"tired", "sad", "confused", "worried"}:
         return "supportive-follow-up"
+    if intent in {"returning", "memory.recall"}:
+        return "persistent-context"
+    if intent in {"goal.setting", "preference.update"}:
+        return "personal-memory-update"
     if intent in {"pc_command", "file", "finance"}:
         return "safe-module-routing"
     if keywords:
@@ -266,6 +290,8 @@ def infer_topic(*, intent: str, keywords: list[str], entities: dict[str, list[st
         return modules[0]
     if intent in {"study", "teacher"}:
         return "academy"
+    if intent == "goal.setting":
+        return "goals"
     if intent == "technical":
         return "technology"
     if intent == "user.feeling":
@@ -276,13 +302,13 @@ def infer_topic(*, intent: str, keywords: list[str], entities: dict[str, list[st
 
 
 def choose_reasoning_state(*, intent: str, emotion: str, follow_up_needed: bool) -> str:
-    if intent in {"greeting", "farewell", "identity.self", "identity.creator", "identity.user"}:
+    if intent in {"greeting", "farewell", "returning", "identity.self", "identity.creator", "identity.user"}:
         return "answering"
     if intent == "memory.recall":
         return "thinking"
     if intent == "request.incomplete" or follow_up_needed:
         return "clarifying"
-    if emotion in {"tired", "sad", "confused"}:
+    if emotion in {"tired", "sad", "confused", "worried"}:
         return "clarifying"
     if intent in {"technical", "teacher", "study", "question.general", "memory.recall"}:
         return "thinking"
@@ -290,7 +316,7 @@ def choose_reasoning_state(*, intent: str, emotion: str, follow_up_needed: bool)
 
 
 def choose_response_length(*, intent: str, emotion: str, follow_up_needed: bool) -> str:
-    if follow_up_needed or emotion in {"tired", "sad", "confused"}:
+    if follow_up_needed or emotion in {"tired", "sad", "confused", "worried"}:
         return "short"
     if intent in MEDIUM_LENGTH_INTENTS:
         return "medium"
@@ -300,6 +326,8 @@ def choose_response_length(*, intent: str, emotion: str, follow_up_needed: bool)
 def choose_avatar_reaction(intent: str, emotion: str, keywords: list[str]) -> tuple[str, str, str]:
     if emotion == "tired":
         return "sleepy", "lean-forward", "talk"
+    if emotion in {"sad", "worried"}:
+        return "thoughtful", "lean-forward", "talk"
     if emotion == "happy":
         return "happy", "proud", "talk"
     if emotion == "confused":

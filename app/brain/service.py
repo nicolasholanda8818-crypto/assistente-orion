@@ -5,6 +5,7 @@ from app.brain.knowledge import KnowledgeService
 from app.brain.learning import LearningService
 from app.brain.memory import MemoryService
 from app.brain.models import BrainMode, BrainRequest, BrainResponse, BrainStatus, ContextSummary, PlanStep
+from app.brain.orion_memory import OrionMemoryContext, build_orion_memory_context
 from app.brain.orion_reasoning import reason_about_message
 from app.brain.planning import PlanningService
 from app.brain.user_memory import UserMemoryService
@@ -84,6 +85,7 @@ class BrainService:
             request.text,
             user_context={
                 "profile_known": bool(user_snapshot and user_snapshot.display_name),
+                "memory_summary": user_snapshot.strongest_context if user_snapshot else None,
                 "turn_seed": f"{request.conversation_id}:{self.memory.count()}",
             },
         )
@@ -98,12 +100,18 @@ class BrainService:
         message = execution.message
         if plan.intent not in {"system.status", "knowledge.answer", "identity.creator", "identity.user"}:
             message = reasoning.response
+        memory_context = build_orion_memory_context(
+            snapshot=user_snapshot,
+            user_text=request.text,
+            intent=plan.intent,
+        )
         if user_snapshot and user_snapshot.display_name:
             message = self._personalize_message(
                 message=message,
                 request=request,
                 intent=plan.intent,
                 snapshot=user_snapshot,
+                memory_context=memory_context,
             )
 
         self.memory.remember(conversation_id=request.conversation_id, role="user", content=request.text)
@@ -130,9 +138,13 @@ class BrainService:
             should_speak=reasoning.should_speak,
             keywords=reasoning.keywords,
             user_name=user_snapshot.display_name if user_snapshot else None,
-            conversation_starter=self.user_memory.build_context_hint(snapshot=user_snapshot, user_text=request.text)
-            if user_snapshot
-            else None,
+            conversation_starter=memory_context.initiative_prompt
+            or memory_context.continuity_hint
+            or (
+                self.user_memory.build_context_hint(snapshot=user_snapshot, user_text=request.text)
+                if user_snapshot
+                else None
+            ),
         )
 
     def welcome(self, user_id: str) -> BrainResponse:
@@ -155,21 +167,53 @@ class BrainService:
             conversation_starter=starter,
         )
 
-    def _personalize_message(self, *, message: str, request: BrainRequest, intent: str, snapshot) -> str:
+    def _personalize_message(
+        self,
+        *,
+        message: str,
+        request: BrainRequest,
+        intent: str,
+        snapshot,
+        memory_context: OrionMemoryContext,
+    ) -> str:
         name = snapshot.display_name
         if intent == "identity.user":
+            if memory_context.profile_summary:
+                return f"Voce e {name}. Eu lembro deste perfil local: {memory_context.profile_summary}."
             return f"Voce e {name}. Eu lembro pelo seu perfil local neste Orion."
         if intent == "greeting":
-            starter = self.user_memory.build_context_hint(snapshot=snapshot, user_text=request.text)
-            suffix = f" {starter}" if starter else " O que vamos criar agora?"
-            return f"Ola, {name}. E um prazer ve-lo novamente.{suffix}"
+            suffix = memory_context.continuity_hint or memory_context.initiative_prompt
+            if not suffix:
+                suffix = "O que vamos criar agora?"
+            return f"Ola, {name}. E bom ver voce novamente. {suffix}"
+        if intent == "returning":
+            suffix = (
+                memory_context.continuity_hint
+                or memory_context.initiative_prompt
+                or "Continuamos de onde paramos?"
+            )
+            return f"Bem-vindo de volta, {name}. {suffix}"
         if intent == "memory.recall":
-            hint = self.user_memory.build_context_hint(snapshot=snapshot, user_text=request.text)
-            if hint:
-                return f"Sim, {name}. {hint}"
+            if memory_context.profile_summary:
+                return f"Sim, {name}. Eu lembro com seguranca: {memory_context.profile_summary}."
+            if memory_context.continuity_hint:
+                return f"Sim, {name}. {memory_context.continuity_hint}"
             return f"Sim, {name}. Eu lembro do seu perfil local neste Orion."
-        if intent in {"conversation.reply", "question.general", "technical", "study"}:
-            hint = self.user_memory.build_context_hint(snapshot=snapshot, user_text=request.text)
+        if intent == "goal.setting":
+            hint = memory_context.continuity_hint or "Vou guardar esse objetivo como contexto seguro da nossa conversa."
+            return f"Combinado, {name}. {hint} Qual primeiro passo parece possivel hoje?"
+        if intent == "preference.update":
+            hint = memory_context.continuity_hint or "Vou ajustar meu jeito de responder por essa preferencia."
+            return f"Entendido, {name}. {hint}"
+        if intent == "user.feeling":
+            hint = memory_context.continuity_hint
+            if hint:
+                return f"Estou aqui, {name}. {hint}"
+            return f"Estou aqui, {name}. Quer que eu te ajude a transformar isso em um passo pequeno?"
+        if intent == "request.incomplete" and memory_context.smart_question:
+            return f"{message} {memory_context.smart_question}"
+        if intent in {"conversation.reply", "question.general", "technical", "study", "teacher"}:
+            hint = memory_context.continuity_hint
             if hint:
                 return f"{message} {hint}"
         return message
@@ -222,17 +266,23 @@ class BrainService:
             status="ready",
             mode=BrainMode.DETERMINISTIC_FALLBACK,
             components={
-                "memory": "volatile+user-sqlite",
+                "memory": "volatile+user-sqlite+continuity",
                 "planning": "allowlist",
                 "execution": "side-effect-free",
                 "learning": "metadata-only",
                 "knowledge": "local-static",
+                "orion_reasoning": "intent-emotion-context",
+                "orion_memory": "profile-facts-summaries",
+                "orion_intent": "deterministic-parser",
             },
             capabilities=[
                 "conversation.reply",
                 "knowledge.answer",
                 "system.status",
                 "user.name.memory",
+                "user.context.continuity",
+                "user.goal.memory",
+                "conversation.initiative",
             ],
             restrictions=[
                 "localhost-only",

@@ -78,3 +78,43 @@ def test_websocket_user_memory_flow(client):
         assert response["payload"]["intent"] == "user.name.set"
         assert response["payload"]["userName"] == "Joao"
         assert "Joao" in response["payload"]["message"]
+
+
+def test_websocket_preserves_user_continuity(client):
+    with client.websocket_connect("/ws?userId=browser-ws-continuity") as websocket:
+        websocket.receive_json()
+        websocket.receive_json()
+
+        websocket.send_json(
+            {
+                "message": "me chamo Nicolas",
+                "conversationId": "ws-continuity-a",
+                "userId": "browser-ws-continuity",
+            }
+        )
+        websocket.receive_json()
+        name_response = websocket.receive_json()
+        assert name_response["payload"]["userName"] == "Nicolas"
+
+        websocket.send_json(
+            {
+                "message": "estou cansado",
+                "conversationId": "ws-continuity-a",
+                "userId": "browser-ws-continuity",
+            }
+        )
+        websocket.receive_json()
+        feeling_response = websocket.receive_json()
+        assert feeling_response["payload"]["emotion"] == "tired"
+
+        websocket.send_json(
+            {
+                "message": "voltei",
+                "conversationId": "ws-continuity-b",
+                "userId": "browser-ws-continuity",
+            }
+        )
+        websocket.receive_json()
+        return_response = websocket.receive_json()
+        assert return_response["payload"]["intent"] == "returning"
+        assert "Conseguiu descansar" in return_response["payload"]["message"]

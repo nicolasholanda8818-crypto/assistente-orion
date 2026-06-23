@@ -1,6 +1,6 @@
 # Orion User Memory
 
-Data: `2026-06-21`
+Data: `2026-06-23`
 
 ## Objetivo
 
@@ -14,6 +14,8 @@ A memoria de usuario permite que o Orion reconheca o mesmo navegador em conversa
 4. Se o perfil ainda nao tem nome, Orion pergunta como deve chamar a pessoa.
 5. Quando a pessoa informa o nome, Orion salva `display_name`.
 6. Em conversas futuras, Orion cumprimenta pelo nome e pode retomar assuntos recorrentes.
+7. Mensagens seguras sobre projetos, objetivos, preferencias e estados recentes viram contexto persistente.
+8. Quando a pessoa retorna, Orion pode conectar o assunto anterior sem expor raciocinio interno.
 
 ## Dados Salvos
 
@@ -35,6 +37,9 @@ Tabela `orion_user_summaries`:
 - `summary`: resumo curto de mensagens nao sensiveis.
 - `source_type`: origem do resumo.
 - `weight`: reforco quando o mesmo resumo aparece novamente.
+- objetivos aparecem como `Objetivo mencionado: ...`.
+- estados recentes aparecem como `Estado recente: ...`.
+- arquivos analisados aparecem com `source_type=file` e podem ser citados como contexto.
 
 ## Dados Nao Salvos
 
@@ -51,7 +56,7 @@ O Orion ignora mensagens com indicios de dados sensiveis, incluindo:
 
 - Render: preservado, com WebSocket usando `wss://` em HTTPS.
 - Docker: preservado, sem novas dependencias externas.
-- PWA: cache atualizado para `orion-pwa-v30-visual-brain`.
+- PWA: cache atual preservado em `orion-pwa-v34-sidebar-voice-call`.
 - Frontend: layout, avatar e cenario preservados.
 - Backend: resposta fallback local preservada.
 - Preferencias visuais por navegador: roupa, modo de voz e modo visual ficam em `localStorage` com chave derivada do `userId` anonimo.
@@ -67,8 +72,17 @@ O fallback local agora classifica cada mensagem com sinais leves de conversa:
 - estado visual de raciocinio;
 - tamanho esperado da resposta;
 - indicacao se a resposta pode ser falada pelo navegador.
+- retorno do usuario, como `voltei`;
+- objetivos e preferencias declarados;
+- continuidade baseada em estados recentes, projetos e arquivos.
 
 Esses sinais sao enviados pela API e pelo WebSocket sem expor cadeia de pensamento interna. O frontend usa apenas estados visuais como `thinking`, `clarifying`, `understanding` e `answering`.
+
+## Sistemas Adicionados
+
+- `orion_intent`: fachada deterministica para analise de intencao, emocao, palavras-chave e necessidade de esclarecimento.
+- `orion_memory`: composicao de memoria conversacional para continuidade, perguntas inteligentes e iniciativa leve.
+- `orion_reasoning`: resposta local enriquecida por intencao, emocao, urgencia, topico e estado visual.
 
 ## Voz No Navegador
 
@@ -95,7 +109,11 @@ Nenhum audio e enviado para o backend nesta camada. O navegador transforma a fal
 12. Fale uma frase curta.
 13. Orion deve transcrever, responder e falar a resposta.
 14. Envie `estou cansado` e verifique se Orion responde de forma acolhedora.
-15. Envie `quero melhorar isso` e verifique se Orion pede uma pista mais clara.
-16. Envie `lembra de mim?` apos salvar um nome e verifique se Orion reconhece o perfil local.
-17. Troque a roupa do Orion e recarregue a pagina.
-18. A roupa escolhida deve ser restaurada para o mesmo navegador.
+15. Envie `voltei`.
+16. Orion deve perguntar se voce conseguiu descansar.
+17. Envie `meu objetivo e publicar o Orion no Render`.
+18. Envie `lembra de mim?`.
+19. Orion deve reconhecer o nome e citar o objetivo seguro.
+20. Envie `quero melhorar isso` e verifique se Orion pede uma pista mais clara.
+21. Troque a roupa do Orion e recarregue a pagina.
+22. A roupa escolhida deve ser restaurada para o mesmo navegador.
