@@ -117,16 +117,21 @@
         </div>
 
         <div class="orion-control-deck" id="orion-control-deck" aria-label="Controles do Orion">
-          <button class="control-chip" id="brain-mode-button" type="button">Cerebro</button>
+          <button class="control-chip" id="brain-mode-button" type="button">Avatar &lt;-&gt; Cerebro</button>
+          <button class="control-chip" id="avatar-studio-button" type="button">Avatar Studio</button>
           <button class="control-chip" id="files-panel-button" type="button">Arquivos</button>
           <label class="control-field" for="wardrobe-select">
             <span>Roupa</span>
             <select id="wardrobe-select">
               <option value="original">Original Orion</option>
               <option value="casual">Casual</option>
-              <option value="teacher">Professor</option>
-              <option value="elegant">Elegante</option>
+              <option value="formal">Formal</option>
               <option value="future">Futurista</option>
+              <option value="teacher">Professor</option>
+              <option value="adventurer">Aventureiro</option>
+              <option value="lord-dragons">Lord Dragons</option>
+              <option value="tech">Tecnologico</option>
+              <option value="elegant">Elegante</option>
               <option value="armor">Armadura azul</option>
               <option value="training">Treino</option>
               <option value="game">Modo jogo</option>
@@ -148,10 +153,100 @@
             <span>Visual</span>
             <select id="visual-mode-select">
               <option value="performance">Performance</option>
+              <option value="balanced">Equilibrado</option>
               <option value="ultra">Ultra Visual</option>
             </select>
           </label>
         </div>
+
+        <section class="avatar-studio-panel" id="avatar-studio-panel" aria-label="Avatar Studio do Orion" hidden>
+          <div class="avatar-studio-header">
+            <div>
+              <span class="avatar-studio-kicker">Minha Skin</span>
+              <h2>Avatar Studio</h2>
+            </div>
+            <button class="panel-icon-button" id="avatar-studio-close-button" type="button" aria-label="Fechar Avatar Studio">x</button>
+          </div>
+          <div class="avatar-studio-grid">
+            <div class="avatar-studio-preview" id="avatar-studio-preview" aria-hidden="true">
+              <span class="studio-aura"></span>
+              <span class="studio-body"></span>
+              <span class="studio-head"></span>
+              <span class="studio-eye studio-eye-left"></span>
+              <span class="studio-eye studio-eye-right"></span>
+            </div>
+            <div class="avatar-studio-controls">
+              <label class="form-field" for="avatar-studio-outfit">
+                <span>Roupa</span>
+                <select class="field" id="avatar-studio-outfit">
+                  <option value="original">Original Orion</option>
+                  <option value="casual">Casual</option>
+                  <option value="formal">Formal</option>
+                  <option value="future">Futurista</option>
+                  <option value="teacher">Professor</option>
+                  <option value="adventurer">Aventureiro</option>
+                  <option value="lord-dragons">Lord Dragons</option>
+                  <option value="tech">Tecnologico</option>
+                </select>
+              </label>
+              <label class="form-field" for="avatar-hair-select">
+                <span>Cabelo</span>
+                <select class="field" id="avatar-hair-select">
+                  <option value="white">Branco original</option>
+                  <option value="black">Preto</option>
+                  <option value="blue">Azul</option>
+                  <option value="red">Vermelho</option>
+                  <option value="gold">Dourado</option>
+                  <option value="silver">Prata</option>
+                </select>
+              </label>
+              <label class="form-field" for="avatar-eye-select">
+                <span>Olhos</span>
+                <select class="field" id="avatar-eye-select">
+                  <option value="blue">Azul</option>
+                  <option value="green">Verde</option>
+                  <option value="red">Vermelho</option>
+                  <option value="gold">Dourado</option>
+                  <option value="purple">Roxo</option>
+                  <option value="white">Branco brilhante</option>
+                </select>
+              </label>
+              <label class="form-field" for="avatar-accessory-select">
+                <span>Acessorio</span>
+                <select class="field" id="avatar-accessory-select">
+                  <option value="none">Nenhum</option>
+                  <option value="visor">Visor holografico</option>
+                  <option value="halo">Halo neural</option>
+                  <option value="scarf">Cachecol luminoso</option>
+                  <option value="dragon-pin">Pin Lord Dragons</option>
+                </select>
+              </label>
+              <label class="form-field" for="avatar-primary-color">
+                <span>Cor principal</span>
+                <input class="field field--color" id="avatar-primary-color" type="color" value="#45c7ff" />
+              </label>
+              <label class="form-field" for="avatar-accent-color">
+                <span>Detalhes</span>
+                <input class="field field--color" id="avatar-accent-color" type="color" value="#ff4e6e" />
+              </label>
+              <label class="form-field" for="avatar-aura-color">
+                <span>Aura</span>
+                <input class="field field--color" id="avatar-aura-color" type="color" value="#51f6ff" />
+              </label>
+              <label class="form-field" for="avatar-reference-input">
+                <span>Imagem de referencia</span>
+                <input class="field" id="avatar-reference-input" type="file" accept="image/*" />
+              </label>
+            </div>
+          </div>
+          <p class="avatar-skin-summary" id="avatar-skin-summary">Visual original preservado. Envie uma imagem para eu sugerir uma adaptacao propria.</p>
+          <p class="avatar-reference-result" id="avatar-reference-result" aria-live="polite"></p>
+          <div class="avatar-studio-actions">
+            <button class="mini-action" id="avatar-preview-button" type="button">Pre-visualizar</button>
+            <button class="mini-action" id="avatar-analyze-image-button" type="button">Analisar imagem</button>
+            <button class="mini-action" id="avatar-save-skin-button" type="button">Salvar skin</button>
+          </div>
+        </section>
 
         <div class="living-room" aria-label="Quarto gamer futurista do Orion">
           <button class="room-object room-monitor" type="button" data-room-object="monitor" aria-label="Interagir com monitor">
@@ -234,16 +329,19 @@
             </div>
             <div class="brain-vault-panel" aria-label="Grafo de memoria do Orion">
               <span class="brain-state-label" id="brain-state-label">nucleo ocioso</span>
+              <span>Memorias</span>
               <span>Programacao</span>
               <span>Gestao de TI</span>
               <span>Usuarios</span>
               <span>Conversas</span>
               <span>Projetos</span>
+              <span>Documentos</span>
               <span>Arquivos</span>
+              <span>Aprendizado</span>
               <span>Lord Dragons</span>
             </div>
           </div>
-          <button class="control-chip control-chip--primary" id="body-mode-button" type="button">Voltar ao Orion</button>
+          <button class="control-chip control-chip--primary" id="body-mode-button" type="button">Avatar &lt;-&gt; Cerebro</button>
         </section>
 
         <section class="web-search-panel" id="web-search-panel" aria-label="Busca web do Orion" hidden>

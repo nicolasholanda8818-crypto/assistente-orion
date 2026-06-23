@@ -14,9 +14,9 @@ import { setupOnboarding } from "./onboarding.js";
 import { registerPwa, setupInstallPrompt } from "./pwa.js";
 import { startScene } from "./scene.js";
 import { createOrionSocket } from "./socket.js";
-import { createLivingAvatar } from "./living-avatar.js?v=30";
-import { createBrainVault } from "./brain-vault.js?v=31";
-import { createOrionVoiceEngine } from "./voice-engine.js?v=32";
+import { createLivingAvatar } from "./living-avatar.js?v=36";
+import { createBrainVault } from "./brain-vault.js?v=36";
+import { createOrionVoiceEngine } from "./voice-engine.js?v=36";
 
 const MAX_VISIBLE_MESSAGES = 42;
 const USER_ID_KEY = "orion:userId";
@@ -27,6 +27,10 @@ const WEB_SEARCH_TERMS = [
   "busque",
   "buscar",
   "procure",
+  "fonte",
+  "fontes",
+  "internet",
+  "web",
   "google",
   "mais recente",
   "versao mais recente",
@@ -35,6 +39,12 @@ const WEB_SEARCH_TERMS = [
   "hoje",
   "agora",
   "noticias",
+  "noticia",
+  "clima",
+  "tempo",
+  "temperatura",
+  "previsao",
+  "documentacao",
 ];
 const FILE_COMMAND_TERMS = [
   "abrir camera",
@@ -48,12 +58,41 @@ const FILE_COMMAND_TERMS = [
 const WARDROBE_LINES = {
   original: "Visual original carregado. Classico, luminoso e meu.",
   casual: "Essa roupa casual ficou boa em mim.",
+  formal: "Visual formal ativado. Agora eu pareco pronto para uma reuniao intergalactica.",
   teacher: "Jaleco tecnologico ativado. Agora eu pareco ainda mais professor.",
   elegant: "Visual elegante aprovado. Estou tentando nao parecer convencido.",
   future: "Modo futurista ligado. Essa energia combina comigo.",
   armor: "Armadura azul pronta. Visual aprovado para dominar o sistema.",
+  adventurer: "Modo aventureiro equipado. Parece que algum portal acabou de me chamar.",
+  "lord-dragons": "Traje Lord Dragons ativado. Prometo nao incendiar o tapete holografico.",
+  tech: "Traje tecnologico calibrado. Nucleo, linhas de energia e postura de comando.",
   training: "Roupa de treino equipada. Vou fingir que alonguei antes.",
   game: "Modo jogo ativado. Lord Dragons sentiria orgulho.",
+};
+const HAIR_COLOR_MAP = {
+  white: "#f5fbff",
+  black: "#101827",
+  blue: "#4fd7ff",
+  red: "#ff4f6d",
+  gold: "#ffd166",
+  silver: "#cbd7e8",
+};
+const EYE_COLOR_MAP = {
+  blue: "#49d9ff",
+  green: "#68ffb8",
+  red: "#ff4f6d",
+  gold: "#ffd166",
+  purple: "#b58cff",
+  white: "#f4ffff",
+};
+const DEFAULT_AVATAR_SKIN = {
+  outfit: "original",
+  hair: "white",
+  eyes: "blue",
+  accessory: "none",
+  primaryColor: "#45c7ff",
+  accentColor: "#ff4e6e",
+  auraColor: "#51f6ff",
 };
 const VOICE_MODE_ALIASES = {
   balanced: "conversation",
@@ -117,6 +156,23 @@ const elements = {
   brainStateLabel: document.querySelector("#brain-state-label"),
   brainModeButton: document.querySelector("#brain-mode-button"),
   bodyModeButton: document.querySelector("#body-mode-button"),
+  avatarStudioButton: document.querySelector("#avatar-studio-button"),
+  avatarStudioPanel: document.querySelector("#avatar-studio-panel"),
+  avatarStudioCloseButton: document.querySelector("#avatar-studio-close-button"),
+  avatarStudioPreview: document.querySelector("#avatar-studio-preview"),
+  avatarStudioOutfit: document.querySelector("#avatar-studio-outfit"),
+  avatarHairSelect: document.querySelector("#avatar-hair-select"),
+  avatarEyeSelect: document.querySelector("#avatar-eye-select"),
+  avatarAccessorySelect: document.querySelector("#avatar-accessory-select"),
+  avatarPrimaryColor: document.querySelector("#avatar-primary-color"),
+  avatarAccentColor: document.querySelector("#avatar-accent-color"),
+  avatarAuraColor: document.querySelector("#avatar-aura-color"),
+  avatarReferenceInput: document.querySelector("#avatar-reference-input"),
+  avatarAnalyzeImageButton: document.querySelector("#avatar-analyze-image-button"),
+  avatarPreviewButton: document.querySelector("#avatar-preview-button"),
+  avatarSaveSkinButton: document.querySelector("#avatar-save-skin-button"),
+  avatarSkinSummary: document.querySelector("#avatar-skin-summary"),
+  avatarReferenceResult: document.querySelector("#avatar-reference-result"),
   filesPanelButton: document.querySelector("#files-panel-button"),
   filesPanelCloseButton: document.querySelector("#files-panel-close-button"),
   wardrobeSelect: document.querySelector("#wardrobe-select"),
@@ -159,10 +215,13 @@ let voiceReplyEnabled = false;
 let voiceCallActive = false;
 let voiceRecognitionPausedForSpeech = false;
 let voiceRestartTimer;
+let orionSpeechActive = false;
 let currentReasoningState = "waiting";
 let voiceMode = "conversation";
 let cameraStream;
 let capturedPhotoDataUrl = "";
+let currentAvatarSkin = { ...DEFAULT_AVATAR_SKIN };
+let lastAvatarImageAnalysis;
 
 export function initOrionVisual() {
   setOrionState("online");
@@ -182,6 +241,7 @@ export function initOrionVisual() {
   voiceEngine = createOrionVoiceEngine({ getMode: () => voiceMode });
   loadVisualPreferences();
   bindOrionControls();
+  bindAvatarStudioControls();
   bindSidebarControls();
   bindFileVisionControls();
   elements.orionAvatar.addEventListener("click", handleOrionTouch);
@@ -252,6 +312,7 @@ export function pulseOrionAura(color = "#51f6ff") {
 export function bindOrionControls() {
   elements.brainModeButton?.addEventListener("click", enterBrainMode);
   elements.bodyModeButton?.addEventListener("click", exitBrainMode);
+  elements.avatarStudioButton?.addEventListener("click", openAvatarStudio);
   elements.wardrobeSelect?.addEventListener("change", () => {
     applyWardrobe(elements.wardrobeSelect.value, { react: true });
   });
@@ -260,6 +321,31 @@ export function bindOrionControls() {
   });
   elements.visualModeSelect?.addEventListener("change", () => {
     applyVisualMode(elements.visualModeSelect.value, { react: true });
+  });
+}
+
+export function bindAvatarStudioControls() {
+  elements.avatarStudioCloseButton?.addEventListener("click", closeAvatarStudio);
+  elements.avatarPreviewButton?.addEventListener("click", () => {
+    applyCustomSkin(readAvatarStudioSkin(), { persist: false, react: true, source: "preview" });
+  });
+  elements.avatarSaveSkinButton?.addEventListener("click", () => {
+    applyCustomSkin(readAvatarStudioSkin(), { persist: true, react: true, source: "save" });
+  });
+  elements.avatarAnalyzeImageButton?.addEventListener("click", () => analyzeAvatarReferenceImage());
+  elements.avatarReferenceInput?.addEventListener("change", () => analyzeAvatarReferenceImage());
+
+  [
+    elements.avatarStudioOutfit,
+    elements.avatarHairSelect,
+    elements.avatarEyeSelect,
+    elements.avatarAccessorySelect,
+    elements.avatarPrimaryColor,
+    elements.avatarAccentColor,
+    elements.avatarAuraColor,
+  ].forEach((control) => {
+    control?.addEventListener("input", () => updateAvatarStudioPreview(readAvatarStudioSkin()));
+    control?.addEventListener("change", () => updateAvatarStudioPreview(readAvatarStudioSkin()));
   });
 }
 
@@ -782,7 +868,11 @@ async function findLatestFileForCommand(normalizedCommand) {
 
 export function loadVisualPreferences() {
   const preferences = readUserVisualPreferences();
-  applyWardrobe(preferences.outfit || "original", { persist: false, react: false });
+  const savedSkin = preferences.avatarSkin || {
+    ...DEFAULT_AVATAR_SKIN,
+    outfit: preferences.outfit || DEFAULT_AVATAR_SKIN.outfit,
+  };
+  applyCustomSkin(savedSkin, { persist: false, react: false, source: "load" });
   applyVoiceMode(preferences.voiceMode || "balanced", { persist: false, react: false });
   applyVisualMode(preferences.visualMode || defaultVisualMode(), { persist: false, react: false });
 }
@@ -793,16 +883,435 @@ export function applyWardrobe(outfit, options = {}) {
   if (elements.wardrobeSelect) {
     elements.wardrobeSelect.value = selected;
   }
+  if (elements.avatarStudioOutfit) {
+    elements.avatarStudioOutfit.value = selected;
+  }
+  currentAvatarSkin = { ...currentAvatarSkin, outfit: selected };
+  updateAvatarStudioPreview(currentAvatarSkin);
   if (options.persist !== false) {
-    writeUserVisualPreferences({ outfit: selected });
+    writeUserVisualPreferences({
+      outfit: selected,
+      avatarSkin: currentAvatarSkin,
+    });
   }
   if (options.react) {
-    playOrionReaction(selected === "teacher" ? "teacher" : selected === "armor" ? "proud" : "pose");
-    setOrionMood(selected === "teacher" ? "professor" : selected === "armor" ? "confident" : "happy");
-    pulseOrionAura(selected === "armor" ? "#ff7a90" : "#65ffb6");
+    playOrionReaction(wardrobeReactionFor(selected));
+    setOrionMood(wardrobeMoodFor(selected));
+    pulseOrionAura(selected === "armor" || selected === "lord-dragons" ? "#ff7a90" : "#65ffb6");
     showOrionBubble(WARDROBE_LINES[selected]);
     addChatMessage("orion", WARDROBE_LINES[selected]);
   }
+}
+
+export function openAvatarStudio() {
+  if (!elements.avatarStudioPanel) {
+    return;
+  }
+  if (!elements.brainMode?.hidden) {
+    exitBrainMode();
+  }
+  elements.avatarStudioPanel.hidden = false;
+  syncAvatarStudioForm(currentAvatarSkin);
+  updateAvatarStudioPreview(currentAvatarSkin);
+  playOrionReaction("pose");
+  setOrionMood("curious");
+  showOrionBubble("Avatar Studio aberto. Podemos ajustar minha skin sem perder minha identidade.");
+}
+
+export function closeAvatarStudio() {
+  if (!elements.avatarStudioPanel) {
+    return;
+  }
+  if (elements.avatarStudioPanel) {
+    elements.avatarStudioPanel.hidden = true;
+  }
+  setOrionMood("online");
+  showOrionBubble("Avatar Studio fechado. Visual preservado.");
+}
+
+export function applyCustomSkin(skin = {}, options = {}) {
+  const nextSkin = normalizeAvatarSkin(skin);
+  currentAvatarSkin = nextSkin;
+  elements.orionAvatar.dataset.hair = nextSkin.hair;
+  elements.orionAvatar.dataset.eyes = nextSkin.eyes;
+  elements.orionAvatar.dataset.accessory = nextSkin.accessory;
+  elements.orionAvatar.dataset.customSkin = "true";
+  elements.orionAvatar.style.setProperty("--orion-hair-color", HAIR_COLOR_MAP[nextSkin.hair] || HAIR_COLOR_MAP.white);
+  elements.orionAvatar.style.setProperty("--orion-eye-color", EYE_COLOR_MAP[nextSkin.eyes] || EYE_COLOR_MAP.blue);
+  elements.orionAvatar.style.setProperty("--orion-primary-color", nextSkin.primaryColor);
+  elements.orionAvatar.style.setProperty("--orion-accent-color", nextSkin.accentColor);
+  elements.orionAvatar.style.setProperty("--orion-aura-color", nextSkin.auraColor);
+  applyWardrobe(nextSkin.outfit, { persist: false, react: false });
+  syncAvatarStudioForm(nextSkin);
+  updateAvatarStudioPreview(nextSkin);
+
+  if (options.persist !== false) {
+    writeUserVisualPreferences({
+      outfit: nextSkin.outfit,
+      avatarSkin: nextSkin,
+      lastSkinAnalysis: lastAvatarImageAnalysis,
+    });
+  }
+  if (options.react) {
+    const line = options.source === "preview"
+      ? "Pre-visualizacao aplicada. Estou avaliando o caimento."
+      : "Minha Skin foi salva neste dispositivo.";
+    playOrionReaction(options.source === "save" ? "proud" : "pose");
+    setOrionMood(options.source === "save" ? "confident" : "curious");
+    pulseOrionAura(nextSkin.auraColor);
+    showOrionBubble(line);
+    addChatMessage("orion", line);
+  }
+  return nextSkin;
+}
+
+export async function analyzeAvatarReferenceImage(file = elements.avatarReferenceInput?.files?.[0]) {
+  if (!file) {
+    const message = "Envie uma imagem de referencia para eu analisar cores, roupa e estilo.";
+    showOrionBubble(message);
+    if (elements.avatarReferenceResult) {
+      elements.avatarReferenceResult.textContent = message;
+    }
+    return undefined;
+  }
+  if (!file.type.startsWith("image/")) {
+    const message = "Esse arquivo nao parece uma imagem. Escolha uma referencia visual.";
+    showOrionBubble(message);
+    if (elements.avatarReferenceResult) {
+      elements.avatarReferenceResult.textContent = message;
+    }
+    return undefined;
+  }
+
+  setOrionState("thinking");
+  playOrionReaction("hand-chin");
+  setBrainVaultState("learning", "Aprendizado");
+  showOrionBubble("Analisando a referencia visual localmente...");
+  try {
+    const analysis = await extractAvatarImagePalette(file);
+    lastAvatarImageAnalysis = analysis;
+    const suggestedSkin = skinFromImageAnalysis(analysis);
+    syncAvatarStudioForm(suggestedSkin);
+    updateAvatarStudioPreview(suggestedSkin);
+    const message = [
+      `Identifiquei ${analysis.style} com cores ${analysis.palette.join(", ")}.`,
+      `Sugestao: roupa ${WARDROBE_LINES[suggestedSkin.outfit] ? suggestedSkin.outfit : "original"}, cabelo ${suggestedSkin.hair}, olhos ${suggestedSkin.eyes}.`,
+      "Deseja aplicar uma versao inspirada desse visual ao meu avatar?",
+    ].join(" ");
+    if (elements.avatarReferenceResult) {
+      elements.avatarReferenceResult.textContent = message;
+    }
+    if (elements.avatarSkinSummary) {
+      elements.avatarSkinSummary.textContent = message;
+    }
+    pulseOrionAura(suggestedSkin.auraColor);
+    showOrionBubble("Referencia analisada. Posso aplicar uma skin inspirada nela.");
+    addChatMessage("orion", message);
+    return analysis;
+  } catch {
+    const message = "Nao consegui analisar essa imagem no navegador. Tente outra imagem mais clara.";
+    if (elements.avatarReferenceResult) {
+      elements.avatarReferenceResult.textContent = message;
+    }
+    setOrionState("error");
+    showOrionBubble(message);
+    return undefined;
+  }
+}
+
+function readAvatarStudioSkin() {
+  return normalizeAvatarSkin({
+    outfit: elements.avatarStudioOutfit?.value || elements.wardrobeSelect?.value || currentAvatarSkin.outfit,
+    hair: elements.avatarHairSelect?.value || currentAvatarSkin.hair,
+    eyes: elements.avatarEyeSelect?.value || currentAvatarSkin.eyes,
+    accessory: elements.avatarAccessorySelect?.value || currentAvatarSkin.accessory,
+    primaryColor: elements.avatarPrimaryColor?.value || currentAvatarSkin.primaryColor,
+    accentColor: elements.avatarAccentColor?.value || currentAvatarSkin.accentColor,
+    auraColor: elements.avatarAuraColor?.value || currentAvatarSkin.auraColor,
+  });
+}
+
+function syncAvatarStudioForm(skin = currentAvatarSkin) {
+  const normalized = normalizeAvatarSkin(skin);
+  setSelectValue(elements.avatarStudioOutfit, normalized.outfit);
+  setSelectValue(elements.avatarHairSelect, normalized.hair);
+  setSelectValue(elements.avatarEyeSelect, normalized.eyes);
+  setSelectValue(elements.avatarAccessorySelect, normalized.accessory);
+  setInputValue(elements.avatarPrimaryColor, normalized.primaryColor);
+  setInputValue(elements.avatarAccentColor, normalized.accentColor);
+  setInputValue(elements.avatarAuraColor, normalized.auraColor);
+  if (elements.avatarSkinSummary && !elements.avatarSkinSummary.textContent.trim()) {
+    elements.avatarSkinSummary.textContent = "Visual original preservado. Envie uma imagem para eu sugerir uma adaptacao propria.";
+  }
+}
+
+function updateAvatarStudioPreview(skin = currentAvatarSkin) {
+  const normalized = normalizeAvatarSkin(skin);
+  if (elements.avatarStudioPreview) {
+    elements.avatarStudioPreview.dataset.outfit = normalized.outfit;
+    elements.avatarStudioPreview.dataset.hair = normalized.hair;
+    elements.avatarStudioPreview.dataset.eyes = normalized.eyes;
+    elements.avatarStudioPreview.dataset.accessory = normalized.accessory;
+    elements.avatarStudioPreview.style.setProperty("--orion-hair-color", HAIR_COLOR_MAP[normalized.hair] || HAIR_COLOR_MAP.white);
+    elements.avatarStudioPreview.style.setProperty("--orion-eye-color", EYE_COLOR_MAP[normalized.eyes] || EYE_COLOR_MAP.blue);
+    elements.avatarStudioPreview.style.setProperty("--orion-primary-color", normalized.primaryColor);
+    elements.avatarStudioPreview.style.setProperty("--orion-accent-color", normalized.accentColor);
+    elements.avatarStudioPreview.style.setProperty("--orion-aura-color", normalized.auraColor);
+  }
+  if (elements.avatarSkinSummary && !lastAvatarImageAnalysis) {
+    elements.avatarSkinSummary.textContent = `Skin pronta: roupa ${normalized.outfit}, cabelo ${normalized.hair}, olhos ${normalized.eyes}, acessorio ${normalized.accessory}.`;
+  }
+}
+
+function normalizeAvatarSkin(skin = {}) {
+  const outfit = WARDROBE_LINES[skin.outfit] ? skin.outfit : DEFAULT_AVATAR_SKIN.outfit;
+  const hair = HAIR_COLOR_MAP[skin.hair] ? skin.hair : DEFAULT_AVATAR_SKIN.hair;
+  const eyes = EYE_COLOR_MAP[skin.eyes] ? skin.eyes : DEFAULT_AVATAR_SKIN.eyes;
+  const accessory = ["none", "visor", "halo", "scarf", "dragon-pin"].includes(skin.accessory)
+    ? skin.accessory
+    : DEFAULT_AVATAR_SKIN.accessory;
+  return {
+    outfit,
+    hair,
+    eyes,
+    accessory,
+    primaryColor: normalizeHexColor(skin.primaryColor, DEFAULT_AVATAR_SKIN.primaryColor),
+    accentColor: normalizeHexColor(skin.accentColor, DEFAULT_AVATAR_SKIN.accentColor),
+    auraColor: normalizeHexColor(skin.auraColor, DEFAULT_AVATAR_SKIN.auraColor),
+  };
+}
+
+function wardrobeReactionFor(outfit) {
+  const reactions = {
+    teacher: "teacher",
+    armor: "proud",
+    tech: "point-chat",
+    "lord-dragons": "surprised",
+    adventurer: "wave",
+  };
+  return reactions[outfit] || "pose";
+}
+
+function wardrobeMoodFor(outfit) {
+  const moods = {
+    teacher: "professor",
+    armor: "confident",
+    tech: "focused",
+    "lord-dragons": "dramatic",
+    adventurer: "curious",
+  };
+  return moods[outfit] || "happy";
+}
+
+function normalizeHexColor(value, fallback) {
+  return /^#[0-9a-f]{6}$/i.test(value || "") ? value : fallback;
+}
+
+function setSelectValue(select, value) {
+  if (select && Array.from(select.options).some((option) => option.value === value)) {
+    select.value = value;
+  }
+}
+
+function setInputValue(input, value) {
+  if (input) {
+    input.value = value;
+  }
+}
+
+async function extractAvatarImagePalette(file) {
+  const image = await loadImageElement(file);
+  const canvas = document.createElement("canvas");
+  const size = 72;
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  context.drawImage(image, 0, 0, size, size);
+  URL.revokeObjectURL(image.dataset.objectUrl);
+  const pixels = context.getImageData(0, 0, size, size).data;
+  const buckets = new Map();
+  let redTotal = 0;
+  let greenTotal = 0;
+  let blueTotal = 0;
+  let usablePixels = 0;
+
+  for (let index = 0; index < pixels.length; index += 16) {
+    const red = pixels[index];
+    const green = pixels[index + 1];
+    const blue = pixels[index + 2];
+    const alpha = pixels[index + 3];
+    if (alpha < 80) {
+      continue;
+    }
+    usablePixels += 1;
+    redTotal += red;
+    greenTotal += green;
+    blueTotal += blue;
+    const key = [red, green, blue].map((channel) => Math.round(channel / 32) * 32).join(",");
+    buckets.set(key, (buckets.get(key) || 0) + 1);
+  }
+
+  const palette = Array.from(buckets.entries())
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 5)
+    .map(([key]) => rgbToHex(...key.split(",").map((value) => clampNumber(Number(value), 0, 255))));
+  const average = usablePixels
+    ? {
+        red: Math.round(redTotal / usablePixels),
+        green: Math.round(greenTotal / usablePixels),
+        blue: Math.round(blueTotal / usablePixels),
+      }
+    : { red: 69, green: 199, blue: 255 };
+  const averageHex = rgbToHex(average.red, average.green, average.blue);
+  const style = describePaletteStyle(average, palette);
+
+  return {
+    palette: palette.length ? palette : [averageHex],
+    average: averageHex,
+    style,
+    dominantMood: inferMoodFromColor(average),
+  };
+}
+
+function loadImageElement(file) {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.dataset.objectUrl = objectUrl;
+    image.onload = () => resolve(image);
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("image-load-failed"));
+    };
+    image.src = objectUrl;
+  });
+}
+
+function skinFromImageAnalysis(analysis) {
+  const palette = analysis.palette.length ? analysis.palette : [DEFAULT_AVATAR_SKIN.primaryColor];
+  const primaryColor = palette[0];
+  const accentColor = palette[1] || analysis.average || DEFAULT_AVATAR_SKIN.accentColor;
+  const auraColor = palette.find((color) => colorDistance(color, "#45c7ff") < 150) || primaryColor;
+  const averageRgb = hexToRgb(analysis.average || primaryColor);
+  const outfit = averageRgb.blue > averageRgb.red + 22
+    ? "future"
+    : averageRgb.red > averageRgb.blue + 28
+      ? "lord-dragons"
+      : averageRgb.green > averageRgb.red + 20
+        ? "adventurer"
+        : "tech";
+  return normalizeAvatarSkin({
+    outfit,
+    hair: inferHairFromPalette(palette),
+    eyes: inferEyesFromPalette(palette),
+    accessory: outfit === "lord-dragons" ? "dragon-pin" : "visor",
+    primaryColor,
+    accentColor,
+    auraColor,
+  });
+}
+
+function describePaletteStyle(average, palette) {
+  const brightness = (average.red + average.green + average.blue) / 3;
+  const hasBlue = palette.some((color) => hexToRgb(color).blue > hexToRgb(color).red + 32);
+  const hasRed = palette.some((color) => hexToRgb(color).red > hexToRgb(color).blue + 32);
+  const base = brightness < 88 ? "visual escuro" : brightness > 184 ? "visual luminoso" : "visual equilibrado";
+  if (hasBlue && hasRed) {
+    return `${base}, futurista e contrastado`;
+  }
+  if (hasBlue) {
+    return `${base}, frio e tecnologico`;
+  }
+  if (hasRed) {
+    return `${base}, dramatico e energetico`;
+  }
+  return `${base}, com leitura suave`;
+}
+
+function inferMoodFromColor(color) {
+  if (color.blue > color.red + 28) {
+    return "focused";
+  }
+  if (color.red > color.blue + 28) {
+    return "dramatic";
+  }
+  if (color.green > color.red + 18) {
+    return "curious";
+  }
+  return "confident";
+}
+
+function inferHairFromPalette(palette) {
+  const bright = palette.some((color) => colorBrightness(color) > 205);
+  const warm = palette.some((color) => {
+    const rgb = hexToRgb(color);
+    return rgb.red > rgb.blue + 30 && rgb.green > 100;
+  });
+  const blue = palette.some((color) => hexToRgb(color).blue > hexToRgb(color).red + 38);
+  const red = palette.some((color) => hexToRgb(color).red > hexToRgb(color).blue + 38);
+  if (warm) {
+    return "gold";
+  }
+  if (blue) {
+    return "blue";
+  }
+  if (red) {
+    return "red";
+  }
+  return bright ? "silver" : "white";
+}
+
+function inferEyesFromPalette(palette) {
+  const selected = palette[0] || DEFAULT_AVATAR_SKIN.primaryColor;
+  const rgb = hexToRgb(selected);
+  if (rgb.red > rgb.blue + 40 && rgb.green > 120) {
+    return "gold";
+  }
+  if (rgb.red > rgb.blue + 35) {
+    return "red";
+  }
+  if (rgb.blue > rgb.red + 45 && rgb.red > 90) {
+    return "purple";
+  }
+  if (rgb.green > rgb.red + 28) {
+    return "green";
+  }
+  return "blue";
+}
+
+function colorBrightness(color) {
+  const rgb = hexToRgb(color);
+  return (rgb.red * 299 + rgb.green * 587 + rgb.blue * 114) / 1000;
+}
+
+function colorDistance(left, right) {
+  const a = hexToRgb(left);
+  const b = hexToRgb(right);
+  return Math.sqrt(
+    ((a.red - b.red) ** 2)
+    + ((a.green - b.green) ** 2)
+    + ((a.blue - b.blue) ** 2)
+  );
+}
+
+function hexToRgb(color) {
+  const fallback = "45c7ff";
+  const value = (color || fallback).replace("#", "").padEnd(6, "0").slice(0, 6);
+  return {
+    red: parseInt(value.slice(0, 2), 16),
+    green: parseInt(value.slice(2, 4), 16),
+    blue: parseInt(value.slice(4, 6), 16),
+  };
+}
+
+function rgbToHex(red, green, blue) {
+  return `#${[red, green, blue]
+    .map((value) => clampNumber(value, 0, 255).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+function clampNumber(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }
 
 export function applyVoiceMode(mode, options = {}) {
@@ -823,7 +1332,7 @@ export function applyVoiceMode(mode, options = {}) {
 }
 
 export function applyVisualMode(mode, options = {}) {
-  const selected = mode === "ultra" ? "ultra" : "performance";
+  const selected = ["performance", "balanced", "ultra"].includes(mode) ? mode : "performance";
   document.documentElement.dataset.visualMode = selected;
   document.documentElement.classList.toggle("low-power", selected === "performance");
   if (elements.visualModeSelect) {
@@ -834,9 +1343,12 @@ export function applyVisualMode(mode, options = {}) {
   }
   brainVault?.setVisualMode(selected);
   if (options.react) {
-    const line = selected === "ultra"
-      ? "Ultra Visual ativado. Prometo manter a elegancia sem travar."
-      : "Modo Performance ativado. Ficarei leve e atento.";
+    const lines = {
+      performance: "Modo Performance ativado. Ficarei leve e atento.",
+      balanced: "Modo Equilibrado ativado. Bonito, fluido e sem exageros.",
+      ultra: "Ultra Visual ativado. Prometo manter a elegancia sem travar.",
+    };
+    const line = lines[selected] || lines.performance;
     showOrionBubble(line);
     addChatMessage("orion", line);
   }
@@ -850,6 +1362,9 @@ export function enterBrainMode() {
   elements.workspace.classList.add("is-brain-mode");
   if (elements.brainModeButton) {
     elements.brainModeButton.hidden = true;
+  }
+  if (elements.avatarStudioPanel) {
+    elements.avatarStudioPanel.hidden = true;
   }
   brainVault?.setVisualMode(document.documentElement.dataset.visualMode || "performance");
   setBrainVaultState("thinking", "Conversas");
@@ -876,11 +1391,15 @@ export function exitBrainMode() {
 }
 
 export async function handleOptionalWebSearch(text) {
-  const query = extractWebSearchQuery(text);
-  if (!query) {
+  const request = extractWebSearchRequest(text);
+  if (!request.query) {
     return false;
   }
-  await performWebSearch(query, { originalText: text, category: "Projetos" });
+  await performWebSearch(request.query, {
+    originalText: text,
+    category: searchCategoryLabel(request.searchType),
+    searchType: request.searchType,
+  });
   return true;
 }
 
@@ -890,7 +1409,10 @@ export async function performWebSearch(query, options = {}) {
     return;
   }
 
-  const allowed = window.confirm(`Posso pesquisar na internet por: ${query}? Nao enviarei memorias pessoais, senhas ou dados privados.`);
+  const searchType = options.searchType || inferWebSearchType(query);
+  const allowed = window.confirm(
+    `Posso pesquisar na internet por: ${query}? Nao enviarei memorias pessoais, senhas ou dados privados.`
+  );
   if (!allowed) {
     if (options.originalText) {
       await sendMessageWithRestFallback(options.originalText);
@@ -900,11 +1422,13 @@ export async function performWebSearch(query, options = {}) {
 
   playOrionReaction("point-chat");
   setOrionState("thinking");
+  setOrionVoiceState("thinking");
   setBrainVaultState("searching", options.category || "Projetos");
   showOrionBubble("Pesquisando fontes online...");
   try {
     const response = await searchWeb({
       query,
+      search_type: searchType,
       allow_external: true,
       max_results: 5,
     });
@@ -1078,9 +1602,10 @@ export async function typeOrionMessage(text, options = {}) {
   const message = addChatMessage("orion", "");
   const delay = Math.max(10, Math.min(24, 700 / Math.max(text.length, 1)));
 
+  setOrionVoiceState("responding");
   animateOrionSpeaking(text);
   showOrionBubble(text.slice(0, 120));
-  speakOrion(text, { shouldSpeak: options.shouldSpeak !== false });
+  const speaking = speakOrion(text, { shouldSpeak: options.shouldSpeak !== false });
 
   for (const character of text) {
     if (currentToken !== typingToken || document.hidden) {
@@ -1092,9 +1617,11 @@ export async function typeOrionMessage(text, options = {}) {
     await wait(delay);
   }
 
-  setOrionVoiceState("waiting");
   setBrainVaultState("idle");
-  setOrionState("online");
+  if (!speaking) {
+    setOrionVoiceState("waiting");
+    setOrionState("online");
+  }
 }
 
 export function trimVisibleMessages() {
@@ -1114,6 +1641,9 @@ export async function sendMessageToOrion(text) {
   stopOrionSpeech();
   livingAvatar.reactToUserMessage(cleanText);
   animateOrionThinking();
+  if (voiceCallActive || voiceReplyEnabled) {
+    setOrionVoiceState("thinking");
+  }
   setBrainVaultState("thinking", "Conversas");
   livingAvatar.noteActivity();
 
@@ -1291,7 +1821,7 @@ export function startVoiceCallMode() {
   voiceReplyEnabled = true;
   voiceRecognitionPausedForSpeech = false;
   elements.micButton?.classList.add("is-active");
-  setOrionVoiceState("ligando");
+  setOrionVoiceState("listening");
   setOrionState("listening");
   showOrionBubble("Estou ouvindo.");
   addChatMessage("system", "Modo ligacao por voz iniciado.");
@@ -1355,9 +1885,9 @@ export function startVoiceInput(options = {}) {
     voiceInputActive = false;
     if (transcript) {
       voiceRecognitionPausedForSpeech = true;
-      setOrionVoiceState("understanding");
-      applyReasoningVisual("understanding");
-      showOrionBubble(`Ouvi: ${transcript}`);
+      setOrionVoiceState("thinking");
+      applyReasoningVisual("thinking");
+      showOrionBubble(`Ouvi: ${transcript}. Pensando...`);
       sendMessageToOrion(transcript);
     }
   });
@@ -1422,34 +1952,94 @@ export function speakOrion(text, options = {}) {
     voiceRecognitionPausedForSpeech = true;
     stopVoiceInput({ keepCallState: true });
   }
+  orionSpeechActive = true;
   setOrionVoiceState("responding");
   setOrionState("speaking");
-  return voiceEngine?.speak(text, {
+  const didSpeak = voiceEngine?.speak(text, {
     mode: voiceMode,
     shouldSpeak: true,
+    onStart: () => {
+      orionSpeechActive = true;
+      setOrionVoiceState("responding");
+      setOrionState("speaking");
+    },
     onEnd: () => {
+      orionSpeechActive = false;
       setOrionVoiceState("waiting");
+      setOrionState("online");
       voiceRecognitionPausedForSpeech = false;
       restartVoiceCallListening();
     },
   }) || false;
+  if (!didSpeak) {
+    orionSpeechActive = false;
+  }
+  return didSpeak;
 }
 
 export function stopOrionSpeech(_options = {}) {
+  orionSpeechActive = false;
   voiceEngine?.stop();
 }
 
-function extractWebSearchQuery(text) {
+function extractWebSearchRequest(text) {
   const normalized = normalizeCommand(text).replace(/^orion\s+/, "");
   const hasSearchIntent = WEB_SEARCH_TERMS.some((term) => normalized.includes(term));
   if (!hasSearchIntent) {
-    return "";
+    return { query: "", searchType: "web" };
   }
 
   let query = text.trim();
   query = query.replace(/^(orion,\s*)?(pesquise|pesquisar|busque|buscar|procure|google)\s+/i, "");
-  query = query.replace(/^(na web|no google|sobre|por)\s+/i, "");
-  return query.trim().slice(0, 180);
+  query = query.replace(/^(na web|na internet|no google|sobre|por)\s+/i, "");
+  return {
+    query: query.trim().slice(0, 180),
+    searchType: inferWebSearchType(text),
+  };
+}
+
+function extractWebSearchQuery(text) {
+  return extractWebSearchRequest(text).query;
+}
+
+function inferWebSearchType(text) {
+  const normalized = normalizeCommand(text);
+  if (["clima", "tempo", "temperatura", "previsao"].some((term) => normalized.includes(term))) {
+    return "weather";
+  }
+  if (["noticia", "noticias", "manchete", "jornal"].some((term) => normalized.includes(term))) {
+    return "news";
+  }
+  if (
+    [
+      "erro",
+      "codigo",
+      "api",
+      "backend",
+      "frontend",
+      "websocket",
+      "pwa",
+      "python",
+      "fastapi",
+      "javascript",
+      "docker",
+      "render",
+      "documentacao",
+    ].some((term) => normalized.includes(term))
+  ) {
+    return "technical";
+  }
+  return "web";
+}
+
+function searchCategoryLabel(searchType) {
+  const labels = {
+    news: "Noticias",
+    weather: "Clima",
+    technical: "Busca tecnica",
+    web: "Web",
+  };
+  return labels[searchType] || "Web";
 }
 
 function renderWebSearchSources(response) {
@@ -1462,9 +2052,10 @@ function renderWebSearchSources(response) {
     return;
   }
   const primary = results[0];
+  const typeLabel = searchCategoryLabel(response.search_type || response.searchType || "web");
   elements.webSearchPanel.hidden = false;
   elements.webSearchLink.href = primary.url;
-  elements.webSearchLink.textContent = `${primary.source} + ${Math.max(results.length - 1, 0)} fontes`;
+  elements.webSearchLink.textContent = `${typeLabel}: ${primary.source} + ${Math.max(results.length - 1, 0)} fontes`;
   elements.webSearchLink.title = results.map((result) => `${result.source}: ${result.title}`).join("\n");
 }
 
@@ -1476,10 +2067,16 @@ function formatWebSearchAnswer(response) {
     .slice(0, 4)
     .map((result, index) => `${index + 1}. ${result.source} - ${result.title}`)
     .join("\n");
+  const typeLabel = searchCategoryLabel(response.search_type || response.searchType || "web");
+  const followups = (response.suggested_followups || [])
+    .slice(0, 3)
+    .map((item) => `- ${item}`)
+    .join("\n");
   return [
-    "Pesquisei na internet e encontrei informacoes recentes.",
+    `Pesquisei na internet (${typeLabel}) e encontrei informacoes recentes.`,
     response.summary,
     sources ? `Fontes:\n${sources}` : "",
+    followups ? `Posso continuar com:\n${followups}` : "",
   ].filter(Boolean).join("\n\n");
 }
 
@@ -1517,7 +2114,10 @@ function userVisualPreferenceKey() {
 function defaultVisualMode() {
   const lowMemory = (window.navigator.deviceMemory || 4) <= 2;
   const lowCores = (window.navigator.hardwareConcurrency || 4) <= 2;
-  return lowMemory || lowCores || window.innerWidth < 420 ? "performance" : "ultra";
+  if (lowMemory || lowCores || window.innerWidth < 420) {
+    return "performance";
+  }
+  return window.innerWidth > 1100 ? "ultra" : "balanced";
 }
 
 function normalizeVoiceMode(mode) {

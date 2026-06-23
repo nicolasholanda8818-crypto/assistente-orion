@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.voice_runtime.models import VoiceCatalog, VoiceProvider
 
 VOICE_MODES = ["conversation", "assistant", "teacher", "calm", "animated", "grandma", "narrator"]
+VOICE_STATES = ["listening", "thinking", "responding"]
 
 
 class VoiceRuntimeService:
@@ -92,10 +93,15 @@ class VoiceRuntimeService:
             fallback_provider="speech-synthesis",
             active_default=active,
             modes=VOICE_MODES,
+            states=VOICE_STATES,
+            language="pt-BR",
+            avatar_sync=True,
             providers=providers,
             restrictions=[
                 "no-hardcoded-secrets",
                 "speech-synthesis-fallback",
+                "pt-BR-default",
+                "avatar-state-sync",
                 "external-tts-requires-admin-configuration",
                 "no-private-memory-in-tts-provider-selection",
             ],

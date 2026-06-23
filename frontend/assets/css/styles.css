@@ -587,11 +587,194 @@ body {
   box-shadow: var(--focus-ring);
 }
 
+.avatar-studio-panel {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  gap: var(--space-3);
+  width: min(900px, 96vw);
+  max-height: min(70vh, 640px);
+  overflow: auto;
+  border: 1px solid rgba(118, 235, 255, 0.34);
+  border-radius: 22px;
+  padding: var(--space-4);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(91, 222, 255, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(5, 18, 36, 0.9), rgba(4, 12, 25, 0.82));
+  color: #e8fbff;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.42),
+    0 0 44px rgba(65, 219, 255, 0.16);
+  backdrop-filter: blur(18px);
+}
+
+.avatar-studio-panel[hidden] {
+  display: none;
+}
+
+.avatar-studio-header,
+.avatar-studio-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.avatar-studio-kicker {
+  color: #8ef5ff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+}
+
+.avatar-studio-header h2 {
+  margin: 0;
+  color: #f2fdff;
+  font-size: var(--font-size-lg);
+  letter-spacing: 0;
+}
+
+.avatar-studio-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.72fr) minmax(280px, 1.3fr);
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.avatar-studio-preview {
+  position: relative;
+  min-height: 300px;
+  border: 1px solid rgba(142, 245, 255, 0.22);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--orion-aura-color, #51f6ff) 28%, transparent), transparent 34%),
+    linear-gradient(180deg, rgba(7, 20, 40, 0.86), rgba(2, 8, 18, 0.72));
+  overflow: hidden;
+  box-shadow: inset 0 0 42px rgba(63, 207, 255, 0.08);
+}
+
+.avatar-studio-preview .studio-aura,
+.avatar-studio-preview .studio-body,
+.avatar-studio-preview .studio-head,
+.avatar-studio-preview .studio-eye {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.avatar-studio-preview .studio-aura {
+  inset: 24px 18% 18px;
+  border-radius: 48% 48% 36% 36%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--orion-aura-color, #51f6ff) 42%, transparent), transparent 62%);
+  filter: blur(2px);
+  animation: aura-breathe 3.2s ease-in-out infinite;
+}
+
+.avatar-studio-preview .studio-body {
+  bottom: 42px;
+  width: 86px;
+  height: 142px;
+  border-radius: 38% 38% 16% 16%;
+  background:
+    linear-gradient(90deg, transparent 0 34%, var(--orion-primary-color, #45c7ff) 36% 43%, transparent 44% 56%, var(--orion-primary-color, #45c7ff) 58% 65%, transparent 66%),
+    linear-gradient(165deg, #111a2d 0%, #050912 52%, #061a34 100%);
+  box-shadow:
+    0 0 30px color-mix(in srgb, var(--orion-primary-color, #45c7ff) 32%, transparent),
+    inset 0 0 0 1px rgba(144, 223, 255, 0.2);
+}
+
+.avatar-studio-preview .studio-head {
+  bottom: 178px;
+  width: 88px;
+  height: 100px;
+  border-radius: 46% 46% 42% 42%;
+  background:
+    linear-gradient(180deg, var(--orion-hair-color, #f5fbff) 0 18%, #d8ecff 19% 100%);
+  box-shadow: 0 0 24px rgba(74, 194, 255, 0.2);
+}
+
+.avatar-studio-preview .studio-eye {
+  bottom: 222px;
+  width: 13px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--orion-eye-color, #49d9ff);
+  box-shadow: 0 0 14px var(--orion-eye-color, #49d9ff);
+}
+
+.avatar-studio-preview .studio-eye-left {
+  margin-left: -22px;
+}
+
+.avatar-studio-preview .studio-eye-right {
+  margin-left: 22px;
+}
+
+.avatar-studio-preview[data-outfit="formal"] .studio-body,
+.avatar-studio-preview[data-outfit="elegant"] .studio-body {
+  background:
+    linear-gradient(90deg, transparent 0 44%, rgba(245, 252, 255, 0.74) 45% 55%, transparent 56%),
+    linear-gradient(165deg, #0a101d 0%, #02050d 52%, #121c2d 100%);
+}
+
+.avatar-studio-preview[data-outfit="future"] .studio-body,
+.avatar-studio-preview[data-outfit="armor"] .studio-body,
+.avatar-studio-preview[data-outfit="tech"] .studio-body {
+  background:
+    linear-gradient(90deg, transparent 0 28%, var(--orion-accent-color, #ff4e6e) 29% 33%, transparent 34% 66%, var(--orion-accent-color, #ff4e6e) 67% 71%, transparent 72%),
+    linear-gradient(165deg, #0b1f39 0%, #04101e 52%, #063e75 100%);
+}
+
+.avatar-studio-preview[data-outfit="adventurer"] .studio-body {
+  background:
+    linear-gradient(90deg, transparent 0 34%, rgba(124, 255, 189, 0.62) 35% 42%, transparent 43% 57%, rgba(255, 209, 102, 0.52) 58% 65%, transparent 66%),
+    linear-gradient(165deg, #142419 0%, #08120f 52%, #1b3346 100%);
+}
+
+.avatar-studio-preview[data-outfit="lord-dragons"] .studio-body {
+  background:
+    linear-gradient(90deg, transparent 0 30%, rgba(255, 178, 71, 0.72) 31% 36%, transparent 37% 63%, rgba(255, 79, 109, 0.7) 64% 69%, transparent 70%),
+    linear-gradient(165deg, #221324 0%, #09050d 54%, #2b1019 100%);
+}
+
+.avatar-studio-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.avatar-studio-controls .form-field {
+  min-width: 0;
+}
+
+.field--color {
+  min-height: 42px;
+  padding: 4px;
+}
+
+.avatar-skin-summary,
+.avatar-reference-result {
+  margin: 0;
+  color: rgba(232, 251, 255, 0.82);
+  line-height: 1.55;
+}
+
+.avatar-reference-result {
+  min-height: 24px;
+  color: #baf8ff;
+}
+
 .orion-avatar {
   position: relative;
   z-index: 2;
   --look-x: 0;
   --look-y: 0;
+  --orion-primary-color: #45c7ff;
+  --orion-accent-color: #ff4e6e;
+  --orion-hair-color: #f5fbff;
+  --orion-eye-color: #49d9ff;
+  --orion-aura-color: #51f6ff;
+  --orion-skin-color: #d8ecff;
   width: min(300px, 62vw);
   aspect-ratio: 0.72;
   border: 0;
@@ -599,8 +782,34 @@ body {
   background: transparent;
   cursor: pointer;
   transform-origin: 50% 80%;
+  transform-style: preserve-3d;
+  perspective: 800px;
   animation: orion-idle 4.8s ease-in-out infinite;
   transition: opacity 240ms ease, transform 240ms ease, filter 220ms ease;
+}
+
+.orion-avatar::before {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  content: "";
+  opacity: 0;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.orion-avatar::after {
+  position: absolute;
+  inset: 15% 12% 4%;
+  z-index: 0;
+  border-radius: 48% 48% 34% 34%;
+  background:
+    linear-gradient(115deg, transparent 0 46%, rgba(255, 255, 255, 0.14) 47% 49%, transparent 50%),
+    radial-gradient(circle at 50% 22%, rgba(255, 255, 255, 0.1), transparent 28%);
+  filter: blur(0.2px);
+  opacity: 0.24;
+  pointer-events: none;
+  transform: translateZ(-10px) skewX(-2deg);
+  content: "";
 }
 
 .orion-ambient-3d {
@@ -629,8 +838,8 @@ body {
   inset: 10% 4% 2%;
   border-radius: 45% 45% 34% 34%;
   background:
-    radial-gradient(circle at 50% 24%, rgba(111, 220, 255, 0.42), transparent 24%),
-    radial-gradient(circle at 50% 58%, rgba(24, 135, 255, 0.22), transparent 54%);
+    radial-gradient(circle at 50% 24%, color-mix(in srgb, var(--orion-aura-color) 58%, transparent), transparent 24%),
+    radial-gradient(circle at 50% 58%, color-mix(in srgb, var(--orion-primary-color) 32%, transparent), transparent 54%);
   filter: blur(2px);
   opacity: 0.82;
   animation: aura-breathe 3.2s ease-in-out infinite;
@@ -655,7 +864,7 @@ body {
   height: 50%;
   border-radius: 34% 34% 18% 18%;
   background:
-    linear-gradient(90deg, transparent 0 36%, rgba(69, 199, 255, 0.88) 37% 42%, transparent 43% 57%, rgba(69, 199, 255, 0.88) 58% 63%, transparent 64%),
+    linear-gradient(90deg, transparent 0 36%, color-mix(in srgb, var(--orion-primary-color) 88%, transparent) 37% 42%, transparent 43% 57%, color-mix(in srgb, var(--orion-primary-color) 88%, transparent) 58% 63%, transparent 64%),
     linear-gradient(165deg, #111a2d 0%, #050912 52%, #061a34 100%);
   box-shadow:
     inset 0 0 0 1px rgba(144, 223, 255, 0.2),
@@ -752,8 +961,8 @@ body {
   width: 28px;
   height: 36px;
   border-radius: 50%;
-  background: radial-gradient(circle, #d8fbff, #21bfff 48%, rgba(19, 88, 196, 0.1) 70%);
-  box-shadow: 0 0 22px #2dd6ff;
+  background: radial-gradient(circle, #d8fbff, var(--orion-primary-color) 48%, rgba(19, 88, 196, 0.1) 70%);
+  box-shadow: 0 0 22px var(--orion-primary-color);
   transform: translateX(-50%);
 }
 
@@ -808,7 +1017,7 @@ body {
   width: 34px;
   height: 28px;
   border-radius: 14px;
-  background: #d8ecff;
+  background: var(--orion-skin-color);
   transform: translateX(-50%);
 }
 
@@ -821,7 +1030,7 @@ body {
   border-radius: 46% 46% 42% 42%;
   background:
     radial-gradient(circle at 50% 68%, rgba(107, 203, 255, 0.12), transparent 32%),
-    linear-gradient(180deg, #eef9ff 0 7%, #d8ecff 8% 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--orion-skin-color) 72%, #ffffff) 0 7%, var(--orion-skin-color) 8% 100%);
   box-shadow:
     inset 0 -12px 18px rgba(80, 135, 180, 0.16),
     0 0 30px rgba(74, 194, 255, 0.25);
@@ -836,7 +1045,7 @@ body {
   position: absolute;
   top: -22px;
   border-radius: 60% 60% 48% 48%;
-  background: linear-gradient(180deg, #ffffff, #b7d5f5 70%, #8fb3df);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--orion-hair-color) 86%, #ffffff), var(--orion-hair-color) 70%, color-mix(in srgb, var(--orion-hair-color) 70%, #1d4972));
   box-shadow: 0 8px 16px rgba(255, 255, 255, 0.12);
 }
 
@@ -885,10 +1094,10 @@ body {
   width: 18px;
   height: 13px;
   border-radius: 50%;
-  background: radial-gradient(circle, #e7ffff 0 18%, #49d9ff 20% 55%, #126bff 76%);
+  background: radial-gradient(circle, #e7ffff 0 18%, var(--orion-eye-color) 20% 55%, color-mix(in srgb, var(--orion-eye-color) 58%, #126bff) 76%);
   box-shadow:
-    0 0 8px #5de8ff,
-    0 0 18px rgba(38, 151, 255, 0.9);
+    0 0 8px var(--orion-eye-color),
+    0 0 18px color-mix(in srgb, var(--orion-eye-color) 72%, #126bff);
   transform-origin: center;
   translate: calc(var(--look-x) * 7px) calc(var(--look-y) * 4px);
   animation: blink-eyes 6s infinite;
@@ -936,8 +1145,12 @@ body {
   border: 1px solid rgba(118, 235, 255, 0.35);
   border-radius: 26px;
   background:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.42) 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 24%, rgba(142, 245, 255, 0.48) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 74%, rgba(255, 209, 102, 0.32) 0 1px, transparent 2px),
     radial-gradient(circle at 50% 46%, rgba(98, 232, 255, 0.18), transparent 24%),
     radial-gradient(circle at 32% 40%, rgba(124, 255, 189, 0.09), transparent 30%),
+    radial-gradient(ellipse at 50% 55%, rgba(155, 140, 255, 0.16), transparent 52%),
     linear-gradient(180deg, rgba(4, 15, 31, 0.82), rgba(2, 8, 18, 0.72));
   box-shadow:
     0 24px 70px rgba(0, 0, 0, 0.42),
@@ -988,8 +1201,37 @@ body {
   border-radius: inherit;
 }
 
+.brain-vault-viewport::before,
+.brain-vault-viewport::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+}
+
+.brain-vault-viewport::before {
+  background:
+    radial-gradient(ellipse at 52% 48%, rgba(98, 232, 255, 0.12), transparent 34%),
+    conic-gradient(from 90deg at 50% 50%, transparent, rgba(98, 232, 255, 0.08), transparent, rgba(255, 122, 144, 0.08), transparent);
+  filter: blur(10px);
+  animation: cosmic-nebula 18s linear infinite;
+}
+
+.brain-vault-viewport::after {
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.72) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 50%, rgba(98, 232, 255, 0.72) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 42% 82%, rgba(255, 209, 102, 0.58) 0 1px, transparent 1.5px);
+  background-size: 160px 160px, 220px 220px, 180px 180px;
+  opacity: 0.42;
+  animation: cosmic-stars 22s linear infinite;
+}
+
 .brain-vault-canvas,
 .brain-vault-fallback-canvas {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
@@ -1730,11 +1972,51 @@ body {
     linear-gradient(165deg, #0d1320 0%, #02050d 54%, #111b2a 100%);
 }
 
+.orion-avatar[data-outfit="formal"] .orion-body {
+  background:
+    linear-gradient(90deg, transparent 0 44%, rgba(245, 252, 255, 0.74) 45% 55%, transparent 56%),
+    linear-gradient(165deg, #0a101d 0%, #02050d 52%, #121c2d 100%);
+}
+
+.orion-avatar[data-outfit="formal"] .orion-coat {
+  background:
+    linear-gradient(110deg, transparent 0 18%, rgba(255, 255, 255, 0.28) 19% 34%, transparent 35%),
+    linear-gradient(250deg, transparent 0 18%, rgba(255, 255, 255, 0.28) 19% 34%, transparent 35%);
+}
+
 .orion-avatar[data-outfit="future"] .orion-body,
 .orion-avatar[data-outfit="armor"] .orion-body {
   background:
     linear-gradient(90deg, transparent 0 28%, rgba(255, 78, 110, 0.75) 29% 33%, transparent 34% 66%, rgba(255, 78, 110, 0.75) 67% 71%, transparent 72%),
     linear-gradient(165deg, #0b1f39 0%, #04101e 52%, #063e75 100%);
+}
+
+.orion-avatar[data-outfit="tech"] .orion-body {
+  background:
+    linear-gradient(90deg, transparent 0 24%, var(--orion-accent-color) 25% 29%, transparent 30% 70%, var(--orion-accent-color) 71% 75%, transparent 76%),
+    linear-gradient(0deg, transparent 0 46%, color-mix(in srgb, var(--orion-primary-color) 52%, transparent) 47% 52%, transparent 53%),
+    linear-gradient(165deg, #071629 0%, #030a15 52%, #0a3a63 100%);
+}
+
+.orion-avatar[data-outfit="adventurer"] .orion-body {
+  background:
+    linear-gradient(90deg, transparent 0 34%, rgba(124, 255, 189, 0.62) 35% 42%, transparent 43% 57%, rgba(255, 209, 102, 0.52) 58% 65%, transparent 66%),
+    linear-gradient(165deg, #142419 0%, #08120f 52%, #1b3346 100%);
+}
+
+.orion-avatar[data-outfit="adventurer"] .orion-coat {
+  filter: hue-rotate(52deg) brightness(1.12);
+}
+
+.orion-avatar[data-outfit="lord-dragons"] .orion-body {
+  background:
+    linear-gradient(90deg, transparent 0 30%, rgba(255, 178, 71, 0.72) 31% 36%, transparent 37% 63%, rgba(255, 79, 109, 0.7) 64% 69%, transparent 70%),
+    linear-gradient(165deg, #221324 0%, #09050d 54%, #2b1019 100%);
+}
+
+.orion-avatar[data-outfit="lord-dragons"] .orion-core {
+  background: radial-gradient(circle, #fff2c2, #ffb347 48%, rgba(255, 79, 109, 0.12) 70%);
+  box-shadow: 0 0 26px #ffb347;
 }
 
 .orion-avatar[data-outfit="armor"] .orion-shoulder {
@@ -1756,6 +2038,55 @@ body {
 .orion-avatar[data-outfit="game"] .orion-core {
   background: radial-gradient(circle, #fff2c2, #ffcf4d 48%, rgba(19, 88, 196, 0.1) 70%);
   box-shadow: 0 0 24px #ffd166;
+}
+
+.orion-avatar[data-accessory="visor"]::before {
+  top: 32%;
+  left: 50%;
+  width: 92px;
+  height: 18px;
+  border: 1px solid color-mix(in srgb, var(--orion-eye-color) 74%, transparent);
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--orion-eye-color) 32%, transparent), transparent);
+  box-shadow: 0 0 18px var(--orion-eye-color);
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
+.orion-avatar[data-accessory="halo"]::before {
+  top: 12%;
+  left: 50%;
+  width: 112px;
+  height: 34px;
+  border: 2px solid color-mix(in srgb, var(--orion-aura-color) 74%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 22px var(--orion-aura-color);
+  opacity: 1;
+  transform: translate(-50%, -50%) rotateX(62deg);
+}
+
+.orion-avatar[data-accessory="scarf"]::before {
+  top: 45%;
+  left: 50%;
+  width: 108px;
+  height: 20px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--orion-accent-color), var(--orion-primary-color));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--orion-accent-color) 46%, transparent);
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(-5deg);
+}
+
+.orion-avatar[data-accessory="dragon-pin"]::before {
+  top: 53%;
+  left: 57%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50% 50% 50% 12%;
+  background: radial-gradient(circle at 40% 40%, #fff2c2, #ffb347 48%, #ff4f6d 78%);
+  box-shadow: 0 0 18px #ffb347;
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(-35deg);
 }
 
 .orion-avatar[data-pose="look-around"] {
@@ -1916,9 +2247,22 @@ body {
     0 0 34px rgba(94, 218, 255, 1);
 }
 
+.orion-avatar[data-voice-state="thinking"] .orion-aura {
+  animation: aura-thinking 0.9s ease-in-out infinite;
+  filter: hue-rotate(16deg) blur(2px);
+}
+
+.orion-avatar[data-voice-state="thinking"] .orion-head {
+  animation: attentive-nod 1.1s ease-in-out infinite;
+}
+
 .orion-avatar[data-voice-state="responding"] .orion-aura,
 .orion-avatar[data-reasoning-state="answering"] .orion-aura {
   filter: hue-rotate(8deg) blur(2px);
+}
+
+.orion-avatar[data-voice-state="responding"] .orion-mouth {
+  animation: mouth-speak 0.2s ease-in-out infinite;
 }
 
 .orion-avatar[data-response-length="medium"] .orion-core,
@@ -2012,6 +2356,21 @@ body {
 @keyframes brain-noise {
   50% {
     transform: translate3d(8px, -6px, 0);
+  }
+}
+
+@keyframes cosmic-nebula {
+  to {
+    transform: rotate(360deg) scale(1.04);
+  }
+}
+
+@keyframes cosmic-stars {
+  to {
+    background-position:
+      160px 80px,
+      -220px 120px,
+      90px -180px;
   }
 }
 
@@ -2412,6 +2771,20 @@ body {
     gap: 6px;
   }
 
+  .avatar-studio-panel {
+    max-height: min(72vh, 620px);
+    padding: var(--space-3);
+  }
+
+  .avatar-studio-grid,
+  .avatar-studio-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .avatar-studio-preview {
+    min-height: 230px;
+  }
+
   .control-field {
     flex: 1 1 42%;
     justify-content: space-between;
@@ -2531,8 +2904,11 @@ body {
   .orion-eye,
   .orion-mouth,
   .brain-vault::after,
+  .brain-vault-viewport::before,
+  .brain-vault-viewport::after,
   .brain-effect-noise,
   .brain-effect-aberration,
+  .avatar-studio-preview .studio-aura,
   .brain-shell,
   .neural-ring,
   .neural-dot,
@@ -2553,7 +2929,8 @@ body {
 .low-power .room-memory,
 .low-power .room-voice,
 .low-power .brain-effect-noise,
-.low-power .brain-effect-aberration {
+.low-power .brain-effect-aberration,
+.low-power .brain-vault-viewport::after {
   display: none;
 }
 
@@ -2566,7 +2943,8 @@ html[data-visual-mode="performance"] .room-holo,
 html[data-visual-mode="performance"] .room-memory,
 html[data-visual-mode="performance"] .room-voice,
 html[data-visual-mode="performance"] .brain-effect-noise,
-html[data-visual-mode="performance"] .brain-effect-aberration {
+html[data-visual-mode="performance"] .brain-effect-aberration,
+html[data-visual-mode="performance"] .brain-vault-viewport::after {
   display: none;
 }
 
@@ -2574,6 +2952,15 @@ html[data-visual-mode="performance"] .galaxy-field,
 html[data-visual-mode="performance"] .orion-aura,
 html[data-visual-mode="performance"] .orion-eye {
   animation-duration: 14s;
+}
+
+html[data-visual-mode="balanced"] .brain-effect-noise,
+html[data-visual-mode="balanced"] .brain-effect-aberration {
+  opacity: 0.08;
+}
+
+html[data-visual-mode="balanced"] .brain-vault-viewport::after {
+  opacity: 0.28;
 }
 
 html[data-visual-mode="ultra"] .living-room::before,

@@ -36,9 +36,12 @@ def test_web_search_summarizes_sources_without_memory_payload():
     )
 
     assert response.status == "ready"
+    assert response.search_type == "technical"
     assert response.searched_online is True
     assert "versao mais recente do Python" in response.summary
     assert response.results[0].source == "python.org"
+    assert response.source_count == 2
+    assert "Gerar checklist de correcao" in response.suggested_followups
     assert "Informacao obtida pela internet." == response.sources_notice
 
 
@@ -58,4 +61,31 @@ def test_web_search_detects_recency_requests():
 
     assert service.should_search("Qual e a versao mais recente do Python?")
     assert service.should_search("pesquise noticias de tecnologia")
+    assert service.should_search("clima em Sao Paulo hoje")
+    assert service.should_search("buscar documentacao FastAPI websocket")
     assert not service.should_search("me conte uma piada")
+
+
+def test_web_search_supports_news_weather_and_technical_types():
+    service = WebSearchService(client=FakeSearchClient())
+
+    news = service.search(query="noticias de tecnologia", allow_external=True, search_type="auto")
+    weather = service.search(query="clima em Curitiba", allow_external=True, search_type="auto")
+    technical = service.search(query="erro websocket FastAPI", allow_external=True, search_type="auto")
+
+    assert news.search_type == "news"
+    assert "noticias" in news.summary
+    assert weather.search_type == "weather"
+    assert "clima" in weather.summary
+    assert technical.search_type == "technical"
+    assert "busca tecnica" in technical.summary.lower()
+
+
+def test_web_search_status_documents_conversational_browser_capabilities():
+    status = WebSearchService(client=FakeSearchClient()).status()
+
+    assert status.supported_types == ["web", "news", "weather", "technical"]
+    assert "news.summary" in status.capabilities
+    assert "weather.lookup" in status.capabilities
+    assert "technical.search" in status.capabilities
+    assert "no-automatic-search-without-user-request" in status.restrictions

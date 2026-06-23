@@ -422,10 +422,13 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | --- | --- | --- |
 | `active_default` | `string` | sim |
 | `automatic_selection` | `boolean` | sim |
+| `avatar_sync` | `boolean` | sim |
 | `fallback_provider` | `string` | sim |
+| `language` | `string` | sim |
 | `modes` | `array[string]` | sim |
 | `providers` | `array[VoiceProvider]` | sim |
 | `restrictions` | `array[string]` | sim |
+| `states` | `array[string]` | sim |
 | `status` | `string` | sim |
 
 ### `VoiceProvider`
@@ -455,6 +458,7 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `allow_external` | `boolean` | nao |
 | `max_results` | `integer` | nao |
 | `query` | `string` | sim |
+| `search_type` | `string (auto, web, news, weather, technical)` | nao |
 
 ### `WebSearchResponse`
 
@@ -464,9 +468,12 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `provider` | `string` | sim |
 | `query` | `string` | sim |
 | `results` | `array[WebSearchResult]` | sim |
+| `search_type` | `string (web, news, weather, technical)` | sim |
 | `searched_online` | `boolean` | sim |
+| `source_count` | `integer` | sim |
 | `sources_notice` | `string` | sim |
 | `status` | `string (ready, permission-required, blocked, offline, error)` | sim |
+| `suggested_followups` | `array[string]` | sim |
 | `summary` | `string` | sim |
 
 ### `WebSearchResult`
@@ -482,9 +489,11 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 
 | Campo | Tipo | Obrigatorio |
 | --- | --- | --- |
+| `capabilities` | `array[string]` | sim |
 | `enabled` | `boolean` | sim |
 | `max_results` | `integer` | sim |
 | `provider` | `string` | sim |
 | `requires_user_confirmation` | `boolean` | sim |
 | `restrictions` | `array[string]` | sim |
 | `status` | `string` | sim |
+| `supported_types` | `array[string]` | sim |

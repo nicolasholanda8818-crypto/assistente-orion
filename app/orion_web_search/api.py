@@ -17,4 +17,5 @@ def web_search_query(request: WebSearchRequest) -> WebSearchResponse:
         query=request.query,
         allow_external=request.allow_external,
         max_results=request.max_results,
+        search_type=request.search_type,
     )

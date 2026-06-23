@@ -9,6 +9,14 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Implementa Fase 5 com avatar 3D procedural e cerebro cosmico.
+  - Avatar Studio adiciona roupas, cabelo, olhos, acessorios, cores e Minha Skin persistida por usuario.
+  - Analise local de imagem extrai paleta visual no navegador e sugere adaptacao propria para o avatar sem enviar dados externos.
+  - Modo Cerebro ganha visual cosmico, nos de memorias, documentos e aprendizado, alem dos modos Performance, Equilibrado e Ultra Visual.
+- Implementa Fase 4 com web conversacional e voz sincronizada.
+  - Pesquisa web passa a classificar consultas em web, noticias, clima e busca tecnica com fontes, resumo e proximos passos.
+  - Voz em pt-BR declara estados ouvindo, pensando e respondendo, com sincronizacao visual do avatar.
+  - PWA atualiza cache para v35 para entregar os novos scripts e estilos sem cache antigo.
 - Aprimora inteligencia conversacional com memoria e continuidade por usuario.
   - Brain passa a reconhecer retorno, objetivos, preferencias, estados emocionais recentes e contexto persistente por usuario.
   - Novas fachadas orion_intent e orion_memory deixam parser de intencoes e memoria conversacional explicitos.

@@ -1,0 +1,12 @@
+{
+  "id": "20260623-implementa-fase-4-com-web-conversacional-e-voz-sincroniz",
+  "type": "added",
+  "summary": "Implementa Fase 4 com web conversacional e voz sincronizada.",
+  "details": [
+    "Pesquisa web passa a classificar consultas em web, noticias, clima e busca tecnica com fontes, resumo e proximos passos.",
+    "Voz em pt-BR declara estados ouvindo, pensando e respondendo, com sincronizacao visual do avatar.",
+    "PWA atualiza cache para v35 para entregar os novos scripts e estilos sem cache antigo."
+  ],
+  "date": "2026-06-23",
+  "version": null
+}

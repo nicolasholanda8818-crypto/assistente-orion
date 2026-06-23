@@ -11,13 +11,13 @@ const MODE_ALIASES = {
 };
 
 const MODE_PROFILES = {
-  conversation: { rate: 0.98, pitch: 1.02, volume: 1, pause: 150 },
-  teacher: { rate: 0.9, pitch: 1, volume: 1, pause: 240 },
-  assistant: { rate: 0.94, pitch: 0.98, volume: 0.94, pause: 190 },
-  calm: { rate: 0.86, pitch: 0.96, volume: 0.92, pause: 260 },
-  animated: { rate: 1.06, pitch: 1.08, volume: 1, pause: 120 },
-  grandma: { rate: 0.82, pitch: 0.98, volume: 0.94, pause: 330 },
-  narrator: { rate: 0.86, pitch: 0.92, volume: 1, pause: 310 },
+  conversation: { rate: 0.94, pitch: 1.01, volume: 1, pause: 190 },
+  teacher: { rate: 0.88, pitch: 1, volume: 1, pause: 280 },
+  assistant: { rate: 0.91, pitch: 0.98, volume: 0.96, pause: 230 },
+  calm: { rate: 0.82, pitch: 0.96, volume: 0.92, pause: 320 },
+  animated: { rate: 1.01, pitch: 1.07, volume: 1, pause: 150 },
+  grandma: { rate: 0.78, pitch: 0.98, volume: 0.94, pause: 380 },
+  narrator: { rate: 0.82, pitch: 0.92, volume: 1, pause: 360 },
 };
 
 const ADVANCED_PROVIDER_ORDER = ["azure-speech", "elevenlabs", "openai-tts", "coqui-local"];
@@ -65,6 +65,7 @@ export function createOrionVoiceEngine({ getMode } = {}) {
 
     try {
       if (provider.id !== "speech-synthesis") {
+        options.onStart?.();
         provider.speak(text, { mode: selectedMode, profile, language: "pt-BR" });
         options.onEnd?.();
         return true;
@@ -74,6 +75,7 @@ export function createOrionVoiceEngine({ getMode } = {}) {
         currentToken: () => speechToken,
         profile,
         mode: selectedMode,
+        onStart: options.onStart,
         onEnd: options.onEnd,
       });
       return true;
@@ -84,6 +86,7 @@ export function createOrionVoiceEngine({ getMode } = {}) {
         currentToken: () => speechToken,
         profile: MODE_PROFILES.conversation,
         mode: "conversation",
+        onStart: options.onStart,
         onEnd: options.onEnd,
       });
     }
@@ -125,13 +128,14 @@ function customProviders() {
   });
 }
 
-function speakWithSpeechSynthesis(text, { token, currentToken, profile, mode, onEnd }) {
+function speakWithSpeechSynthesis(text, { token, currentToken, profile, mode, onStart, onEnd }) {
   if (!("speechSynthesis" in window)) {
     return false;
   }
   const segments = splitSpeechSegments(text);
   const voice = selectBestVoice(window.speechSynthesis.getVoices());
   let started = false;
+  let speechStarted = false;
 
   function speakSegment(index) {
     if (token !== currentToken() || index >= segments.length) {
@@ -148,6 +152,15 @@ function speakWithSpeechSynthesis(text, { token, currentToken, profile, mode, on
     if (voice) {
       utterance.voice = voice;
     }
+    utterance.addEventListener("start", () => {
+      if (!speechStarted) {
+        speechStarted = true;
+        onStart?.();
+      }
+    });
+    utterance.addEventListener("boundary", () => {
+      window.dispatchEvent(new CustomEvent("orion:voice-boundary", { detail: { mode, index } }));
+    });
     utterance.addEventListener("end", () => {
       const pause = segments[index].pause + profile.pause;
       window.setTimeout(() => speakSegment(index + 1), pause);
@@ -216,15 +229,15 @@ function splitLongSegment(segment) {
 
 function pauseFor(segment) {
   if (/[!?]$/.test(segment)) {
-    return 230;
+    return 320;
   }
   if (/[.:;]$/.test(segment)) {
-    return 190;
+    return 260;
   }
   if (/,$/.test(segment)) {
-    return 110;
+    return 160;
   }
-  return 70;
+  return 100;
 }
 
 function selectBestVoice(voices) {
@@ -238,11 +251,18 @@ function selectBestVoice(voices) {
 function scoreVoice(voice) {
   const name = `${voice.name || ""} ${voice.voiceURI || ""}`.toLowerCase();
   let score = 0;
-  if (voice.lang === "pt-BR") score += 60;
+  if (voice.lang === "pt-BR") score += 80;
   if (voice.lang?.startsWith("pt")) score += 35;
   if (name.includes("natural") || name.includes("neural")) score += 30;
+  if (name.includes("brazil") || name.includes("brasil") || name.includes("portuguese brazil")) score += 24;
   if (name.includes("microsoft") || name.includes("google")) score += 18;
-  if (name.includes("maria") || name.includes("francisca") || name.includes("antonio")) score += 12;
+  if (
+    name.includes("maria")
+    || name.includes("francisca")
+    || name.includes("antonio")
+    || name.includes("daniel")
+    || name.includes("helena")
+  ) score += 12;
   if (voice.localService) score += 6;
   return score;
 }

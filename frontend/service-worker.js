@@ -1,4 +1,4 @@
-const CACHE_NAME = "orion-pwa-v34-sidebar-voice-call";
+const CACHE_NAME = "orion-pwa-v36-avatar-brain";
 const APP_SHELL = [
   "/",
   "/index.html",

@@ -15,8 +15,22 @@ SEARCH_TERMS = {
     "busque",
     "buscar",
     "procure",
+    "fonte",
+    "fontes",
+    "internet",
+    "web",
     "noticias",
     "noticia",
+    "notícia",
+    "notícias",
+    "clima",
+    "tempo",
+    "temperatura",
+    "previsao",
+    "previsão",
+    "erro",
+    "documentacao",
+    "documentação",
     "mais recente",
     "versao mais recente",
     "versao atual",
@@ -188,8 +202,18 @@ class WebSearchService:
             enabled=settings.web_search_enabled,
             requires_user_confirmation=True,
             max_results=settings.web_search_max_results,
+            supported_types=["web", "news", "weather", "technical"],
+            capabilities=[
+                "web.search",
+                "news.summary",
+                "weather.lookup",
+                "technical.search",
+                "source.attribution",
+                "conversation.summary",
+            ],
             restrictions=[
                 "explicit-user-confirmation-required",
+                "no-automatic-search-without-user-request",
                 "no-private-memory-in-query",
                 "sensitive-query-blocklist",
                 "source-attribution-required",
@@ -200,14 +224,24 @@ class WebSearchService:
         normalized = normalize_for_detection(text)
         return any(term in normalized for term in SEARCH_TERMS)
 
-    def search(self, *, query: str, allow_external: bool, max_results: int | None = None) -> WebSearchResponse:
+    def search(
+        self,
+        *,
+        query: str,
+        allow_external: bool,
+        max_results: int | None = None,
+        search_type: str = "auto",
+    ) -> WebSearchResponse:
         clean_query = sanitize_query(query)
+        detected_type = detect_search_type(clean_query, requested_type=search_type)
+        executable_query = build_provider_query(clean_query, detected_type)
         limit = min(max_results or settings.web_search_max_results, settings.web_search_max_results)
 
         if not settings.web_search_enabled:
             return self._response(
                 status="blocked",
                 query=clean_query,
+                search_type=detected_type,
                 searched_online=False,
                 summary="A pesquisa web esta desativada nesta instalacao.",
                 results=[],
@@ -216,6 +250,7 @@ class WebSearchService:
             return self._response(
                 status="permission-required",
                 query=clean_query,
+                search_type=detected_type,
                 searched_online=False,
                 summary="Preciso da sua confirmacao antes de pesquisar na internet.",
                 results=[],
@@ -224,6 +259,7 @@ class WebSearchService:
             return self._response(
                 status="blocked",
                 query=clean_query,
+                search_type=detected_type,
                 searched_online=False,
                 summary=(
                     "Nao vou enviar dados sensiveis para pesquisa externa. "
@@ -233,15 +269,16 @@ class WebSearchService:
             )
 
         try:
-            raw_results = self.client.search(clean_query, max_results=limit)
+            raw_results = self.client.search(executable_query, max_results=limit)
         except TimeoutError:
-            return self._offline_response(clean_query)
+            return self._offline_response(clean_query, detected_type)
         except OSError:
-            return self._offline_response(clean_query)
+            return self._offline_response(clean_query, detected_type)
         except Exception:
             return self._response(
                 status="error",
                 query=clean_query,
+                search_type=detected_type,
                 searched_online=False,
                 summary=(
                     "Nao consegui concluir a pesquisa online agora, "
@@ -264,6 +301,7 @@ class WebSearchService:
             return self._response(
                 status="error",
                 query=clean_query,
+                search_type=detected_type,
                 searched_online=True,
                 summary="Pesquisei, mas nao encontrei resultados confiaveis para resumir.",
                 results=[],
@@ -272,15 +310,17 @@ class WebSearchService:
         return self._response(
             status="ready",
             query=clean_query,
+            search_type=detected_type,
             searched_online=True,
-            summary=summarize_results(clean_query, results),
+            summary=summarize_results(clean_query, results, detected_type),
             results=results,
         )
 
-    def _offline_response(self, query: str) -> WebSearchResponse:
+    def _offline_response(self, query: str, search_type: str) -> WebSearchResponse:
         return self._response(
             status="offline",
             query=query,
+            search_type=search_type,
             searched_online=False,
             summary="Nao consegui acessar fontes online agora, mas posso responder com o conhecimento disponivel.",
             results=[],
@@ -291,6 +331,7 @@ class WebSearchService:
         *,
         status: str,
         query: str,
+        search_type: str,
         searched_online: bool,
         summary: str,
         results: list[WebSearchResult],
@@ -308,12 +349,15 @@ class WebSearchService:
         return WebSearchResponse(
             status=status,
             query=query,
+            search_type=search_type,
             provider=settings.web_search_provider,
             searched_online=searched_online,
             summary=summary,
             results=results,
+            source_count=len(results),
             message=f"{prefix} {summary}",
             sources_notice=sources_notice,
+            suggested_followups=suggest_followups(search_type),
         )
 
 
@@ -332,6 +376,48 @@ def normalize_for_detection(value: str) -> str:
 
 def contains_sensitive_content(value: str) -> bool:
     return any(pattern.search(value) for pattern in SENSITIVE_PATTERNS)
+
+
+def detect_search_type(query: str, *, requested_type: str = "auto") -> str:
+    if requested_type in {"web", "news", "weather", "technical"}:
+        return requested_type
+
+    normalized = normalize_for_detection(query)
+    if any(term in normalized for term in {"clima", "tempo", "temperatura", "previsao", "previsão"}):
+        return "weather"
+    if any(term in normalized for term in {"noticia", "notícias", "noticias", "jornal", "manchete"}):
+        return "news"
+    if any(
+        term in normalized
+        for term in {
+            "erro",
+            "codigo",
+            "código",
+            "python",
+            "fastapi",
+            "javascript",
+            "websocket",
+            "pwa",
+            "docker",
+            "render",
+            "documentacao",
+            "documentação",
+            "api",
+        }
+    ):
+        return "technical"
+    return "web"
+
+
+def build_provider_query(query: str, search_type: str) -> str:
+    normalized = normalize_for_detection(query)
+    if search_type == "news" and not any(term in normalized for term in {"noticia", "noticias", "notícia", "notícias"}):
+        return f"{query} noticias recentes"
+    if search_type == "weather" and not any(term in normalized for term in {"clima", "tempo", "temperatura"}):
+        return f"clima previsao do tempo {query}"
+    if search_type == "technical" and "documentacao" not in normalized and "documentação" not in normalized:
+        return f"{query} documentacao oficial"
+    return query
 
 
 def clean_result_url(url: str) -> str:
@@ -353,11 +439,30 @@ def source_from_url(url: str) -> str:
     return parsed.netloc.replace("www.", "") or "fonte online"
 
 
-def summarize_results(query: str, results: list[WebSearchResult]) -> str:
+def summarize_results(query: str, results: list[WebSearchResult], search_type: str) -> str:
     top = results[:3]
     details = []
     for index, result in enumerate(top, start=1):
         snippet = result.snippet or "resultado sem trecho disponivel"
         details.append(f"{index}. {result.title}: {snippet}")
     joined = " ".join(details)
+    if search_type == "news":
+        return f"Para noticias sobre '{query}', as fontes recentes indicam: {joined}"
+    if search_type == "weather":
+        return (
+            f"Para clima ou previsao em '{query}', as fontes encontradas indicam: {joined} "
+            "Confira a fonte principal para valores em tempo real antes de decidir deslocamentos."
+        )
+    if search_type == "technical":
+        return f"Na busca tecnica sobre '{query}', os resultados mais relevantes indicam: {joined}"
     return f"Para '{query}', os resultados mais relevantes indicam: {joined}"
+
+
+def suggest_followups(search_type: str) -> list[str]:
+    if search_type == "news":
+        return ["Comparar fontes", "Gerar linha do tempo", "Mostrar impacto pratico"]
+    if search_type == "weather":
+        return ["Ver detalhes por horario", "Comparar previsao de amanha", "Criar alerta de clima"]
+    if search_type == "technical":
+        return ["Abrir documentacao oficial", "Resumir solucao", "Gerar checklist de correcao"]
+    return ["Resumir melhor", "Comparar fontes", "Pesquisar mais recente"]

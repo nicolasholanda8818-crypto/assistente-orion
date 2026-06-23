@@ -49,7 +49,17 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'id="mic-button"' in index
     assert 'id="camera-button"' in index
     assert 'id="brain-mode-button"' in index
+    assert 'Avatar &lt;-&gt; Cerebro' in index
+    assert 'id="avatar-studio-button"' in index
+    assert 'id="avatar-studio-panel"' in index
+    assert 'id="avatar-studio-preview"' in index
+    assert 'id="avatar-reference-input"' in index
+    assert 'id="avatar-analyze-image-button"' in index
+    assert 'id="avatar-save-skin-button"' in index
     assert 'id="wardrobe-select"' in index
+    assert 'value="adventurer"' in index
+    assert 'value="lord-dragons"' in index
+    assert 'value="tech"' in index
     assert 'id="voice-mode-select"' in index
     assert 'value="conversation"' in index
     assert 'value="calm"' in index
@@ -57,9 +67,12 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'value="grandma"' in index
     assert 'value="narrator"' in index
     assert 'id="visual-mode-select"' in index
+    assert 'value="balanced"' in index
     assert 'id="brain-mode"' in index
     assert 'id="brain-vault-viewport"' in index
     assert 'id="brain-state-label"' in index
+    assert "Documentos" in index
+    assert "Aprendizado" in index
     assert 'id="web-search-panel"' in index
     assert 'id="file-vision-panel"' in index
     assert 'id="camera-preview"' in index
@@ -70,7 +83,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v34-sidebar-voice-call";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v36-avatar-brain";' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/js/")' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/css/")' in service_worker
     assert '"/assets/css/tokens.css"' in service_worker
@@ -126,6 +139,11 @@ def test_orion_visual_chat_controller_exposes_required_functions():
         "startVoiceCallMode",
         "stopVoiceCallMode",
         "toggleVoiceCallMode",
+        "bindAvatarStudioControls",
+        "openAvatarStudio",
+        "closeAvatarStudio",
+        "applyCustomSkin",
+        "analyzeAvatarReferenceImage",
         "openFileVisionPanel",
         "openCameraPanel",
         "captureCameraPhoto",
@@ -147,6 +165,8 @@ def test_orion_voice_uses_browser_speech_apis():
     assert "createOrionVoiceEngine" in main
     assert "SpeechSynthesisUtterance" in voice_engine
     assert 'utterance.lang = "pt-BR";' in voice_engine
+    assert "onStart" in voice_engine
+    assert "orion:voice-boundary" in voice_engine
     assert "grandma" in voice_engine
     assert "animated" in voice_engine
     assert "azure-speech" in voice_engine
@@ -164,6 +184,8 @@ def test_orion_reasoning_visual_contract_is_available():
     assert "shouldSpeak" in main
     assert 'data-reasoning-state="thinking"' in stylesheet
     assert 'data-voice-state="listening"' in stylesheet
+    assert 'data-voice-state="thinking"' in stylesheet
+    assert 'data-voice-state="responding"' in stylesheet
 
 
 def test_orion_visual_modes_and_search_contract_are_available():
@@ -182,11 +204,18 @@ def test_orion_visual_modes_and_search_contract_are_available():
         assert f"function {function_name}" in main
 
     assert 'data-outfit="armor"' in stylesheet
+    assert 'data-outfit="lord-dragons"' in stylesheet
+    assert 'data-accessory="visor"' in stylesheet
+    assert ".avatar-studio-panel" in stylesheet
+    assert ".avatar-studio-preview" in stylesheet
     assert ".brain-mode" in stylesheet
     assert ".brain-vault-viewport" in stylesheet
     assert "createBrainVault" in main
     assert "MEMORY_CATEGORIES" in brain_vault
+    assert "Documentos" in brain_vault
+    assert "Aprendizado" in brain_vault
     assert "bloom" in brain_vault.lower()
+    assert "selectedVisualMode" in brain_vault
     assert ".web-search-panel" in stylesheet
     assert ".file-vision-panel" in stylesheet
     assert ".orion-sidebar" in stylesheet
@@ -197,5 +226,12 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "uploadCameraPhoto" in main
     assert "formatWebSearchAnswer" in main
     assert "performWebSearch" in main
+    assert "inferWebSearchType" in main
+    assert "search_type" in main
+    assert "suggested_followups" in main
+    assert "extractAvatarImagePalette" in main
+    assert "skinFromImageAnalysis" in main
+    assert "lastSkinAnalysis" in main
     assert "suggestWebResearchForFile" in main
     assert 'data-visual-mode="performance"' in stylesheet
+    assert 'data-visual-mode="balanced"' in stylesheet

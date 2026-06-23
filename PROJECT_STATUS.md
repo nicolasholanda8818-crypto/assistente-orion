@@ -4,7 +4,7 @@
 
 Status: `PROTOTIPO JOGAVEL LORD DRAGONS ADICIONADO COM RC BLOQUEADO`
 
-Status operacional recente: `FASE 1 - INTELIGENCIA CONVERSACIONAL COM CONTINUIDADE EM VALIDACAO`
+Status operacional recente: `FASE 5 - AVATAR 3D PROCEDURAL E CEREBRO COSMICO EM VALIDACAO`
 
 O workspace contem um prototipo exploratorio nao versionado. Ele nao representa uma versao aprovada do ORION e deve ser auditado antes de qualquer aproveitamento. Nesta etapa, nenhum modulo funcional deve ser expandido.
 
@@ -84,6 +84,10 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Voz recebeu modo ligacao continuo em `pt-BR`, pausando reconhecimento enquanto Orion fala.
 - [x] Inteligencia conversacional Fase 1 adiciona continuidade por usuario, objetivos, preferencias, estados recentes e perguntas inteligentes.
 - [x] Sistemas `orion_intent`, `orion_memory` e `orion_reasoning` mantem resposta local sem expor cadeia interna de pensamento.
+- [x] Fase 4 adiciona navegador conversacional com pesquisa web, noticias, clima, busca tecnica, fontes e resumos.
+- [x] Voz em `pt-BR` declara estados ouvindo, pensando e respondendo, sincronizados ao avatar.
+- [x] Fase 5 adiciona Avatar Studio, Minha Skin, guarda-roupa ampliado e analise visual local de imagem.
+- [x] Modo Cerebro ganhou camada cosmica, nos de memorias/documentos/aprendizado e modo visual Equilibrado.
 - [x] Correcao total de 2026-06-14 estabilizou lint, canvas 3D/fallback, chat continuo e resposta de identidade local.
 - [x] Living Avatar adiciona personalidade visual, falas dinamicas, comportamento espontaneo, olhar inteligente e quarto futurista interativo.
 - [x] Modo persistente Windows criado para manter o Orion online e reiniciar o servidor local se ele cair.
@@ -109,7 +113,7 @@ Data: `2026-06-23`
 | --- | --- |
 | Ruff lint e format | aprovado |
 | Sintaxe JavaScript e PWA | aprovado |
-| Pytest backend | `156 passed`, `9 warnings` |
+| Pytest backend | `158 passed`, `9 warnings` |
 | Coverage backend | configurado com minimo de 80% |
 | Playwright E2E Chromium | `5 passed` |
 | Onboarding visual desktop e mobile | aprovado |
@@ -121,6 +125,8 @@ Data: `2026-06-23`
 | Secret scan | aprovado |
 | Orion Files | upload, listagem, analise, exclusao e foto de camera testados |
 | Inteligencia conversacional | memoria, retorno, objetivos, API REST e WebSocket aprovados |
+| Web e voz | busca web categorizada, fontes, voz pt-BR e estados visuais aprovados |
+| Avatar 3D e Cerebro Cosmico | Avatar Studio, skin local, troca Avatar/Cerebro e cache PWA v36 aprovados |
 | Performance baseline | aprovado em `docs/releases/0.1.0-rc.1/performance.json` |
 | Build release | `dist/orion-foundation.zip` gerado e verificado |
 | Release Candidate | `0.1.0-rc.1` gerado com manifesto e SHA-256, bloqueado para promocao |
@@ -259,6 +265,52 @@ Validacao executada:
 - `python scripts\generate_changelog.py --check`: aprovado.
 - `python scripts\generate_wiki.py --check`: aprovado.
 - `python scripts\check_secrets.py`: aprovado.
+
+## Fase 4 - Web e Voz
+
+Data: `2026-06-23`
+
+Resultado:
+
+- [x] `orion_web_search` classifica consultas em `web`, `news`, `weather` e `technical`.
+- [x] Respostas de busca retornam resumo, fontes, contagem de fontes e sugestoes de continuidade.
+- [x] Frontend envia `search_type` e mostra categoria da fonte no painel de busca.
+- [x] Voz recebeu contrato oficial de estados `listening`, `thinking` e `responding`.
+- [x] Motor de voz prioriza `pt-BR`, pausas mais naturais e callback de inicio/fim para avatar.
+- [x] Cache PWA atualizado para `orion-pwa-v35-web-voice`.
+
+Validacao executada:
+
+- `python -m ruff check app scripts tests`: aprovado.
+- `python -m pytest tests -q`: `158 passed`, `9 warnings`.
+- `python scripts\validate_pwa.py`: aprovado.
+- `python scripts\generate_wiki.py --check`: aprovado.
+- `python scripts\generate_changelog.py --check`: aprovado.
+- `python scripts\check_secrets.py`: aprovado.
+
+## Fase 5 - Avatar 3D e Cerebro Cosmico
+
+Data: `2026-06-23`
+
+Resultado:
+
+- [x] Avatar Studio adiciona pre-visualizacao, roupas, cabelo, olhos, acessorios, cores e salvamento local por usuario.
+- [x] Guarda-roupa inclui casual, formal, futurista, professor, aventureiro, Lord Dragons e tecnologico.
+- [x] Analise visual de imagem usa canvas no navegador para extrair paleta e sugerir uma skin inspirada sem enviar dados externos.
+- [x] Alternancia `Avatar <-> Cerebro` ocorre sem recarregar a pagina.
+- [x] Modo Cerebro recebeu nos para memorias, documentos e aprendizado, alem de camada cosmica e modo Equilibrado.
+- [x] Cache PWA atualizado para `orion-pwa-v36-avatar-brain`.
+
+Validacao executada:
+
+- `python -m ruff check app scripts tests`: aprovado.
+- `python -m pytest tests -q`: `158 passed`, `9 warnings`.
+- `python scripts\validate_pwa.py`: aprovado.
+- `python scripts\generate_wiki.py --check`: aprovado.
+- `python scripts\generate_changelog.py --check`: aprovado.
+- `python scripts\check_secrets.py`: aprovado.
+- `node --check` nos JavaScripts alterados: aprovado.
+- Smoke local no navegador: PWA registrado, WebSocket conectado, Avatar Studio abre e Avatar <-> Cerebro troca sem erro critico.
 
 Validacao:
 

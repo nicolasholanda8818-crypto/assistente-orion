@@ -7,12 +7,15 @@ const EFFECT_URLS = {
 };
 
 const MEMORY_CATEGORIES = [
+  { id: "memories", label: "Memorias", color: 0xb58cff },
   { id: "programming", label: "Programacao", color: 0x62e8ff },
   { id: "it", label: "Gestao de TI", color: 0x7cffbd },
   { id: "users", label: "Usuarios", color: 0xffd166 },
   { id: "conversations", label: "Conversas", color: 0x9b8cff },
   { id: "projects", label: "Projetos", color: 0xff7a90 },
+  { id: "documents", label: "Documentos", color: 0xf4f7ff },
   { id: "files", label: "Arquivos", color: 0x80a8ff },
+  { id: "learning", label: "Aprendizado", color: 0x65ffb6 },
   { id: "dragons", label: "Lord Dragons", color: 0xffb347 },
 ];
 
@@ -32,11 +35,19 @@ export function createBrainVault({ container, getVisualMode } = {}) {
   let started = false;
   let cleanupVisibility;
 
-  function lowPower() {
+  function selectedVisualMode(preferredMode) {
     const selectedMode = typeof getVisualMode === "function" ? getVisualMode() : document.documentElement.dataset.visualMode;
+    const requested = preferredMode || selectedMode || "performance";
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const compactDevice = window.innerWidth < 720 || (navigator.deviceMemory || 4) <= 2 || (navigator.hardwareConcurrency || 4) <= 2;
-    return selectedMode !== "ultra" || reducedMotion || compactDevice;
+    if (reducedMotion || compactDevice || requested === "performance") {
+      return "performance";
+    }
+    return requested === "ultra" ? "ultra" : "balanced";
+  }
+
+  function lowPower() {
+    return selectedVisualMode() === "performance";
   }
 
   async function ensureEngine() {
@@ -50,8 +61,8 @@ export function createBrainVault({ container, getVisualMode } = {}) {
       return loadPromise;
     }
 
-    loadPromise = createWebGlEngine(container, { lowPower: lowPower() }).catch(() =>
-      createCanvasFallback(container, { lowPower: lowPower() })
+    loadPromise = createWebGlEngine(container, { visualMode: selectedVisualMode(), lowPower: lowPower() }).catch(() =>
+      createCanvasFallback(container, { visualMode: selectedVisualMode(), lowPower: lowPower() })
     );
     engine = await loadPromise;
     engine.setState(state);
@@ -62,7 +73,7 @@ export function createBrainVault({ container, getVisualMode } = {}) {
     started = true;
     container?.classList.add("is-active");
     const activeEngine = await ensureEngine();
-    activeEngine?.setVisualMode(lowPower() ? "performance" : "ultra");
+    activeEngine?.setVisualMode(selectedVisualMode());
     activeEngine?.setState(state);
     activeEngine?.start();
 
@@ -95,7 +106,7 @@ export function createBrainVault({ container, getVisualMode } = {}) {
   }
 
   function setVisualMode(mode) {
-    engine?.setVisualMode(mode === "ultra" && !lowPower() ? "ultra" : "performance");
+    engine?.setVisualMode(selectedVisualMode(mode));
   }
 
   function pulseMemory(label) {
@@ -128,7 +139,7 @@ async function createWebGlEngine(container, options) {
   const THREE = await import(THREE_URL);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 120);
-  const renderer = new THREE.WebGLRenderer({ antialias: !options.lowPower, alpha: true, powerPreference: "high-performance" });
+  const renderer = new THREE.WebGLRenderer({ antialias: options.visualMode !== "performance", alpha: true, powerPreference: "high-performance" });
   const root = new THREE.Group();
   const brainGroup = new THREE.Group();
   const graphGroup = new THREE.Group();
@@ -139,7 +150,7 @@ async function createWebGlEngine(container, options) {
   const pointer = new THREE.Vector2();
   const activeState = {
     name: "idle",
-    visualMode: options.lowPower ? "performance" : "ultra",
+    visualMode: options.visualMode || (options.lowPower ? "performance" : "balanced"),
     frameId: undefined,
     running: false,
     composer: undefined,
@@ -199,7 +210,7 @@ async function createWebGlEngine(container, options) {
 
     const elapsed = clock.getElapsedTime();
     const stateConfig = BRAIN_STATES[activeState.name] || BRAIN_STATES.idle;
-    const visualBoost = activeState.visualMode === "ultra" ? 1.18 : 0.82;
+    const visualBoost = activeState.visualMode === "ultra" ? 1.18 : activeState.visualMode === "balanced" ? 1 : 0.82;
     const pulse = 1 + Math.sin(elapsed * 2.4 * stateConfig.speed) * 0.028;
 
     brainGroup.rotation.y = elapsed * 0.2 * stateConfig.speed;
@@ -260,11 +271,11 @@ async function createWebGlEngine(container, options) {
   }
 
   function setVisualMode(mode) {
-    activeState.visualMode = mode === "ultra" ? "ultra" : "performance";
+    activeState.visualMode = ["performance", "balanced", "ultra"].includes(mode) ? mode : "performance";
     container.dataset.brainVisual = activeState.visualMode;
     renderer.setPixelRatio(pixelRatioFor(activeState.visualMode));
     if (activeState.particleMaterial) {
-      activeState.particleMaterial.size = activeState.visualMode === "ultra" ? 0.038 : 0.03;
+      activeState.particleMaterial.size = activeState.visualMode === "ultra" ? 0.038 : activeState.visualMode === "balanced" ? 0.034 : 0.03;
     }
     resize();
   }
@@ -447,7 +458,7 @@ function buildHolograms(THREE, ringGroup, activeState) {
 }
 
 function buildParticles(THREE, particleGroup, activeState, visualMode) {
-  const count = visualMode === "ultra" ? 420 : 180;
+  const count = visualMode === "ultra" ? 560 : visualMode === "balanced" ? 320 : 160;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(count * 3);
 
@@ -463,7 +474,7 @@ function buildParticles(THREE, particleGroup, activeState, visualMode) {
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   const material = new THREE.PointsMaterial({
     color: 0x9cf6ff,
-    size: visualMode === "ultra" ? 0.038 : 0.03,
+    size: visualMode === "ultra" ? 0.038 : visualMode === "balanced" ? 0.034 : 0.03,
     transparent: true,
     opacity: 0.72,
     depthWrite: false,
@@ -544,7 +555,7 @@ function updateParticles(elapsed, activeState, stateConfig) {
 }
 
 function pixelRatioFor(mode) {
-  const cap = mode === "ultra" ? 1.75 : 1.2;
+  const cap = mode === "ultra" ? 1.75 : mode === "balanced" ? 1.45 : 1.2;
   return Math.min(window.devicePixelRatio || 1, cap);
 }
 
@@ -556,14 +567,14 @@ function createCanvasFallback(container, options) {
   let running = false;
   let frameId;
   let frame = 0;
-  let visualMode = options.lowPower ? "performance" : "ultra";
+  let visualMode = options.visualMode || (options.lowPower ? "performance" : "balanced");
 
   canvas.className = "brain-vault-fallback-canvas";
   canvas.setAttribute("aria-hidden", "true");
   container.replaceChildren(canvas);
 
   function resize() {
-    const ratio = Math.min(window.devicePixelRatio || 1, visualMode === "ultra" ? 1.75 : 1.2);
+    const ratio = Math.min(window.devicePixelRatio || 1, visualMode === "ultra" ? 1.75 : visualMode === "balanced" ? 1.45 : 1.2);
     const width = Math.max(container.clientWidth, 260);
     const height = Math.max(container.clientHeight, 260);
     canvas.width = Math.floor(width * ratio);
@@ -623,7 +634,7 @@ function createCanvasFallback(container, options) {
   }
 
   function setVisualMode(mode) {
-    visualMode = mode === "ultra" ? "ultra" : "performance";
+    visualMode = ["performance", "balanced", "ultra"].includes(mode) ? mode : "performance";
     container.dataset.brainVisual = visualMode;
     resize();
   }

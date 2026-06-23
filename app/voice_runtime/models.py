@@ -25,5 +25,8 @@ class VoiceCatalog(StrictModel):
     fallback_provider: str
     active_default: str
     modes: list[str]
+    states: list[str]
+    language: str
+    avatar_sync: bool
     providers: list[VoiceProvider]
     restrictions: list[str]

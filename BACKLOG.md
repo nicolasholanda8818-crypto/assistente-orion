@@ -42,6 +42,8 @@ Cada ticket possui objetivo unico e deve ser concluido, testado e documentado an
 | T0000-MEM-20260621 | Implementar memoria de usuario por navegador, nome, preferencias, projetos e assuntos nao sensiveis | T0000-ONLINE-20260614 |
 | T0000-FILES-20260622 | Implementar camera, arquivos por usuario, analise local basica e memoria de arquivos | T0000-MEM-20260621 |
 | T0000-CONV-20260623 | Implementar inteligencia conversacional com continuidade, objetivos, emocoes contextuais e iniciativa leve | T0000-FILES-20260622 |
+| T0000-WEBVOICE-20260623 | Implementar web conversacional com noticias, clima, busca tecnica, fontes, resumos e voz sincronizada | T0000-CONV-20260623 |
+| T0000-AVATAR-BRAIN-20260623 | Implementar Avatar Studio, Minha Skin, analise visual local e Cerebro Cosmico | T0000-WEBVOICE-20260623 |
 | T0001 | Criar estrutura canonica, arquivos de configuracao e baseline do repositorio | Gate G0 aprovado |
 | T0002 | Configurar FastAPI, health checks e ciclo de vida local | T0001 |
 | T0003 | Configurar PWA base, manifest, service worker e offline shell | T0001 |

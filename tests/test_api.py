@@ -25,14 +25,16 @@ def test_application_status(client):
     assert payload["database"]["status"] == "ready"
     assert payload["database"]["metadata_records"] == 5
     assert payload["pwa"]["static_dir"] == "frontend"
-    assert payload["pwa"]["cache_name"] == "orion-pwa-v34-sidebar-voice-call"
+    assert payload["pwa"]["cache_name"] == "orion-pwa-v36-avatar-brain"
     assert payload["brain"]["mode"] == "deterministic-fallback"
     assert payload["brain"]["components"]["memory"] == "volatile+user-sqlite+continuity"
     assert payload["brain"]["components"]["orion_memory"] == "profile-facts-summaries"
     assert payload["tools"]["enabled"] == 3
     assert payload["models"]["external_calls"] == "disabled"
     assert payload["voice"]["fallback_provider"] == "speech-synthesis"
+    assert payload["voice"]["states"] == ["listening", "thinking", "responding"]
     assert payload["web_search"]["requires_user_confirmation"] is True
+    assert "news.summary" in payload["web_search"]["capabilities"]
     assert payload["files"]["status"] == "ready"
     assert ".pdf" in payload["files"]["allowed_extensions"]
     assert payload["onboarding"]["required"] is True
@@ -224,6 +226,7 @@ def test_web_search_api_requires_permission_before_network(client):
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] == "permission-required"
+    assert payload["search_type"] == "technical"
     assert payload["searched_online"] is False
     assert payload["results"] == []
 
