@@ -117,7 +117,7 @@ Data: `2026-06-24`
 | --- | --- |
 | Ruff lint e format | aprovado |
 | Sintaxe JavaScript e PWA | aprovado |
-| Pytest backend | `168 passed`, `9 warnings` |
+| Pytest backend | `169 passed`, `9 warnings` |
 | Coverage backend | configurado com minimo de 80% |
 | Playwright E2E Chromium | `5 passed` |
 | Onboarding visual desktop e mobile | aprovado |

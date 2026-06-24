@@ -33,12 +33,22 @@ COMMON_NON_NAMES = {
     "orion",
     "status",
     "ajuda",
+    "ajudar",
     "teste",
     "fala",
     "bom",
     "boa",
     "tudo",
     "beleza",
+    "quero",
+    "preciso",
+    "vender",
+    "servico",
+    "cliente",
+    "negociar",
+    "pesquisar",
+    "arquivo",
+    "documento",
 }
 
 NAME_PATTERNS = (
@@ -293,7 +303,7 @@ def extract_display_name(text: str, *, allow_plain_name: bool = False) -> str | 
     cleaned = clean_text_fragment(candidate, max_length=48)
     normalized = normalize_text(cleaned)
     words = normalized.split()
-    if not words or len(words) > 4:
+    if not words or len(words) > 3:
         return None
     if normalized in {normalize_text(term) for term in COMMON_NON_NAMES}:
         return None

@@ -185,6 +185,22 @@ def test_brain_process_remembers_goals_without_new_schema(client):
     assert "publicar o Orion no Render" in recall_response.json()["message"]
 
 
+def test_brain_first_message_command_is_not_saved_as_user_name(client):
+    response = client.post(
+        "/api/brain/process",
+        json={
+            "text": "quero vender um servico",
+            "conversation_id": "first-command-a",
+            "user_id": "browser-first-command",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["intent"] == "user.name.request"
+    assert payload["user_name"] is None
+
+
 def test_brain_process_does_not_store_memory_recall_as_topic(client):
     client.post(
         "/api/brain/process",
