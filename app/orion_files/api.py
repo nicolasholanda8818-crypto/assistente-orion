@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi.responses import FileResponse
 
 from app.orion_files.models import (
     OrionCameraPhotoRequest,
@@ -9,6 +10,8 @@ from app.orion_files.models import (
     OrionFileList,
     OrionFileRecord,
     OrionFilesStatus,
+    OrionFileTransformRequest,
+    OrionFileTransformResponse,
     OrionFileUploadResponse,
 )
 from app.orion_files.service import OrionFilesService
@@ -74,6 +77,25 @@ def get_file(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 
+@files_router.get("/{file_id}/download")
+def download_file(
+    file_id: str,
+    service: FilesServiceDependency,
+    user_id: Annotated[str, Query(min_length=1, max_length=64)],
+) -> FileResponse:
+    try:
+        record, path = service.get_download(file_id=file_id, user_id=user_id)
+        return FileResponse(
+            path,
+            media_type=record.content_type,
+            filename=record.safe_name,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
 @files_router.delete("/{file_id}", response_model=OrionFileRecord)
 def delete_file(
     file_id: str,
@@ -82,6 +104,26 @@ def delete_file(
 ) -> OrionFileRecord:
     try:
         return service.delete_file(file_id=file_id, user_id=user_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+@files_router.post("/{file_id}/transform", response_model=OrionFileTransformResponse)
+def transform_file(
+    file_id: str,
+    request: OrionFileTransformRequest,
+    service: FilesServiceDependency,
+) -> OrionFileTransformResponse:
+    try:
+        return service.transform_file(
+            file_id=file_id,
+            user_id=request.user_id,
+            mode=request.mode,
+            output_format=request.output_format,
+            instructions=request.instructions,
+        )
     except FileNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except ValueError as exc:

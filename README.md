@@ -82,27 +82,35 @@ manualmente. O frontend pede confirmacao antes de qualquer consulta externa,
 envia somente a pergunta sanitizada, bloqueia padroes sensiveis e mostra fontes
 no chat quando a internet responde.
 
-## Arquivos, Camera e Analise Local
+## Arquivos, Documentos, PDF e Analise Local
 
 O modulo `orion_files` adiciona armazenamento de arquivos por usuario, captura de
-foto pelo navegador e analise basica offline. Os arquivos ficam fora do frontend
-publico em `storage/files`, usam nome interno seguro e nunca sao executados.
+foto pelo navegador, leitura local de documentos e analise basica offline. Os
+arquivos ficam fora do frontend publico em `storage/files`, usam nome interno
+seguro e nunca sao executados.
 
 Endpoints principais:
 
 - `POST /api/files/upload`
 - `GET /api/files?user_id=<id>`
 - `GET /api/files/{id}?user_id=<id>`
+- `GET /api/files/{id}/download?user_id=<id>`
 - `DELETE /api/files/{id}?user_id=<id>`
 - `POST /api/files/{id}/analyze`
+- `POST /api/files/{id}/transform`
 - `POST /api/camera/photo`
 
 O sistema aceita imagens, PDFs, textos, documentos e planilhas permitidos pela
-allowlist. Textos sao resumidos localmente; PDFs com texto usam `pypdf`; imagens
-recebem metadados basicos e mensagem clara quando OCR nao estiver configurado.
+allowlist. Textos sao resumidos localmente; PDFs com texto usam `pypdf`; DOCX usa
+`python-docx`; XLSX e PPTX sao lidos por XML interno; imagens recebem metadados
+basicos via `pillow`. O backend tambem gera apostilas, trabalhos, flashcards e
+PDFs simples com `reportlab`.
+
 Visitantes e usuarios so acessam arquivos associados ao seu `userId` local. A PWA
-analisa automaticamente quando possivel e oferece pesquisa web relacionada somente
-apos confirmacao do usuario.
+analisa automaticamente quando possivel, oferece acoes no painel `Meus Arquivos` e
+oferece pesquisa web relacionada somente apos confirmacao do usuario.
+
+Consulte `docs/FILES_DOCUMENTS_AND_PDF.md`.
 
 ## Onboarding
 

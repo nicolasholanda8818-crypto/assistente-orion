@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     static_dir: str = "frontend"
     log_dir: str = "storage/logs"
     onboarding_crypto_path: str = "storage/keys/onboarding.key"
-    pwa_cache_name: str = "orion-pwa-v36-avatar-brain"
+    pwa_cache_name: str = "orion-pwa-v37-files-documents"
     deployment_target: str = "local"
     managed_database_provider: str = "sqlite-local"
     managed_database_url_ref: str | None = None
@@ -38,6 +38,7 @@ class Settings(BaseSettings):
         ".md",
         ".pdf",
         ".png",
+        ".pptx",
         ".txt",
         ".webp",
         ".xls",

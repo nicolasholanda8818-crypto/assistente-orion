@@ -4,8 +4,10 @@ import {
   getHealth,
   getStatus,
   listOrionFiles,
+  orionFileDownloadUrl,
   processBrainMessage,
   searchWeb,
+  transformOrionFile,
   uploadCameraPhoto,
   uploadOrionFile,
 } from "./api.js";
@@ -52,7 +54,14 @@ const FILE_COMMAND_TERMS = [
   "meus arquivos",
   "analisar arquivo",
   "ler documento",
+  "resumir documento",
   "resumir pdf",
+  "explicar documento",
+  "criar apostila",
+  "fazer trabalho",
+  "gerar pdf",
+  "criar flashcards",
+  "gerar flashcards",
   "o que tem nessa imagem",
 ];
 const WARDROBE_LINES = {
@@ -671,16 +680,43 @@ export function renderFileList(files) {
     analyzeButton.textContent = "Analisar";
     analyzeButton.addEventListener("click", () => analyzeFileById(file.id));
 
+    const summaryButton = buildFileActionButton("Resumir", () => transformFileById(file.id, "summary"));
+    const explainButton = buildFileActionButton("Explicar", () => transformFileById(file.id, "explanation"));
+    const handoutButton = buildFileActionButton("Apostila", () => transformFileById(file.id, "apostila"));
+    const workButton = buildFileActionButton("Trabalho", () => transformFileById(file.id, "trabalho"));
+    const pdfButton = buildFileActionButton("PDF", () => transformFileById(file.id, "pdf", "pdf"));
+    const flashcardsButton = buildFileActionButton("Flashcards", () => transformFileById(file.id, "flashcards"));
+    const downloadButton = buildFileActionButton("Baixar", () => downloadFileById(file.id), "mini-action--quiet");
+
     const deleteButton = document.createElement("button");
     deleteButton.className = "mini-action mini-action--quiet";
     deleteButton.type = "button";
     deleteButton.textContent = "Apagar";
     deleteButton.addEventListener("click", () => deleteFileById(file.id));
 
-    actions.append(analyzeButton, deleteButton);
+    actions.append(
+      analyzeButton,
+      summaryButton,
+      explainButton,
+      handoutButton,
+      workButton,
+      pdfButton,
+      flashcardsButton,
+      downloadButton,
+      deleteButton
+    );
     row.append(main, actions);
     elements.fileList.append(row);
   });
+}
+
+function buildFileActionButton(label, handler, extraClass = "") {
+  const button = document.createElement("button");
+  button.className = `mini-action ${extraClass}`.trim();
+  button.type = "button";
+  button.textContent = label;
+  button.addEventListener("click", handler);
+  return button;
 }
 
 export async function analyzeFileById(fileId, instructions = "") {
@@ -707,6 +743,39 @@ export async function analyzeFileById(fileId, instructions = "") {
     setOrionState("error");
     showOrionBubble(error.message || "Nao consegui analisar esse arquivo.");
   }
+}
+
+export async function transformFileById(fileId, mode, outputFormat = "text") {
+  setFilesStatus("transformando");
+  animateOrionThinking();
+  setBrainVaultState("files", "Documentos");
+  try {
+    const response = await transformOrionFile(fileId, {
+      user_id: userId,
+      mode,
+      output_format: outputFormat,
+    });
+    applyAvatarPayload({
+      intent: "file",
+      emotion: "happy",
+      avatar_mood: mode === "apostila" ? "teacher" : "focused",
+      avatar_reaction: mode === "flashcards" ? "point-chat" : "teacher",
+      reasoning_state: "answering",
+    });
+    const generatedLine = response.generated_file
+      ? `\n\nArquivo gerado: ${response.generated_file.original_name}.`
+      : "";
+    await typeOrionMessage(`${response.message}\n\n${response.content}${generatedLine}`);
+    await loadUserFiles();
+  } catch (error) {
+    setFilesStatus("erro");
+    setOrionState("error");
+    showOrionBubble(error.message || "Nao consegui transformar esse arquivo.");
+  }
+}
+
+export function downloadFileById(fileId) {
+  window.open(orionFileDownloadUrl(fileId, userId), "_blank", "noopener,noreferrer");
 }
 
 export async function deleteFileById(fileId) {
@@ -785,7 +854,7 @@ function inferFileCategory(file) {
   if (["txt", "md", "csv", "json"].includes(extension)) {
     return "texto";
   }
-  if (["doc", "docx", "xls", "xlsx"].includes(extension)) {
+  if (["doc", "docx", "pptx", "xls", "xlsx"].includes(extension)) {
     return "documento";
   }
   return "geral";
@@ -838,7 +907,6 @@ async function handleLocalFileCommands(text) {
   if (
     normalized.includes("analisar arquivo")
     || normalized.includes("ler documento")
-    || normalized.includes("resumir pdf")
     || normalized.includes("o que tem nessa imagem")
   ) {
     await openFileVisionPanel();
@@ -851,7 +919,41 @@ async function handleLocalFileCommands(text) {
     return true;
   }
 
+  const transformMode = inferFileTransformMode(normalized);
+  if (transformMode) {
+    await openFileVisionPanel();
+    const file = await findLatestFileForCommand(normalized);
+    if (!file) {
+      await typeOrionMessage("Nao encontrei um arquivo compativel para transformar. Envie um arquivo primeiro.");
+      return true;
+    }
+    await transformFileById(file.id, transformMode.mode, transformMode.outputFormat);
+    return true;
+  }
+
   return false;
+}
+
+function inferFileTransformMode(normalized) {
+  if (normalized.includes("criar apostila") || normalized.includes("transformar em apostila")) {
+    return { mode: "apostila", outputFormat: "text" };
+  }
+  if (normalized.includes("fazer trabalho") || normalized.includes("transformar em trabalho")) {
+    return { mode: "trabalho", outputFormat: "text" };
+  }
+  if (normalized.includes("gerar pdf") || normalized.includes("transformar em pdf")) {
+    return { mode: "pdf", outputFormat: "pdf" };
+  }
+  if (normalized.includes("flashcards")) {
+    return { mode: "flashcards", outputFormat: "text" };
+  }
+  if (normalized.includes("explicar documento")) {
+    return { mode: "explanation", outputFormat: "text" };
+  }
+  if (normalized.includes("resumir pdf") || normalized.includes("resumir documento")) {
+    return { mode: "summary", outputFormat: "text" };
+  }
+  return undefined;
 }
 
 async function findLatestFileForCommand(normalizedCommand) {

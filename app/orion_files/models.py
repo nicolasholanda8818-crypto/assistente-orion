@@ -16,7 +16,7 @@ class OrionFileRecord(StrictModel):
     extension: str
     size_bytes: int
     category: str
-    source: Literal["upload", "camera"]
+    source: Literal["upload", "camera", "generated"]
     analysis_status: Literal["pending", "ready", "limited", "error"]
     summary: str | None = None
     keywords: list[str] = Field(default_factory=list)
@@ -44,6 +44,23 @@ class OrionFileAnalysisResponse(StrictModel):
     file: OrionFileRecord
     summary: str
     keywords: list[str]
+    message: str
+
+
+class OrionFileTransformRequest(StrictModel):
+    user_id: str = Field(min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_.-]+$")
+    mode: Literal["summary", "explanation", "apostila", "trabalho", "pdf", "flashcards"]
+    output_format: Literal["text", "pdf"] = "text"
+    instructions: str | None = Field(default=None, max_length=500)
+
+
+class OrionFileTransformResponse(StrictModel):
+    source_file: OrionFileRecord
+    generated_file: OrionFileRecord | None = None
+    mode: Literal["summary", "explanation", "apostila", "trabalho", "pdf", "flashcards"]
+    output_format: Literal["text", "pdf"]
+    title: str
+    content: str
     message: str
 
 

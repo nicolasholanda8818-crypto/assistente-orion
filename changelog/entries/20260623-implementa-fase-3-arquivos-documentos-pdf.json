@@ -1,0 +1,12 @@
+{
+  "id": "20260623-implementa-fase-3-arquivos-documentos-pdf",
+  "type": "added",
+  "summary": "Implementa Fase 3 com arquivos, documentos e geracao de PDF.",
+  "details": [
+    "Orion Files passa a ler PDF, DOCX, XLSX, PPTX, TXT e imagens com extracao local quando o formato permite.",
+    "Painel Meus Arquivos ganha acoes para resumir, explicar, criar apostila, trabalho, PDF, flashcards e baixar arquivos.",
+    "Backend adiciona download seguro e transformacoes deterministicas com registros gerados por usuario."
+  ],
+  "date": "2026-06-23",
+  "version": null
+}

@@ -4,7 +4,7 @@
 
 Status: `PROTOTIPO JOGAVEL LORD DRAGONS ADICIONADO COM RC BLOQUEADO`
 
-Status operacional recente: `FASE 5 - AVATAR 3D PROCEDURAL E CEREBRO COSMICO EM VALIDACAO`
+Status operacional recente: `FASE 3 - ARQUIVOS, DOCUMENTOS E PDF EM VALIDACAO`
 
 O workspace contem um prototipo exploratorio nao versionado. Ele nao representa uma versao aprovada do ORION e deve ser auditado antes de qualquer aproveitamento. Nesta etapa, nenhum modulo funcional deve ser expandido.
 
@@ -79,6 +79,7 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Voz avancada declara provedores Azure, ElevenLabs, OpenAI TTS e Coqui TTS local, com fallback SpeechSynthesis API no navegador.
 - [x] Pesquisa web integrada usa confirmacao obrigatoria, resumo com fontes e bloqueio de consultas sensiveis.
 - [x] Orion Files adiciona camera via navegador, upload seguro por usuario, analise local basica, memoria de arquivos e painel PWA.
+- [x] Orion Files Fase 3 adiciona leitura de PDF, DOCX, XLSX, PPTX, TXT e imagens, download seguro e geracao de resumo, explicacao, apostila, trabalho, PDF e flashcards.
 - [x] Interface principal recebeu sidebar recolhivel estilo chat moderno para Chat, Cerebro, Arquivos, Lord Dragons, Memoria, Voz e Configuracoes.
 - [x] Uploads agora disparam autoanalise quando possivel e sugerem pesquisa web relacionada com confirmacao do usuario.
 - [x] Voz recebeu modo ligacao continuo em `pt-BR`, pausando reconhecimento enquanto Orion fala.
@@ -88,6 +89,7 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Voz em `pt-BR` declara estados ouvindo, pensando e respondendo, sincronizados ao avatar.
 - [x] Fase 5 adiciona Avatar Studio, Minha Skin, guarda-roupa ampliado e analise visual local de imagem.
 - [x] Modo Cerebro ganhou camada cosmica, nos de memorias/documentos/aprendizado e modo visual Equilibrado.
+- [x] Cache PWA atualizado para `orion-pwa-v37-files-documents`.
 - [x] Correcao total de 2026-06-14 estabilizou lint, canvas 3D/fallback, chat continuo e resposta de identidade local.
 - [x] Living Avatar adiciona personalidade visual, falas dinamicas, comportamento espontaneo, olhar inteligente e quarto futurista interativo.
 - [x] Modo persistente Windows criado para manter o Orion online e reiniciar o servidor local se ele cair.
@@ -113,7 +115,7 @@ Data: `2026-06-23`
 | --- | --- |
 | Ruff lint e format | aprovado |
 | Sintaxe JavaScript e PWA | aprovado |
-| Pytest backend | `158 passed`, `9 warnings` |
+| Pytest backend | `161 passed`, `9 warnings` |
 | Coverage backend | configurado com minimo de 80% |
 | Playwright E2E Chromium | `5 passed` |
 | Onboarding visual desktop e mobile | aprovado |
@@ -123,10 +125,11 @@ Data: `2026-06-23`
 | Pip Audit runtime direto | nenhuma vulnerabilidade conhecida |
 | Pip Audit ambiente local | bloqueado por `chromadb 1.5.3` e `python-multipart 0.0.20` instalados fora dos requisitos runtime |
 | Secret scan | aprovado |
-| Orion Files | upload, listagem, analise, exclusao e foto de camera testados |
+| Orion Files | upload, listagem, analise, transformacao, download, exclusao e foto de camera testados |
 | Inteligencia conversacional | memoria, retorno, objetivos, API REST e WebSocket aprovados |
 | Web e voz | busca web categorizada, fontes, voz pt-BR e estados visuais aprovados |
-| Avatar 3D e Cerebro Cosmico | Avatar Studio, skin local, troca Avatar/Cerebro e cache PWA v36 aprovados |
+| Avatar 3D e Cerebro Cosmico | Avatar Studio, skin local, troca Avatar/Cerebro e cache PWA v37 aprovados |
+| Navegador local | Orion carregou, painel Meus Arquivos abriu e chat respondeu `oi` |
 | Performance baseline | aprovado em `docs/releases/0.1.0-rc.1/performance.json` |
 | Build release | `dist/orion-foundation.zip` gerado e verificado |
 | Release Candidate | `0.1.0-rc.1` gerado com manifesto e SHA-256, bloqueado para promocao |
@@ -299,7 +302,7 @@ Resultado:
 - [x] Analise visual de imagem usa canvas no navegador para extrair paleta e sugerir uma skin inspirada sem enviar dados externos.
 - [x] Alternancia `Avatar <-> Cerebro` ocorre sem recarregar a pagina.
 - [x] Modo Cerebro recebeu nos para memorias, documentos e aprendizado, alem de camada cosmica e modo Equilibrado.
-- [x] Cache PWA atualizado para `orion-pwa-v36-avatar-brain`.
+- [x] Cache PWA atualizado para `orion-pwa-v37-files-documents`.
 
 Validacao executada:
 

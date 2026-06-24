@@ -18,6 +18,8 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `DELETE` | `/api/files/{file_id}` | files | Delete File | `delete_file_api_files__file_id__delete` |
 | `GET` | `/api/files/{file_id}` | files | Get File | `get_file_api_files__file_id__get` |
 | `POST` | `/api/files/{file_id}/analyze` | files | Analyze File | `analyze_file_api_files__file_id__analyze_post` |
+| `GET` | `/api/files/{file_id}/download` | files | Download File | `download_file_api_files__file_id__download_get` |
+| `POST` | `/api/files/{file_id}/transform` | files | Transform File | `transform_file_api_files__file_id__transform_post` |
 | `GET` | `/api/health` | system | Health Check | `health_check_api_health_get` |
 | `GET` | `/api/hosting/status` | hosting | Hosting Status | `hosting_status_api_hosting_status_get` |
 | `GET` | `/api/models` | models | List Models | `list_models_api_models_get` |
@@ -297,10 +299,31 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `original_name` | `string` | sim |
 | `safe_name` | `string` | sim |
 | `size_bytes` | `integer` | sim |
-| `source` | `string (upload, camera)` | sim |
+| `source` | `string (upload, camera, generated)` | sim |
 | `summary` | `string / null` | nao |
 | `updated_at` | `string` | sim |
 | `user_id` | `string` | sim |
+
+### `OrionFileTransformRequest`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `instructions` | `string / null` | nao |
+| `mode` | `string (summary, explanation, apostila, trabalho, pdf, flashcards)` | sim |
+| `output_format` | `string (text, pdf)` | nao |
+| `user_id` | `string` | sim |
+
+### `OrionFileTransformResponse`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `content` | `string` | sim |
+| `generated_file` | `OrionFileRecord / null` | nao |
+| `message` | `string` | sim |
+| `mode` | `string (summary, explanation, apostila, trabalho, pdf, flashcards)` | sim |
+| `output_format` | `string (text, pdf)` | sim |
+| `source_file` | `OrionFileRecord` | sim |
+| `title` | `string` | sim |
 
 ### `OrionFileUploadResponse`
 

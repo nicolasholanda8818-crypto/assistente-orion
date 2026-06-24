@@ -1,4 +1,4 @@
-const CACHE_NAME = "orion-pwa-v36-avatar-brain";
+const CACHE_NAME = "orion-pwa-v37-files-documents";
 const APP_SHELL = [
   "/",
   "/index.html",

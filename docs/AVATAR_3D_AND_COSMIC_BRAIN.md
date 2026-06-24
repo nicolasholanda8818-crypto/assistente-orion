@@ -40,7 +40,7 @@ Campos salvos:
 
 - Render: sem alteracao no backend ou Docker.
 - WebSocket: preservado.
-- PWA: cache atualizado para `orion-pwa-v36-avatar-brain`.
+- PWA: cache atualizado para `orion-pwa-v37-files-documents`.
 - Voz: preservada e sincronizada por estados existentes.
 - Lord Dragons: preservado.
 

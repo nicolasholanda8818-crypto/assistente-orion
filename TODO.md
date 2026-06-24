@@ -31,6 +31,7 @@
 - [x] Implementar inteligencia conversacional Fase 1 com continuidade, objetivos, emocoes contextuais e iniciativa leve.
 - [x] Implementar Fase 4 com web conversacional, noticias, clima, busca tecnica, fontes, resumos e voz sincronizada.
 - [x] Implementar Fase 5 com Avatar Studio, Minha Skin, analise visual local e Cerebro Cosmico.
+- [x] Implementar Fase 3 com arquivos, documentos, PDF, apostilas, trabalhos e flashcards.
 - [ ] Vendorizar Three.js localmente para PWA offline completo.
 - [ ] Endurecer WebSocket com autenticacao, origin check, rate limit e quotas.
 - [ ] Criar E2E automatizado para o fluxo visual do Orion.

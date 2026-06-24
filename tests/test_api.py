@@ -25,7 +25,7 @@ def test_application_status(client):
     assert payload["database"]["status"] == "ready"
     assert payload["database"]["metadata_records"] == 5
     assert payload["pwa"]["static_dir"] == "frontend"
-    assert payload["pwa"]["cache_name"] == "orion-pwa-v36-avatar-brain"
+    assert payload["pwa"]["cache_name"] == "orion-pwa-v37-files-documents"
     assert payload["brain"]["mode"] == "deterministic-fallback"
     assert payload["brain"]["components"]["memory"] == "volatile+user-sqlite+continuity"
     assert payload["brain"]["components"]["orion_memory"] == "profile-facts-summaries"
@@ -37,6 +37,7 @@ def test_application_status(client):
     assert "news.summary" in payload["web_search"]["capabilities"]
     assert payload["files"]["status"] == "ready"
     assert ".pdf" in payload["files"]["allowed_extensions"]
+    assert ".pptx" in payload["files"]["allowed_extensions"]
     assert payload["onboarding"]["required"] is True
 
 

@@ -83,7 +83,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v36-avatar-brain";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v37-files-documents";' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/js/")' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/css/")' in service_worker
     assert '"/assets/css/tokens.css"' in service_worker
@@ -150,6 +150,8 @@ def test_orion_visual_chat_controller_exposes_required_functions():
         "uploadSelectedFiles",
         "loadUserFiles",
         "analyzeFileById",
+        "transformFileById",
+        "downloadFileById",
     ]:
         assert f"function {function_name}" in main
 
@@ -224,6 +226,11 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "searchWeb" in main
     assert "uploadOrionFile" in main
     assert "uploadCameraPhoto" in main
+    assert "transformOrionFile" in main
+    assert "orionFileDownloadUrl" in main
+    assert "Apostila" in main
+    assert "Flashcards" in main
+    assert ".pptx" in read_frontend("index.html")
     assert "formatWebSearchAnswer" in main
     assert "performWebSearch" in main
     assert "inferWebSearchType" in main

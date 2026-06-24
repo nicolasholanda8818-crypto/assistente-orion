@@ -88,6 +88,18 @@ export function analyzeOrionFile(fileId, payload) {
   });
 }
 
+export function transformOrionFile(fileId, payload) {
+  return request(`/api/files/${fileId}/transform`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function orionFileDownloadUrl(fileId, userId) {
+  const query = new URLSearchParams({ user_id: userId });
+  return `/api/files/${fileId}/download?${query.toString()}`;
+}
+
 export function uploadCameraPhoto(payload) {
   return request("/api/camera/photo", {
     method: "POST",

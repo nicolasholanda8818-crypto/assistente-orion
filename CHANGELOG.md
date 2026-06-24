@@ -17,6 +17,10 @@ A fonte autoritativa fica em `changelog/entries`.
   - Pesquisa web passa a classificar consultas em web, noticias, clima e busca tecnica com fontes, resumo e proximos passos.
   - Voz em pt-BR declara estados ouvindo, pensando e respondendo, com sincronizacao visual do avatar.
   - PWA atualiza cache para v35 para entregar os novos scripts e estilos sem cache antigo.
+- Implementa Fase 3 com arquivos, documentos e geracao de PDF.
+  - Orion Files passa a ler PDF, DOCX, XLSX, PPTX, TXT e imagens com extracao local quando o formato permite.
+  - Painel Meus Arquivos ganha acoes para resumir, explicar, criar apostila, trabalho, PDF, flashcards e baixar arquivos.
+  - Backend adiciona download seguro e transformacoes deterministicas com registros gerados por usuario.
 - Aprimora inteligencia conversacional com memoria e continuidade por usuario.
   - Brain passa a reconhecer retorno, objetivos, preferencias, estados emocionais recentes e contexto persistente por usuario.
   - Novas fachadas orion_intent e orion_memory deixam parser de intencoes e memoria conversacional explicitos.
