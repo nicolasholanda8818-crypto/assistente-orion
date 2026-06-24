@@ -18,7 +18,7 @@ import { startScene } from "./scene.js";
 import { createOrionSocket } from "./socket.js";
 import { createLivingAvatar } from "./living-avatar.js?v=36";
 import { createBrainVault } from "./brain-vault.js?v=36";
-import { createOrionVoiceEngine } from "./voice-engine.js?v=36";
+import { createOrionVoiceEngine } from "./voice-engine.js?v=38";
 
 const MAX_VISIBLE_MESSAGES = 42;
 const USER_ID_KEY = "orion:userId";
@@ -42,6 +42,15 @@ const WEB_SEARCH_TERMS = [
   "agora",
   "noticias",
   "noticia",
+  "o que saiu de novo",
+  "veja na web",
+  "compare fontes",
+  "me traga fontes",
+  "pesquise documentacao",
+  "documentacao atual",
+  "erro recente",
+  "ferramenta nova",
+  "lancamento",
   "clima",
   "tempo",
   "temperatura",
@@ -113,11 +122,13 @@ const VOICE_MODE_ALIASES = {
   assistant: "assistant",
   teacher: "teacher",
   narrator: "narrator",
+  consultant: "consultant",
 };
 const VOICE_MODE_LINES = {
   conversation: "Voz de conversa configurada. Mais suave e natural.",
   assistant: "Voz de assistente configurada. Calma, clara e objetiva.",
   teacher: "Voz de professor configurada. Vou explicar com pausas melhores.",
+  consultant: "Voz de consultor configurada. Mais firme, profissional e objetiva.",
   calm: "Voz calma configurada. Vou falar com mais suavidade.",
   animated: "Voz animada configurada. Mais energia, sem perder clareza.",
   grandma: "Modo avo configurado. Mais paciencia, carinho e pausas.",
@@ -1505,6 +1516,20 @@ export async function handleOptionalWebSearch(text) {
   return true;
 }
 
+async function handleSuggestedWebSearch(payload) {
+  const query = payload.searchQuery || payload.search_query;
+  const shouldSearch = payload.shouldSearchWeb ?? payload.should_search_web;
+  if (!shouldSearch || !query) {
+    return false;
+  }
+  await performWebSearch(query, {
+    originalText: "",
+    category: "Pesquisa",
+    searchType: inferWebSearchType(query),
+  });
+  return true;
+}
+
 export async function performWebSearch(query, options = {}) {
   if (!window.navigator.onLine) {
     await typeOrionMessage("Estou sem acesso a internet agora, mas posso tentar responder com o que ja sei.");
@@ -1838,7 +1863,7 @@ function handleSocketMessage(message) {
     rememberUserName(payload);
     typeOrionMessage(payload.message || payload.text || "Estou aqui, Mestre.", {
       shouldSpeak: payload.shouldSpeak ?? payload.should_speak ?? true,
-    });
+    }).then(() => handleSuggestedWebSearch(payload));
     return;
   }
 
@@ -1875,6 +1900,14 @@ function applyAvatarPayload(payload) {
     playOrionReaction("teacher");
     pulseOrionAura("#61d8ff");
     setBrainVaultState("remembering", "Programacao");
+  } else if (["sales", "sales.script", "sales.message", "negotiation", "objection.price"].includes(payload.intent)) {
+    playOrionReaction("hand-chin");
+    pulseOrionAura("#65ffb6");
+    setBrainVaultState("thinking", "Projetos");
+  } else if (payload.intent === "consultant.senior") {
+    playOrionReaction("teacher");
+    pulseOrionAura("#61d8ff");
+    setBrainVaultState("thinking", "Gestao de TI");
   } else if (payload.intent === "question.general" || payload.intent === "curiosity") {
     playOrionReaction("hand-chin");
     setBrainVaultState("thinking", "Conversas");
@@ -1903,6 +1936,7 @@ async function sendMessageWithRestFallback(text) {
     await typeOrionMessage(response.message, {
       shouldSpeak: response?.should_speak ?? response?.shouldSpeak ?? true,
     });
+    await handleSuggestedWebSearch(response || {});
   } catch {
     const errorText = "Tive uma falha de conexÃ£o, Mestre. Vou tentar novamente.";
     setOrionState("error");
@@ -2092,7 +2126,10 @@ function extractWebSearchRequest(text) {
   }
 
   let query = text.trim();
-  query = query.replace(/^(orion,\s*)?(pesquise|pesquisar|busque|buscar|procure|google)\s+/i, "");
+  query = query.replace(
+    /^(orion,\s*)?(pesquise|pesquisar|busque|buscar|procure|google|veja na web|compare fontes|me traga fontes)\s+/i,
+    ""
+  );
   query = query.replace(/^(na web|na internet|no google|sobre|por)\s+/i, "");
   return {
     query: query.trim().slice(0, 180),
@@ -2109,7 +2146,7 @@ function inferWebSearchType(text) {
   if (["clima", "tempo", "temperatura", "previsao"].some((term) => normalized.includes(term))) {
     return "weather";
   }
-  if (["noticia", "noticias", "manchete", "jornal"].some((term) => normalized.includes(term))) {
+  if (["noticia", "noticias", "manchete", "jornal", "saiu de novo"].some((term) => normalized.includes(term))) {
     return "news";
   }
   if (
@@ -2127,6 +2164,9 @@ function inferWebSearchType(text) {
       "docker",
       "render",
       "documentacao",
+      "documentacao atual",
+      "erro recente",
+      "ferramenta nova",
     ].some((term) => normalized.includes(term))
   ) {
     return "technical";

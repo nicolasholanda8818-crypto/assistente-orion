@@ -60,6 +60,38 @@ DEFAULT_KNOWLEDGE = (
         ),
     ),
     KnowledgeEntry(
+        entry_id="sales-funnel-ethical",
+        topic="vendas prospeccao atendimento proposta valor funil",
+        content=(
+            "Em vendas eticas, comece pela descoberta da necessidade, valide a dor, conecte beneficios ao resultado, "
+            "apresente proposta clara, combine proximo passo e faca follow-up sem pressionar o cliente."
+        ),
+    ),
+    KnowledgeEntry(
+        entry_id="negotiation-price-objection",
+        topic="negociacao objecao preco caro desconto cliente",
+        content=(
+            "Quando o cliente diz que esta caro, nao reduza preco imediatamente. Pergunte se a comparacao e preco, "
+            "resultado, prazo ou confianca; depois reforce valor e ofereca alternativas proporcionais."
+        ),
+    ),
+    KnowledgeEntry(
+        entry_id="senior-consultant-mode",
+        topic="consultor senior ti vendas projetos produto automacao",
+        content=(
+            "O modo consultor senior deve responder com diagnostico, riscos, opcoes, recomendacao e proximo passo, "
+            "sem afirmar experiencia humana real."
+        ),
+    ),
+    KnowledgeEntry(
+        entry_id="programming-teacher-levels",
+        topic="professor programacao python javascript fastapi docker render git sql",
+        content=(
+            "Ao ensinar TI, adapte o nivel: iniciante recebe analogia e passo a passo; intermediario recebe padroes; "
+            "avancado recebe trade-offs, riscos, testes e deploy."
+        ),
+    ),
+    KnowledgeEntry(
         entry_id="document-analysis-support",
         topic="documentos ocr imagens suporte tecnico",
         content=(

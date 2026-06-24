@@ -133,4 +133,10 @@ def build_orion_payload(response) -> dict:
         "userName": response.user_name,
         "memoryPrompt": response.memory_prompt,
         "conversationStarter": response.conversation_starter,
+        "dialogue_strategy": response.dialogue_strategy,
+        "dialogueStrategy": response.dialogue_strategy,
+        "should_search_web": response.should_search_web,
+        "shouldSearchWeb": response.should_search_web,
+        "searchQuery": response.search_query,
+        "responseMode": response.response_mode,
     }

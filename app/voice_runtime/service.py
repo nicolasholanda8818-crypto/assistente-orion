@@ -3,7 +3,7 @@ from pathlib import Path
 from app.core.config import settings
 from app.voice_runtime.models import VoiceCatalog, VoiceProvider
 
-VOICE_MODES = ["conversation", "assistant", "teacher", "calm", "animated", "grandma", "narrator"]
+VOICE_MODES = ["conversation", "assistant", "teacher", "consultant", "calm", "animated", "grandma", "narrator"]
 VOICE_STATES = ["listening", "thinking", "responding"]
 
 
@@ -21,7 +21,10 @@ class VoiceRuntimeService:
                 requires_secret=False,
                 notes=[
                     "Fallback offline/sem chave no navegador.",
-                    "Seleciona automaticamente a melhor voz pt-BR disponivel no dispositivo.",
+                    (
+                        "Seleciona automaticamente a melhor voz pt-BR disponivel, "
+                        "priorizando voz masculina quando existir."
+                    ),
                 ],
             ),
             VoiceProvider(

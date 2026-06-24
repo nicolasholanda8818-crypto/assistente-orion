@@ -93,6 +93,10 @@ class BrainResponse(StrictModel):
     user_name: str | None = None
     memory_prompt: bool = False
     conversation_starter: str | None = None
+    dialogue_strategy: str | None = None
+    should_search_web: bool = False
+    search_query: str | None = None
+    response_mode: str | None = None
 
 
 class BrainStatus(StrictModel):

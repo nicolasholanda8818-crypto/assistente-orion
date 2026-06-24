@@ -22,11 +22,73 @@ INTENT_KEYWORDS = {
     "pc_command": {"abrir", "fechar", "reiniciar", "desligar", "calculadora", "programa"},
     "file": {"arquivo", "pasta", "upload", "download", "documento"},
     "camera": {"camera", "câmera", "foto", "imagem", "visao", "visão"},
-    "technical": {"erro", "codigo", "código", "api", "backend", "frontend", "websocket", "pwa", "python"},
+    "technical": {
+        "erro",
+        "codigo",
+        "código",
+        "api",
+        "backend",
+        "frontend",
+        "websocket",
+        "pwa",
+        "python",
+        "javascript",
+        "html",
+        "css",
+        "sql",
+        "fastapi",
+        "docker",
+        "render",
+        "github",
+        "git",
+        "linux",
+        "windows",
+        "rede",
+        "seguranca",
+        "cloud",
+        "debugging",
+        "deploy",
+    },
     "memory.recall": {"lembra", "lembrar", "recorda", "recordar", "memoria"},
     "goal.setting": {"meta", "objetivo", "objetivos", "conseguir", "terminar", "finalizar"},
     "preference.update": {"gosto", "prefiro", "preferencia", "preferencias"},
     "conversation.reply": {"conversar", "conversa", "papo", "continuar"},
+    "sales": {
+        "vender",
+        "venda",
+        "vendas",
+        "cliente",
+        "clientes",
+        "servico",
+        "proposta",
+        "orcamento",
+        "atendimento",
+        "whatsapp",
+        "prospectar",
+        "prospeccao",
+        "fechamento",
+        "follow",
+    },
+    "negotiation": {
+        "negociar",
+        "negociacao",
+        "objecao",
+        "objeccao",
+        "caro",
+        "preco",
+        "desconto",
+        "valor",
+        "contraproposta",
+    },
+    "consultant.senior": {
+        "consultor",
+        "senior",
+        "mercado",
+        "estrategia",
+        "estrategico",
+        "experiente",
+        "profissional",
+    },
 }
 
 EMOTION_KEYWORDS = {
@@ -107,6 +169,20 @@ def detect_intent(text: str) -> str:
         return "identity.user"
     if "lembra de mim" in normalized or "voce lembra de mim" in normalized:
         return "memory.recall"
+    if "cliente disse que esta caro" in normalized or "esta caro" in normalized or "ta caro" in normalized:
+        return "objection.price"
+    if "crie uma mensagem para cliente" in normalized or "mensagem para cliente" in normalized:
+        return "sales.message"
+    if "script de vendas" in normalized or "roteiro de vendas" in normalized:
+        return "sales.script"
+    if "fale como consultor" in normalized or "modo consultor" in normalized or "consultor senior" in normalized:
+        return "consultant.senior"
+    if "quero vender" in normalized or "vender um servico" in normalized:
+        return "sales"
+    if "me ajude a negociar" in normalized or "ajude a negociar" in normalized:
+        return "negotiation"
+    if normalized.startswith("meu objetivo") or normalized.startswith("minha meta") or "quero conseguir" in normalized:
+        return "goal.setting"
     if "de volta" in normalized or "voltei" in normalized or "retornei" in normalized:
         return "returning"
     if classify_emotion(text) != "neutral":

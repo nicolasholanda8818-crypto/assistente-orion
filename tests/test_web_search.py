@@ -63,6 +63,9 @@ def test_web_search_detects_recency_requests():
     assert service.should_search("pesquise noticias de tecnologia")
     assert service.should_search("clima em Sao Paulo hoje")
     assert service.should_search("buscar documentacao FastAPI websocket")
+    assert service.should_search("veja na web a ferramenta nova")
+    assert service.should_search("compare fontes sobre GitHub Actions")
+    assert service.should_search("o que saiu de novo em Docker")
     assert not service.should_search("me conte uma piada")
 
 
@@ -88,4 +91,6 @@ def test_web_search_status_documents_conversational_browser_capabilities():
     assert "news.summary" in status.capabilities
     assert "weather.lookup" in status.capabilities
     assert "technical.search" in status.capabilities
+    assert "recency.detection" in status.capabilities
+    assert "source.comparison" in status.capabilities
     assert "no-automatic-search-without-user-request" in status.restrictions

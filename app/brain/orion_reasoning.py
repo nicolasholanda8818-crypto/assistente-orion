@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from hashlib import sha256
 
+from app.brain.orion_dialogue_manager import DialogueDecision, analyze_dialogue
 from app.brain.orion_intents import (
     classify_emotion,
     detect_intent,
@@ -28,6 +29,9 @@ class ReasoningResult:
     reasoning_state: str
     response_length: str
     should_speak: bool
+    dialogue_decision: DialogueDecision
+    should_search_web: bool
+    search_query: str | None
 
 
 RESPONSE_BANK = {
@@ -160,6 +164,58 @@ RESPONSE_BANK = {
         "Podemos conversar sim. Me conta o que esta passando pela sua cabeca agora.",
         "Estou presente. Podemos falar leve, pensar em um projeto ou resolver algo pequeno.",
     ],
+    "sales": [
+        (
+            "Entendi. Para vender com mais chance de fechar, primeiro precisamos descobrir para quem e o servico, "
+            "qual dor ele resolve e qual resultado o cliente espera. Voce quer vender para cliente final, empresa "
+            "ou alguem que ja demonstrou interesse?"
+        ),
+        (
+            "Vamos tratar isso como venda profissional: dor do cliente, proposta de valor, prova, oferta e follow-up. "
+            "Qual servico voce quer vender e para qual tipo de cliente?"
+        ),
+    ],
+    "sales.script": [
+        (
+            "Um bom script precisa soar humano: abertura curta, pergunta de descoberta, valor, prova e convite para "
+            "o proximo passo. Me diga o servico, o publico e o canal: WhatsApp, ligacao ou presencial."
+        ),
+    ],
+    "sales.message": [
+        (
+            "Posso montar uma mensagem profissional. Para ficar forte, preciso de tres dados: quem e o cliente, "
+            "qual problema voce resolve e qual acao voce quer que ele tome."
+        ),
+    ],
+    "negotiation": [
+        (
+            "Na negociacao, nao baixe preco antes de entender a objecao real. Primeiro confirme valor, prazo e "
+            "comparacao. Qual e a frase exata que o cliente disse?"
+        ),
+        (
+            "Vamos negociar com postura. A ideia e criar valor antes do desconto, oferecer opcoes e fechar com "
+            "clareza. O cliente esta resistindo ao preco, ao prazo ou a confianca?"
+        ),
+    ],
+    "objection.price": [
+        (
+            "Resposta sugerida: 'Entendo. Para eu te orientar melhor, voce esta comparando apenas o preco ou o "
+            "resultado que esse servico vai entregar?' Depois disso, apresente valor, risco reduzido e uma opcao "
+            "menor sem desvalorizar seu trabalho."
+        ),
+        (
+            "Quando o cliente diz que esta caro, trate como convite para explicar valor, nao como ordem para dar "
+            "desconto. Voce pode responder: 'Faz sentido avaliar investimento. O ponto principal e: qual resultado "
+            "voce precisa garantir com isso?'"
+        ),
+    ],
+    "consultant.senior": [
+        (
+            "Vou responder com uma visao de consultor experiente de mercado, sem fingir experiencia humana real. "
+            "Primeiro eu separaria o problema em diagnostico, impacto, opcoes e decisao. Qual area voce quer "
+            "analisar: TI, venda, projeto ou produto?"
+        ),
+    ],
 }
 
 MOOD_BY_INTENT = {
@@ -190,6 +246,12 @@ MOOD_BY_INTENT = {
     "request.incomplete": ("curious", "hand-chin", "talk"),
     "question.general": ("thoughtful", "hand-chin", "talk"),
     "conversation.reply": ("neutral", "direct-look", "talk"),
+    "sales": ("confident", "attention", "talk"),
+    "sales.script": ("focused", "point-chat", "talk"),
+    "sales.message": ("focused", "point-chat", "talk"),
+    "negotiation": ("confident", "hand-chin", "talk"),
+    "objection.price": ("confident", "direct-look", "talk"),
+    "consultant.senior": ("confident", "teacher", "talk"),
 }
 
 HIGH_URGENCY_TERMS = {
@@ -212,6 +274,12 @@ MEDIUM_LENGTH_INTENTS = {
     "question.general",
     "memory.recall",
     "goal.setting",
+    "sales",
+    "sales.script",
+    "sales.message",
+    "negotiation",
+    "objection.price",
+    "consultant.senior",
 }
 
 
@@ -234,6 +302,13 @@ def reason_about_message(user_text: str, user_context: dict | None = None) -> Re
     reasoning_state = choose_reasoning_state(intent=intent, emotion=emotion, follow_up_needed=follow_up_needed)
     response_length = choose_response_length(intent=intent, emotion=emotion, follow_up_needed=follow_up_needed)
     profile_known = bool((user_context or {}).get("profile_known"))
+    dialogue_decision = analyze_dialogue(
+        user_text=user_text,
+        intent=intent,
+        emotion=emotion,
+        keywords=keywords,
+        profile_known=profile_known,
+    )
 
     return ReasoningResult(
         intent=intent,
@@ -254,6 +329,9 @@ def reason_about_message(user_text: str, user_context: dict | None = None) -> Re
         reasoning_state=reasoning_state,
         response_length=response_length,
         should_speak=True,
+        dialogue_decision=dialogue_decision,
+        should_search_web=dialogue_decision.should_search_web,
+        search_query=user_text.strip()[:220] if dialogue_decision.should_search_web else None,
     )
 
 
@@ -266,6 +344,10 @@ def choose_response_strategy(intent: str, emotion: str, keywords: list[str]) -> 
         return "personal-memory-update"
     if intent in {"pc_command", "file", "finance"}:
         return "safe-module-routing"
+    if intent in {"sales", "sales.script", "sales.message", "negotiation", "objection.price"}:
+        return "commercial-guidance"
+    if intent == "consultant.senior":
+        return "senior-consultant"
     if keywords:
         return "contextual-rule-response"
     return "clarifying-question"
@@ -310,7 +392,19 @@ def choose_reasoning_state(*, intent: str, emotion: str, follow_up_needed: bool)
         return "clarifying"
     if emotion in {"tired", "sad", "confused", "worried"}:
         return "clarifying"
-    if intent in {"technical", "teacher", "study", "question.general", "memory.recall"}:
+    if intent in {
+        "technical",
+        "teacher",
+        "study",
+        "question.general",
+        "memory.recall",
+        "sales",
+        "sales.script",
+        "sales.message",
+        "negotiation",
+        "objection.price",
+        "consultant.senior",
+    }:
         return "thinking"
     return "answering"
 

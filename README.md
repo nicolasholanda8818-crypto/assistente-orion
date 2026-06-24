@@ -22,8 +22,20 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run_e2e.ps1
 
 O nucleo local deterministico do Brain separa memoria, planejamento, execucao,
 aprendizado e conhecimento. Ele nao chama modelos externos nem executa acoes no host.
+O Brain tambem possui `orion_dialogue_manager`, que resume a estrategia da resposta
+sem expor cadeia interna: conversa, professor, vendas, negociacao, consultor ou
+pesquisa web recomendada.
 
 Consulte `BRAIN.md`.
+
+## Inteligencia, Vendas e Consultor
+
+O Orion reconhece pedidos de vendas, negociacao, objecao de preco, mensagem para
+cliente, script comercial e modo consultor senior. As respostas usam base local
+deterministica, com perguntas de descoberta, proposta de valor, proximo passo e
+postura profissional.
+
+Consulte `docs/ORION_INTELLIGENCE.md` e `docs/SALES_AND_NEGOTIATION.md`.
 
 ## Model Runtime
 
@@ -71,7 +83,8 @@ A PWA possui `voice-engine.js`, que escolhe automaticamente a melhor voz disponi
 Quando Azure Speech, ElevenLabs, OpenAI TTS ou Coqui TTS local nao estiverem
 configurados, o Orion usa SpeechSynthesis API com voz `pt-BR`, pausas e variacao
 leve de entonacao. Os modos disponiveis sao `conversation`, `assistant`,
-`teacher`, `calm`, `animated`, `grandma` e `narrator`.
+`teacher`, `consultant`, `calm`, `animated`, `grandma` e `narrator`.
+Quando o navegador oferece voz masculina `pt-BR`, ela recebe prioridade.
 
 O microfone inicia o modo ligacao por voz: Orion escuta, processa a fala, pausa o
 reconhecimento enquanto responde em voz alta e volta a ouvir automaticamente ate o
@@ -81,6 +94,8 @@ O modulo `orion_web_search` permite pesquisa integrada sem abrir Google
 manualmente. O frontend pede confirmacao antes de qualquer consulta externa,
 envia somente a pergunta sanitizada, bloqueia padroes sensiveis e mostra fontes
 no chat quando a internet responde.
+
+Consulte `docs/VOICE_SYSTEM.md` e `docs/WEB_SEARCH.md`.
 
 ## Arquivos, Documentos, PDF e Analise Local
 

@@ -7,7 +7,16 @@ def test_voice_runtime_exposes_advanced_provider_catalog():
     assert catalog.status == "ready"
     assert catalog.automatic_selection is True
     assert catalog.fallback_provider == "speech-synthesis"
-    assert set(catalog.modes) == {"conversation", "assistant", "teacher", "calm", "animated", "grandma", "narrator"}
+    assert set(catalog.modes) == {
+        "conversation",
+        "assistant",
+        "teacher",
+        "consultant",
+        "calm",
+        "animated",
+        "grandma",
+        "narrator",
+    }
     assert catalog.states == ["listening", "thinking", "responding"]
     assert catalog.language == "pt-BR"
     assert catalog.avatar_sync is True

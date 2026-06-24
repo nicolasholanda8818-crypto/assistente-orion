@@ -1,0 +1,12 @@
+{
+  "id": "20260624-fortalece-inteligencia-conversacional-vendas-web-voz",
+  "type": "added",
+  "summary": "Fortalece inteligencia conversacional, vendas, busca web e voz do Orion.",
+  "details": [
+    "Brain adiciona orion_dialogue_manager com estrategia segura, recomendacao de pesquisa web e modo consultor.",
+    "Orion passa a reconhecer vendas, negociacao, objecao de preco, scripts e mensagens para cliente.",
+    "Voz pt-BR ganha modo consultor, preferencia por voz masculina quando disponivel e eventos seguros de diagnostico."
+  ],
+  "date": "2026-06-24",
+  "version": null
+}

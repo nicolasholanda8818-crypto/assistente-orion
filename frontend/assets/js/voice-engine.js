@@ -8,12 +8,14 @@ const MODE_ALIASES = {
   conversation: "conversation",
   assistant: "assistant",
   narrator: "narrator",
+  consultant: "consultant",
 };
 
 const MODE_PROFILES = {
   conversation: { rate: 0.94, pitch: 1.01, volume: 1, pause: 190 },
   teacher: { rate: 0.88, pitch: 1, volume: 1, pause: 280 },
   assistant: { rate: 0.91, pitch: 0.98, volume: 0.96, pause: 230 },
+  consultant: { rate: 0.89, pitch: 0.9, volume: 1, pause: 260 },
   calm: { rate: 0.82, pitch: 0.96, volume: 0.92, pause: 320 },
   animated: { rate: 1.01, pitch: 1.07, volume: 1, pause: 150 },
   grandma: { rate: 0.78, pitch: 0.98, volume: 0.94, pause: 380 },
@@ -134,6 +136,12 @@ function speakWithSpeechSynthesis(text, { token, currentToken, profile, mode, on
   }
   const segments = splitSpeechSegments(text);
   const voice = selectBestVoice(window.speechSynthesis.getVoices());
+  emitVoiceLog("selected_voice", {
+    provider: "speech-synthesis",
+    voice: safeVoiceName(voice),
+    lang: voice?.lang || "unknown",
+    mode,
+  });
   let started = false;
   let speechStarted = false;
 
@@ -155,6 +163,7 @@ function speakWithSpeechSynthesis(text, { token, currentToken, profile, mode, on
     utterance.addEventListener("start", () => {
       if (!speechStarted) {
         speechStarted = true;
+        emitVoiceLog("voice_start", { provider: "speech-synthesis", mode, segmentCount: segments.length });
         onStart?.();
       }
     });
@@ -163,9 +172,13 @@ function speakWithSpeechSynthesis(text, { token, currentToken, profile, mode, on
     });
     utterance.addEventListener("end", () => {
       const pause = segments[index].pause + profile.pause;
+      if (index >= segments.length - 1) {
+        emitVoiceLog("voice_end", { provider: "speech-synthesis", mode });
+      }
       window.setTimeout(() => speakSegment(index + 1), pause);
     });
     utterance.addEventListener("error", () => {
+      emitVoiceLog("speech_error", { provider: "speech-synthesis", mode });
       window.setTimeout(() => speakSegment(index + 1), profile.pause);
     });
     window.speechSynthesis.speak(utterance);
@@ -253,6 +266,9 @@ function scoreVoice(voice) {
   let score = 0;
   if (voice.lang === "pt-BR") score += 80;
   if (voice.lang?.startsWith("pt")) score += 35;
+  if (name.includes("antonio") || name.includes("daniel") || name.includes("ricardo")) score += 34;
+  if (name.includes("male") || name.includes("masculin")) score += 26;
+  if (name.includes("brasil") || name.includes("brazil")) score += 24;
   if (name.includes("natural") || name.includes("neural")) score += 30;
   if (name.includes("brazil") || name.includes("brasil") || name.includes("portuguese brazil")) score += 24;
   if (name.includes("microsoft") || name.includes("google")) score += 18;
@@ -265,6 +281,25 @@ function scoreVoice(voice) {
   ) score += 12;
   if (voice.localService) score += 6;
   return score;
+}
+
+function safeVoiceName(voice) {
+  if (!voice) {
+    return "unavailable";
+  }
+  return `${voice.name || "unknown"}`.slice(0, 80);
+}
+
+function emitVoiceLog(event, detail = {}) {
+  const payload = {
+    event,
+    ...detail,
+    at: new Date().toISOString(),
+  };
+  window.dispatchEvent(new CustomEvent("orion:voice-log", { detail: payload }));
+  if (window.console?.info) {
+    window.console.info(`[orion_voice] ${event}`, payload);
+  }
 }
 
 function naturalRate(baseRate, index, mode) {

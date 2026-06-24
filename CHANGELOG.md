@@ -9,6 +9,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Fortalece inteligencia conversacional, vendas, busca web e voz do Orion.
+  - Brain adiciona orion_dialogue_manager com estrategia segura, recomendacao de pesquisa web e modo consultor.
+  - Orion passa a reconhecer vendas, negociacao, objecao de preco, scripts e mensagens para cliente.
+  - Voz pt-BR ganha modo consultor, preferencia por voz masculina quando disponivel e eventos seguros de diagnostico.
 - Implementa Fase 5 com avatar 3D procedural e cerebro cosmico.
   - Avatar Studio adiciona roupas, cabelo, olhos, acessorios, cores e Minha Skin persistida por usuario.
   - Analise local de imagem extrai paleta visual no navegador e sugere adaptacao propria para o avatar sem enviar dados externos.

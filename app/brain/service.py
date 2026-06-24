@@ -145,6 +145,10 @@ class BrainService:
                 if user_snapshot
                 else None
             ),
+            dialogue_strategy=reasoning.dialogue_decision.strategy,
+            should_search_web=reasoning.should_search_web,
+            search_query=reasoning.search_query,
+            response_mode=reasoning.dialogue_decision.mode,
         )
 
     def welcome(self, user_id: str) -> BrainResponse:
@@ -238,6 +242,10 @@ class BrainService:
         user_name: str | None = None,
         memory_prompt: bool = False,
         conversation_starter: str | None = None,
+        dialogue_strategy: str | None = None,
+        should_search_web: bool = False,
+        search_query: str | None = None,
+        response_mode: str | None = None,
     ) -> BrainResponse:
         return BrainResponse(
             correlation_id=uuid4().hex,
@@ -259,6 +267,10 @@ class BrainService:
             user_name=user_name,
             memory_prompt=memory_prompt,
             conversation_starter=conversation_starter,
+            dialogue_strategy=dialogue_strategy,
+            should_search_web=should_search_web,
+            search_query=search_query,
+            response_mode=response_mode,
         )
 
     def status(self) -> BrainStatus:
@@ -274,6 +286,7 @@ class BrainService:
                 "orion_reasoning": "intent-emotion-context",
                 "orion_memory": "profile-facts-summaries",
                 "orion_intent": "deterministic-parser",
+                "orion_dialogue_manager": "triple-layer-strategy",
             },
             capabilities=[
                 "conversation.reply",
@@ -283,6 +296,10 @@ class BrainService:
                 "user.context.continuity",
                 "user.goal.memory",
                 "conversation.initiative",
+                "sales.negotiation.guidance",
+                "senior.consultant.mode",
+                "web.search.recommendation",
+                "triple.layer.reasoning",
             ],
             restrictions=[
                 "localhost-only",

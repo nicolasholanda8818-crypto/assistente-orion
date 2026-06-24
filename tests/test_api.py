@@ -25,16 +25,19 @@ def test_application_status(client):
     assert payload["database"]["status"] == "ready"
     assert payload["database"]["metadata_records"] == 5
     assert payload["pwa"]["static_dir"] == "frontend"
-    assert payload["pwa"]["cache_name"] == "orion-pwa-v37-files-documents"
+    assert payload["pwa"]["cache_name"] == "orion-pwa-v38-intelligence-voice"
     assert payload["brain"]["mode"] == "deterministic-fallback"
     assert payload["brain"]["components"]["memory"] == "volatile+user-sqlite+continuity"
     assert payload["brain"]["components"]["orion_memory"] == "profile-facts-summaries"
+    assert payload["brain"]["components"]["orion_dialogue_manager"] == "triple-layer-strategy"
     assert payload["tools"]["enabled"] == 3
     assert payload["models"]["external_calls"] == "disabled"
     assert payload["voice"]["fallback_provider"] == "speech-synthesis"
+    assert "consultant" in payload["voice"]["modes"]
     assert payload["voice"]["states"] == ["listening", "thinking", "responding"]
     assert payload["web_search"]["requires_user_confirmation"] is True
     assert "news.summary" in payload["web_search"]["capabilities"]
+    assert "recency.detection" in payload["web_search"]["capabilities"]
     assert payload["files"]["status"] == "ready"
     assert ".pdf" in payload["files"]["allowed_extensions"]
     assert ".pptx" in payload["files"]["allowed_extensions"]

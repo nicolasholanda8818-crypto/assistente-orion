@@ -84,6 +84,7 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `context` | `ContextSummary` | sim |
 | `conversation_starter` | `string / null` | nao |
 | `correlation_id` | `string` | sim |
+| `dialogue_strategy` | `string / null` | nao |
 | `emotion` | `string` | nao |
 | `intent` | `string` | sim |
 | `keywords` | `array[string]` | nao |
@@ -93,6 +94,9 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `plan` | `array[PlanStep]` | sim |
 | `reasoning_state` | `string (listening, understanding, thinking, clarifying, answering, waiting)` | nao |
 | `response_length` | `string (short, medium, long)` | nao |
+| `response_mode` | `string / null` | nao |
+| `search_query` | `string / null` | nao |
+| `should_search_web` | `boolean` | nao |
 | `should_speak` | `boolean` | nao |
 | `suggested_animation` | `string` | nao |
 | `topic` | `string / null` | nao |

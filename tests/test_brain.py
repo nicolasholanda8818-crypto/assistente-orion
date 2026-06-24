@@ -26,9 +26,11 @@ def test_brain_status_exposes_separated_components():
         "orion_reasoning": "intent-emotion-context",
         "orion_memory": "profile-facts-summaries",
         "orion_intent": "deterministic-parser",
+        "orion_dialogue_manager": "triple-layer-strategy",
     }
     assert "no-host-actions" in status.restrictions
     assert "user.context.continuity" in status.capabilities
+    assert "sales.negotiation.guidance" in status.capabilities
 
 
 def test_brain_processes_status_and_records_volatile_context():
@@ -87,6 +89,11 @@ def test_brain_identifies_current_admin_user_without_external_model():
         ("voltei", "returning"),
         ("meu objetivo e publicar o Orion", "goal.setting"),
         ("prefiro respostas curtas", "preference.update"),
+        ("quero vender um servico", "sales"),
+        ("o cliente disse que esta caro", "objection.price"),
+        ("me ajude a negociar", "negotiation"),
+        ("crie uma mensagem para cliente", "sales.message"),
+        ("fale como consultor", "consultant.senior"),
         ("mensagem aleatoria de teste", "conversation.reply"),
     ],
 )
@@ -102,6 +109,30 @@ def test_orion_conversation_engine_always_answers_examples(text, expected_intent
     assert response.response_length in {"short", "medium", "long"}
     assert response.urgency in {"low", "normal", "high"}
     assert response.should_speak is True
+
+
+def test_orion_commercial_reasoning_guides_sales_and_negotiation():
+    brain = BrainService()
+
+    sales = brain.process(BrainRequest(text="quero vender um servico"))
+    objection = brain.process(BrainRequest(text="o cliente disse que esta caro"))
+    consultant = brain.process(BrainRequest(text="fale como consultor"))
+
+    assert sales.intent == "sales"
+    assert sales.response_mode == "sales"
+    assert "cliente final" in sales.message or "tipo de cliente" in sales.message
+    assert objection.intent == "objection.price"
+    assert "preco" in objection.message
+    assert consultant.intent == "consultant.senior"
+    assert "sem fingir experiencia humana real" in consultant.message
+
+
+def test_orion_recommends_web_search_for_recent_information_without_leaking_memory():
+    response = BrainService().process(BrainRequest(text="qual e a versao mais recente do FastAPI"))
+
+    assert response.should_search_web is True
+    assert response.search_query == "qual e a versao mais recente do FastAPI"
+    assert response.dialogue_strategy == "web-search-recommended"
 
 
 @pytest.mark.parametrize("text", ["estou cansado", "quero melhorar isso", "me ajuda", "nao sei o que fazer"])
