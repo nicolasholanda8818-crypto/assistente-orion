@@ -6,9 +6,28 @@ Este documento descreve a camada de inteligencia conversacional local do Orion.
 
 O Brain deve responder de forma natural, contextual e segura sem depender de um modelo externo para o fallback principal. A camada atual fortalece a conversa longa, reduz respostas genericas e preserva os contratos existentes de API, WebSocket, PWA e Render.
 
-## Fluxo de Raciocinio
+## Pipeline Cognitivo
 
-Cada mensagem passa por quatro etapas.
+Modulo principal: `app/brain/orion_cognitive_pipeline.py`
+
+Cada mensagem passa por um fluxo interno de 10 etapas:
+
+1. compreender a intencao;
+2. identificar contexto;
+3. consultar memoria relevante;
+4. avaliar historico da sessao;
+5. verificar conhecimento local;
+6. decidir se validacao web e necessaria;
+7. preparar comparacao de fontes quando houver permissao;
+8. compor resposta;
+9. adaptar ao perfil do usuario;
+10. aprender somente quando for seguro.
+
+Esse pipeline organiza a decisao, mas nao expoe cadeia interna de pensamento ao usuario.
+
+## Camadas de Raciocinio
+
+O pipeline usa quatro camadas principais.
 
 ### 1. Entendimento
 
@@ -79,6 +98,27 @@ Responsabilidades:
 - manter resposta natural e util;
 - sinalizar quando pesquisa web seria apropriada, sem executar pesquisa automaticamente.
 
+## Professor, Mentor e Consultor
+
+O Orion possui respostas locais para tres papeis profissionais:
+
+- Professor de TI: explica com teoria, pratica, exemplo, exercicio e proximo passo.
+- Mentor tecnico: orienta carreira, portfolio, curriculo, entrevistas e rotina de estudos.
+- Consultor: organiza diagnostico, impacto, riscos, opcoes, recomendacao e proximo passo, sem fingir experiencia humana real.
+
+Areas cobertas pela base local atual incluem Python, JavaScript, FastAPI, HTML, CSS, SQL, Docker, Git, GitHub, APIs, WebSocket, deploy, seguranca, vendas e negociacao.
+
+## Pesquisa Web
+
+O Brain decide automaticamente quando uma pergunta parece exigir validacao recente ou fontes. A execucao da pesquisa externa continua protegida:
+
+- dados sensiveis bloqueiam a pesquisa;
+- memoria pessoal nao entra na consulta;
+- fontes externas exigem o fluxo seguro do modulo `orion_web_search`;
+- quando a pesquisa nao pode ser feita, o Orion responde com conhecimento local e informa a limitacao.
+
+Essa decisao preserva privacidade e evita enviar dados pessoais para buscadores.
+
 ## Perguntas Inteligentes
 
 Quando o usuario diz algo incompleto, o Orion tenta reduzir ambiguidade com perguntas especificas.
@@ -113,3 +153,15 @@ Esta fase nao altera:
 - Render.
 
 O aprimoramento fica concentrado no Brain local e nos testes.
+
+## Autoteste Local
+
+O script `scripts/run_brain_smoke.py` executa uma validacao rapida do Brain com casos de conversa, professor, mentor, decisao de busca web, bloqueio de segredo, sentimento e retorno.
+
+Comando:
+
+```powershell
+python scripts\run_brain_smoke.py
+```
+
+O relatorio gerado fica em `docs/brain_smoke_report.json`.

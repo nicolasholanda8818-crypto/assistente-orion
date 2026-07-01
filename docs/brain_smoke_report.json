@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "cases": [
+    {
+      "case": "greeting",
+      "text": "oi",
+      "intent": "greeting",
+      "has_message": true,
+      "reasoning_state": "answering",
+      "response_mode": "conversation",
+      "should_search_web": false
+    },
+    {
+      "case": "teacher",
+      "text": "me ensina programacao em Python",
+      "intent": "study",
+      "has_message": true,
+      "reasoning_state": "thinking",
+      "response_mode": "teacher",
+      "should_search_web": false
+    },
+    {
+      "case": "mentor",
+      "text": "quero melhorar meu portfolio para entrevista de emprego",
+      "intent": "career.mentor",
+      "has_message": true,
+      "reasoning_state": "thinking",
+      "response_mode": "mentor",
+      "should_search_web": false
+    },
+    {
+      "case": "web-decision",
+      "text": "qual e a versao mais recente do FastAPI",
+      "intent": "technical",
+      "has_message": true,
+      "reasoning_state": "thinking",
+      "response_mode": "browser",
+      "should_search_web": true
+    },
+    {
+      "case": "sensitive-web-block",
+      "text": "pesquise meu token secreto",
+      "intent": "conversation.reply",
+      "has_message": true,
+      "reasoning_state": "answering",
+      "response_mode": "conversation",
+      "should_search_web": false
+    },
+    {
+      "case": "feeling",
+      "text": "estou cansado",
+      "intent": "user.feeling",
+      "has_message": true,
+      "reasoning_state": "clarifying",
+      "response_mode": "conversation",
+      "should_search_web": false
+    },
+    {
+      "case": "returning",
+      "text": "voltei",
+      "intent": "returning",
+      "has_message": true,
+      "reasoning_state": "answering",
+      "response_mode": "conversation",
+      "should_search_web": false
+    }
+  ]
+}

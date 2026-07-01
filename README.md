@@ -26,6 +26,17 @@ O Brain tambem possui `orion_dialogue_manager`, que resume a estrategia da respo
 sem expor cadeia interna: conversa, professor, vendas, negociacao, consultor ou
 pesquisa web recomendada.
 
+A Fase 2 adiciona `orion_cognitive_pipeline`, um fluxo interno de 10 etapas para
+entendimento, contexto, memoria, historico, conhecimento local, validacao web,
+composicao, adaptacao ao perfil e aprendizado seguro. O Orion tambem reconhece
+mentoria tecnica para carreira, portfolio, curriculo e entrevistas.
+
+Autoteste rapido do Brain:
+
+```powershell
+python scripts\run_brain_smoke.py
+```
+
 Consulte `BRAIN.md`.
 
 ## Inteligencia, Vendas e Consultor

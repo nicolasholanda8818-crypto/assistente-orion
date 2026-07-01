@@ -5,6 +5,7 @@ from app.brain.knowledge import KnowledgeService
 from app.brain.learning import LearningService
 from app.brain.memory import MemoryService
 from app.brain.models import BrainMode, BrainRequest, BrainResponse, BrainStatus, ContextSummary, PlanStep
+from app.brain.orion_cognitive_pipeline import OrionCognitivePipeline, build_cognitive_pipeline
 from app.brain.orion_context import OrionConversationContext, build_orion_context, context_instruction
 from app.brain.orion_intents import normalize_text
 from app.brain.orion_memory import OrionMemoryContext, build_orion_memory_context
@@ -114,6 +115,15 @@ class BrainService:
             intent=plan.intent,
             keywords=reasoning.keywords,
         )
+        cognitive_pipeline = build_cognitive_pipeline(
+            intent=plan.intent,
+            emotion=reasoning.emotion,
+            keywords=reasoning.keywords,
+            memory_context=memory_context,
+            conversation_context=conversation_context,
+            context=context,
+            should_search_web=reasoning.should_search_web,
+        )
         if user_snapshot and user_snapshot.display_name:
             message = self._personalize_message(
                 message=message,
@@ -129,6 +139,7 @@ class BrainService:
             intent=plan.intent,
             memory_context=memory_context,
             conversation_context=conversation_context,
+            cognitive_pipeline=cognitive_pipeline,
         )
 
         self.memory.remember(conversation_id=request.conversation_id, role="user", content=request.text)
@@ -254,6 +265,7 @@ class BrainService:
         intent: str,
         memory_context: OrionMemoryContext,
         conversation_context: OrionConversationContext,
+        cognitive_pipeline: OrionCognitivePipeline,
     ) -> str:
         normalized_message = normalize_text(message)
         normalized_user_text = normalize_text(request.text)
@@ -274,7 +286,64 @@ class BrainService:
         ):
             message = f"{message} Qual parte voce quer que eu explique primeiro?"
 
+        if intent in {"teacher", "study", "technical"}:
+            message = self._enrich_technical_teaching_message(
+                message=message,
+                request=request,
+                conversation_context=conversation_context,
+                cognitive_pipeline=cognitive_pipeline,
+            )
+        if intent == "career.mentor":
+            message = self._enrich_mentor_message(message=message, request=request)
+        if intent == "consultant.senior":
+            message = self._enrich_consultant_message(message=message)
+
         return message
+
+    def _enrich_technical_teaching_message(
+        self,
+        *,
+        message: str,
+        request: BrainRequest,
+        conversation_context: OrionConversationContext,
+        cognitive_pipeline: OrionCognitivePipeline,
+    ) -> str:
+        normalized_message = normalize_text(message)
+        if "exercicio" in normalized_message and "proximo passo" in normalized_message:
+            return message
+
+        normalized_text = normalize_text(request.text)
+        topic = conversation_context.focus or "o assunto"
+        if "programacao" in normalized_text or any(
+            term in normalized_text for term in {"python", "javascript", "fastapi", "api", "docker", "git", "sql"}
+        ):
+            return (
+                f"{message} Teoria: entenda o conceito central de {topic} antes de decorar comandos. "
+                "Pratica: monte um exemplo pequeno e execute. Exercicio: altere uma parte e observe o resultado. "
+                "Proximo passo: me diga seu nivel atual para eu ajustar a explicacao. "
+                f"Modo: {cognitive_pipeline.response_style}."
+            )
+        return message
+
+    def _enrich_mentor_message(self, *, message: str, request: BrainRequest) -> str:
+        if "Portfolio:" in message:
+            return message
+        normalized_text = normalize_text(request.text)
+        focus = "portfolio" if "portfolio" in normalized_text else "carreira"
+        return (
+            f"{message} Diagnostico: vamos mapear seu objetivo e seu nivel atual. "
+            f"Plano: escolha uma trilha principal, crie um projeto de {focus}, publique no GitHub "
+            "e registre aprendizados. "
+            "Exercicio: descreva em uma frase a vaga ou papel que voce quer atingir."
+        )
+
+    def _enrich_consultant_message(self, *, message: str) -> str:
+        if "Riscos:" in message:
+            return message
+        return (
+            f"{message} Riscos: decidir sem diagnostico, medir apenas opiniao ou ignorar custo de manutencao. "
+            "Proximo passo: defina objetivo, restricoes, opcoes e criterio de decisao."
+        )
 
     def _response(
         self,
@@ -339,6 +408,7 @@ class BrainService:
                 "knowledge": "local-static",
                 "orion_reasoning": "intent-emotion-context",
                 "orion_memory": "profile-facts-summaries",
+                "orion_cognitive_pipeline": "ten-stage-decision-flow",
                 "orion_context": "style-focus-adaptation",
                 "orion_intent": "deterministic-parser",
                 "orion_dialogue_manager": "triple-layer-strategy",
@@ -352,6 +422,8 @@ class BrainService:
                 "user.goal.memory",
                 "conversation.initiative",
                 "conversation.context.adaptation",
+                "cognitive.pipeline.ten-stage",
+                "technical.mentor.mode",
                 "sales.negotiation.guidance",
                 "senior.consultant.mode",
                 "web.search.recommendation",

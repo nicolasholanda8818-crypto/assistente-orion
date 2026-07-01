@@ -91,8 +91,14 @@ RESPONSE_BANK = {
         "Pode deixar comigo. Me diga o que ja existe e o que voce quer mudar primeiro.",
     ],
     "teacher": [
-        "Modo professor ativado. Quer uma explicacao curta, exemplos ou exercicios?",
-        "Vamos aprender por partes. Qual assunto eu coloco na lousa?",
+        (
+            "Modo professor ativado. Eu posso organizar em teoria, pratica, exemplo e exercicio. "
+            "Qual assunto eu coloco na lousa?"
+        ),
+        (
+            "Vamos aprender por partes: primeiro conceito, depois exemplo, depois desafio curto. "
+            "Qual tema voce quer estudar?"
+        ),
     ],
     "grandma": [
         "Posso responder com mais calma e carinho. Vamos resolver uma coisa de cada vez.",
@@ -119,8 +125,14 @@ RESPONSE_BANK = {
         "Visao em pauta. Voce quer capturar, ler texto ou analisar imagem?",
     ],
     "technical": [
-        "Entendi uma duvida tecnica. Quer diagnostico, explicacao ou um plano de correcao?",
-        "Vamos por partes tecnicas. Qual erro ou comportamento voce quer analisar?",
+        (
+            "Entendi uma duvida tecnica. Vou separar em diagnostico, causa provavel, teste seguro e correcao. "
+            "Qual erro ou comportamento voce quer analisar?"
+        ),
+        (
+            "Vamos por partes tecnicas: contexto, sintoma, hipoteses e proximo teste. "
+            "Me diga onde o problema aparece."
+        ),
     ],
     "memory.recall": [
         "Se estivermos no mesmo navegador, eu consulto sua memoria local e continuo pelo que voce ja me contou.",
@@ -212,8 +224,19 @@ RESPONSE_BANK = {
     "consultant.senior": [
         (
             "Vou responder com uma visao de consultor experiente de mercado, sem fingir experiencia humana real. "
-            "Primeiro eu separaria o problema em diagnostico, impacto, opcoes e decisao. Qual area voce quer "
-            "analisar: TI, venda, projeto ou produto?"
+            "Primeiro eu separaria o problema em diagnostico, impacto, riscos, opcoes, recomendacao e proximo "
+            "passo. Qual area voce quer analisar: TI, venda, projeto ou produto?"
+        ),
+    ],
+    "career.mentor": [
+        (
+            "Posso agir como mentor tecnico. Para te orientar bem, vou olhar objetivo, nivel atual, lacunas, "
+            "rotina de estudo, portfolio e proximo passo verificavel. Voce quer focar em carreira, entrevista, "
+            "curriculo ou portfolio?"
+        ),
+        (
+            "Vamos montar uma trilha realista: objetivo profissional, tecnologias principais, projeto de portfolio, "
+            "pratica semanal e criterio de progresso. Em qual etapa voce esta agora?"
         ),
     ],
 }
@@ -252,6 +275,7 @@ MOOD_BY_INTENT = {
     "negotiation": ("confident", "hand-chin", "talk"),
     "objection.price": ("confident", "direct-look", "talk"),
     "consultant.senior": ("confident", "teacher", "talk"),
+    "career.mentor": ("teacher", "attention", "talk"),
 }
 
 HIGH_URGENCY_TERMS = {
@@ -280,6 +304,7 @@ MEDIUM_LENGTH_INTENTS = {
     "negotiation",
     "objection.price",
     "consultant.senior",
+    "career.mentor",
 }
 
 
@@ -322,7 +347,16 @@ def reason_about_message(user_text: str, user_context: dict | None = None) -> Re
         suggested_animation=suggested_animation,
         needs_memory=profile_known
         or intent
-        in {"study", "finance", "technical", "conversation.reply", "memory.recall", "goal.setting", "returning"},
+        in {
+            "study",
+            "finance",
+            "technical",
+            "conversation.reply",
+            "memory.recall",
+            "goal.setting",
+            "returning",
+            "career.mentor",
+        },
         follow_up_needed=follow_up_needed,
         topic=topic,
         urgency=urgency,
@@ -348,6 +382,8 @@ def choose_response_strategy(intent: str, emotion: str, keywords: list[str]) -> 
         return "commercial-guidance"
     if intent == "consultant.senior":
         return "senior-consultant"
+    if intent == "career.mentor":
+        return "technical-mentorship"
     if keywords:
         return "contextual-rule-response"
     return "clarifying-question"
@@ -404,6 +440,7 @@ def choose_reasoning_state(*, intent: str, emotion: str, follow_up_needed: bool)
         "negotiation",
         "objection.price",
         "consultant.senior",
+        "career.mentor",
     }:
         return "thinking"
     return "answering"

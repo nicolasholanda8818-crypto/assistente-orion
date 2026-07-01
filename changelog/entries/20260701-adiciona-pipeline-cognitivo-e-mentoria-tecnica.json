@@ -1,0 +1,13 @@
+{
+  "id": "20260701-adiciona-pipeline-cognitivo-e-mentoria-tecnica",
+  "type": "added",
+  "summary": "Adiciona pipeline cognitivo e mentoria tecnica ao Orion.",
+  "details": [
+    "Brain ganhou orion_cognitive_pipeline com 10 etapas internas de entendimento, memoria, conhecimento, validacao web, resposta e aprendizado seguro.",
+    "Orion reconhece pedidos de mentoria tecnica para carreira, portfolio, curriculo e entrevistas.",
+    "Respostas de professor de TI ganharam teoria, pratica, exercicio e proximo passo.",
+    "Autoteste scripts/run_brain_smoke.py valida conversa, professor, mentor, busca web segura, sentimento e retorno."
+  ],
+  "date": "2026-07-01",
+  "version": null
+}

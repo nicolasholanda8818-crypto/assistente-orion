@@ -55,6 +55,7 @@ def analyze_dialogue(
     incomplete = intent == "request.incomplete" or len(keywords) <= 1
     business = intent in SALES_INTENTS or intent in NEGOTIATION_INTENTS
     consultant = intent == "consultant.senior"
+    mentor = intent == "career.mentor"
 
     if should_search:
         return DialogueDecision(
@@ -75,6 +76,16 @@ def analyze_dialogue(
             should_save_memory=profile_known,
             should_ask_clarifying_question=False,
             mode="consultant",
+        )
+    if mentor:
+        return DialogueDecision(
+            understanding="pedido de mentoria tecnica, carreira ou evolucao profissional",
+            strategy="technical-mentorship",
+            response_contract="orientar por objetivo, lacuna atual, plano pratico e proximo passo verificavel",
+            should_search_web=False,
+            should_save_memory=profile_known,
+            should_ask_clarifying_question=True,
+            mode="mentor",
         )
     if business:
         return DialogueDecision(

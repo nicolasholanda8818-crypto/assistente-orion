@@ -87,6 +87,9 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Sistemas `orion_intent`, `orion_memory` e `orion_reasoning` mantem resposta local sem expor cadeia interna de pensamento.
 - [x] `orion_dialogue_manager` adiciona estrategia segura em tres camadas, modo consultor, vendas, negociacao e recomendacao de pesquisa web.
 - [x] `orion_context` adiciona adaptacao de estilo, foco e profundidade para respostas mais naturais sem alterar contratos publicos.
+- [x] `orion_cognitive_pipeline` organiza entendimento, memoria, historico, conhecimento, validacao web, resposta, perfil e aprendizado seguro em 10 etapas.
+- [x] Brain adiciona mentoria tecnica para carreira, portfolio, curriculo e entrevistas.
+- [x] Autoteste `scripts/run_brain_smoke.py` gera relatorio local em `docs/brain_smoke_report.json`.
 - [x] Fase 4 adiciona navegador conversacional com pesquisa web, noticias, clima, busca tecnica, fontes e resumos.
 - [x] Voz em `pt-BR` declara estados ouvindo, pensando e respondendo, sincronizados ao avatar.
 - [x] Voz em `pt-BR` prioriza voz masculina quando disponivel, adiciona modo consultor e eventos seguros de diagnostico.
@@ -118,7 +121,7 @@ Data: `2026-07-01`
 | --- | --- |
 | Ruff lint e format | aprovado |
 | Sintaxe JavaScript e PWA | aprovado |
-| Pytest backend | `181 passed`, `9 warnings` |
+| Pytest backend | `186 passed`, `9 warnings` |
 | Coverage backend | configurado com minimo de 80% |
 | Playwright E2E Chromium | `5 passed` |
 | Onboarding visual desktop e mobile | aprovado |
@@ -129,7 +132,7 @@ Data: `2026-07-01`
 | Pip Audit ambiente local | bloqueado por `chromadb 1.5.3` e `python-multipart 0.0.20` instalados fora dos requisitos runtime |
 | Secret scan | aprovado |
 | Orion Files | upload, listagem, analise, transformacao, download, exclusao e foto de camera testados |
-| Inteligencia conversacional | memoria, contexto, perguntas inteligentes, vendas, negociacao, consultor, objetivos, API REST e WebSocket aprovados |
+| Inteligencia conversacional | memoria, contexto, pipeline cognitivo, professor, mentor, vendas, negociacao, consultor, API REST e WebSocket aprovados |
 | Web e voz | busca web forte, recencia, fontes, voz masculina pt-BR preferencial e eventos seguros aprovados |
 | Avatar 3D e Cerebro Cosmico | Avatar Studio, skin local, troca Avatar/Cerebro e cache PWA v38 aprovados |
 | Navegador local | Orion carregou, painel Meus Arquivos abriu e chat respondeu `oi` |

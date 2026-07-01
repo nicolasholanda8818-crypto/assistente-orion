@@ -14,6 +14,11 @@ A fonte autoritativa fica em `changelog/entries`.
   - Perguntas inteligentes agora cobrem pedidos vagos como melhorar o Orion, me ajuda e estudos sem materia.
   - Memoria segura reconhece apelido, projeto declarado, interesses e tecnologias estudadas sem armazenar dados sensiveis.
   - Testes obrigatorios cobrem conversa, continuidade de cansaco, melhoria do Orion e adaptacao de contexto.
+- Adiciona pipeline cognitivo e mentoria tecnica ao Orion.
+  - Brain ganhou orion_cognitive_pipeline com 10 etapas internas de entendimento, memoria, conhecimento, validacao web, resposta e aprendizado seguro.
+  - Orion reconhece pedidos de mentoria tecnica para carreira, portfolio, curriculo e entrevistas.
+  - Respostas de professor de TI ganharam teoria, pratica, exercicio e proximo passo.
+  - Autoteste scripts/run_brain_smoke.py valida conversa, professor, mentor, busca web segura, sentimento e retorno.
 - Fortalece inteligencia conversacional, vendas, busca web e voz do Orion.
   - Brain adiciona orion_dialogue_manager com estrategia segura, recomendacao de pesquisa web e modo consultor.
   - Orion passa a reconhecer vendas, negociacao, objecao de preco, scripts e mensagens para cliente.

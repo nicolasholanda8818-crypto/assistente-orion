@@ -89,6 +89,21 @@ INTENT_KEYWORDS = {
         "experiente",
         "profissional",
     },
+    "career.mentor": {
+        "carreira",
+        "portfolio",
+        "curriculo",
+        "entrevista",
+        "emprego",
+        "vaga",
+        "profissao",
+        "profissional",
+        "estudos",
+        "mentor",
+        "mentoria",
+        "dev",
+        "programador",
+    },
 }
 
 EMOTION_KEYWORDS = {
@@ -177,6 +192,20 @@ def detect_intent(text: str) -> str:
         return "sales.script"
     if "fale como consultor" in normalized or "modo consultor" in normalized or "consultor senior" in normalized:
         return "consultant.senior"
+    if any(
+        phrase in normalized
+        for phrase in {
+            "planejar minha carreira",
+            "meu portfolio",
+            "meu curriculo",
+            "entrevista de emprego",
+            "evoluir profissional",
+            "virar programador",
+            "mentor tecnico",
+            "mentoria tecnica",
+        }
+    ):
+        return "career.mentor"
     if "quero vender" in normalized or "vender um servico" in normalized:
         return "sales"
     if "me ajude a negociar" in normalized or "ajude a negociar" in normalized:

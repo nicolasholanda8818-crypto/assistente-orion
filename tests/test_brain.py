@@ -5,7 +5,9 @@ from app.brain.knowledge import KnowledgeService
 from app.brain.learning import LearningService
 from app.brain.memory import MemoryService
 from app.brain.models import BrainPlan, BrainRequest, ContextSnapshot, PlanStep
+from app.brain.orion_cognitive_pipeline import COGNITIVE_STAGE_NAMES, build_cognitive_pipeline
 from app.brain.orion_context import build_orion_context
+from app.brain.orion_dialogue_manager import should_use_web_search
 from app.brain.orion_intent import analyze_intent
 from app.brain.orion_intents import classify_emotion, detect_intent, extract_keywords, is_question
 from app.brain.orion_memory import build_orion_memory_context
@@ -26,6 +28,7 @@ def test_brain_status_exposes_separated_components():
         "knowledge": "local-static",
         "orion_reasoning": "intent-emotion-context",
         "orion_memory": "profile-facts-summaries",
+        "orion_cognitive_pipeline": "ten-stage-decision-flow",
         "orion_context": "style-focus-adaptation",
         "orion_intent": "deterministic-parser",
         "orion_dialogue_manager": "triple-layer-strategy",
@@ -33,6 +36,8 @@ def test_brain_status_exposes_separated_components():
     assert "no-host-actions" in status.restrictions
     assert "user.context.continuity" in status.capabilities
     assert "conversation.context.adaptation" in status.capabilities
+    assert "cognitive.pipeline.ten-stage" in status.capabilities
+    assert "technical.mentor.mode" in status.capabilities
     assert "sales.negotiation.guidance" in status.capabilities
 
 
@@ -97,6 +102,7 @@ def test_brain_identifies_current_admin_user_without_external_model():
         ("me ajude a negociar", "negotiation"),
         ("crie uma mensagem para cliente", "sales.message"),
         ("fale como consultor", "consultant.senior"),
+        ("quero melhorar meu portfolio", "career.mentor"),
         ("mensagem aleatoria de teste", "conversation.reply"),
     ],
 )
@@ -136,6 +142,58 @@ def test_orion_recommends_web_search_for_recent_information_without_leaking_memo
     assert response.should_search_web is True
     assert response.search_query == "qual e a versao mais recente do FastAPI"
     assert response.dialogue_strategy == "web-search-recommended"
+
+
+def test_orion_blocks_web_search_decision_for_sensitive_query():
+    assert should_use_web_search("pesquise meu token secreto") is False
+
+
+def test_orion_teaches_programming_with_theory_practice_and_exercise():
+    response = BrainService().process(BrainRequest(text="me ensina programacao em Python"))
+
+    assert response.intent == "study"
+    assert "Teoria:" in response.message
+    assert "Pratica:" in response.message
+    assert "Exercicio:" in response.message
+    assert response.response_mode == "teacher"
+
+
+def test_orion_technical_mentor_guides_career_and_portfolio():
+    response = BrainService().process(BrainRequest(text="quero melhorar meu portfolio para entrevista de emprego"))
+
+    assert response.intent == "career.mentor"
+    assert response.response_mode == "mentor"
+    assert "Diagnostico:" in response.message
+    assert "GitHub" in response.message
+
+
+def test_orion_cognitive_pipeline_has_ten_ordered_stages():
+    snapshot = UserMemorySnapshot(
+        user_id="cognitive-pipeline-test",
+        display_name="Nicolas",
+        projects=["Orion"],
+    )
+    memory_context = build_orion_memory_context(snapshot=snapshot, user_text="me ensina FastAPI", intent="study")
+    conversation_context = build_orion_context(
+        user_text="me ensina FastAPI",
+        snapshot=snapshot,
+        memory_context=memory_context,
+        intent="study",
+        keywords=["ensina", "fastapi"],
+    )
+    pipeline = build_cognitive_pipeline(
+        intent="study",
+        emotion="neutral",
+        keywords=["ensina", "fastapi"],
+        memory_context=memory_context,
+        conversation_context=conversation_context,
+        context=ContextSnapshot(recent_messages=[], relevant_memories=[], knowledge_hits=[]),
+        should_search_web=False,
+    )
+
+    assert pipeline.stage_count == 10
+    assert tuple(stage.name for stage in pipeline.stages) == COGNITIVE_STAGE_NAMES
+    assert pipeline.response_style in {"guided-teaching", "technical-teaching"}
 
 
 @pytest.mark.parametrize(
