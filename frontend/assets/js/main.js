@@ -1,11 +1,14 @@
 import {
   analyzeOrionFile,
   deleteOrionFile,
+  getAutomationStatus,
   getHealth,
   getStatus,
   listOrionFiles,
   orionFileDownloadUrl,
+  previewAutomationRoutine,
   processBrainMessage,
+  requestAutomationAction,
   searchWeb,
   transformOrionFile,
   uploadCameraPhoto,
@@ -23,6 +26,7 @@ import { createOrionVoiceEngine } from "./voice-engine.js?v=38";
 const MAX_VISIBLE_MESSAGES = 42;
 const USER_ID_KEY = "orion:userId";
 const USER_NAME_KEY = "orion:userName";
+const WAKE_WORD_KEY = "orion:voice:wakeWord";
 const WEB_SEARCH_TERMS = [
   "pesquise",
   "pesquisar",
@@ -72,6 +76,15 @@ const FILE_COMMAND_TERMS = [
   "criar flashcards",
   "gerar flashcards",
   "o que tem nessa imagem",
+];
+const AUTOMATION_COMMAND_TERMS = [
+  "automacoes",
+  "automacao",
+  "abrir automacoes",
+  "modo automacao",
+  "rotina",
+  "abrir programas",
+  "notificacoes inteligentes",
 ];
 const WARDROBE_LINES = {
   original: "Visual original carregado. Classico, luminoso e meu.",
@@ -177,6 +190,19 @@ const elements = {
   brainModeButton: document.querySelector("#brain-mode-button"),
   bodyModeButton: document.querySelector("#body-mode-button"),
   avatarStudioButton: document.querySelector("#avatar-studio-button"),
+  automationPanelButton: document.querySelector("#automation-panel-button"),
+  automationPanel: document.querySelector("#automation-panel"),
+  automationPanelCloseButton: document.querySelector("#automation-panel-close-button"),
+  automationSummary: document.querySelector("#automation-summary"),
+  automationVoiceStatus: document.querySelector("#automation-voice-status"),
+  automationWakeWord: document.querySelector("#automation-wake-word"),
+  automationSaveWakeWordButton: document.querySelector("#automation-save-wake-word-button"),
+  automationNotificationStatus: document.querySelector("#automation-notification-status"),
+  automationEnableNotificationsButton: document.querySelector("#automation-enable-notifications-button"),
+  automationCapabilityCount: document.querySelector("#automation-capability-count"),
+  automationCapabilityList: document.querySelector("#automation-capability-list"),
+  automationRoutineCount: document.querySelector("#automation-routine-count"),
+  automationRoutineList: document.querySelector("#automation-routine-list"),
   avatarStudioPanel: document.querySelector("#avatar-studio-panel"),
   avatarStudioCloseButton: document.querySelector("#avatar-studio-close-button"),
   avatarStudioPreview: document.querySelector("#avatar-studio-preview"),
@@ -264,6 +290,7 @@ export function initOrionVisual() {
   bindAvatarStudioControls();
   bindSidebarControls();
   bindFileVisionControls();
+  bindAutomationControls();
   elements.orionAvatar.addEventListener("click", handleOrionTouch);
   elements.orionAvatar.addEventListener("touchstart", handleOrionTouch, { passive: true });
   elements.messageInput.addEventListener("input", () => {
@@ -333,6 +360,7 @@ export function bindOrionControls() {
   elements.brainModeButton?.addEventListener("click", enterBrainMode);
   elements.bodyModeButton?.addEventListener("click", exitBrainMode);
   elements.avatarStudioButton?.addEventListener("click", openAvatarStudio);
+  elements.automationPanelButton?.addEventListener("click", openAutomationPanel);
   elements.wardrobeSelect?.addEventListener("change", () => {
     applyWardrobe(elements.wardrobeSelect.value, { react: true });
   });
@@ -450,6 +478,8 @@ function handleSidebarAction(action) {
     showOrionBubble("Abrindo meu mapa de memoria local.");
   } else if (action === "voice") {
     toggleVoiceCallMode();
+  } else if (action === "automation") {
+    openAutomationPanel();
   } else if (action === "settings") {
     elements.settingsButton?.click();
   }
@@ -503,6 +533,160 @@ export function closeFileVisionPanel() {
   setBrainVaultState("idle");
   setOrionState("online");
   showOrionBubble("Arquivos em espera. Quando precisar, eu olho de novo.");
+}
+
+export function bindAutomationControls() {
+  elements.automationPanelCloseButton?.addEventListener("click", closeAutomationPanel);
+  elements.automationSaveWakeWordButton?.addEventListener("click", saveWakeWordPreference);
+  elements.automationEnableNotificationsButton?.addEventListener("click", enableSmartNotifications);
+  const savedWakeWord = readWakeWordPreference();
+  if (elements.automationWakeWord && savedWakeWord) {
+    elements.automationWakeWord.value = savedWakeWord;
+  }
+}
+
+export async function openAutomationPanel() {
+  if (!elements.automationPanel) {
+    return;
+  }
+  if (!elements.fileVisionPanel?.hidden) {
+    closeFileVisionPanel();
+  }
+  if (!elements.brainMode?.hidden) {
+    exitBrainMode();
+  }
+  elements.automationPanel.hidden = false;
+  setOrionState("thinking");
+  setBrainVaultState("thinking", "Projetos");
+  showOrionBubble("Abrindo minhas automacoes seguras. Nada perigoso sera executado sem confirmacao.");
+  await loadAutomationPanel();
+  setOrionState("online");
+}
+
+export function closeAutomationPanel() {
+  if (elements.automationPanel) {
+    elements.automationPanel.hidden = true;
+  }
+  setBrainVaultState("idle");
+  setOrionState("online");
+  showOrionBubble("Automacoes em espera. Eu so executo algo sensivel com sua autorizacao.");
+}
+
+async function loadAutomationPanel() {
+  try {
+    const status = await getAutomationStatus();
+    renderAutomationStatus(status);
+  } catch {
+    if (elements.automationSummary) {
+      elements.automationSummary.textContent = "Nao consegui carregar automacoes agora. O chat continua funcionando.";
+    }
+  }
+}
+
+function renderAutomationStatus(status) {
+  if (elements.automationSummary) {
+    elements.automationSummary.textContent = [
+      `Runtime: ${status.runtime}.`,
+      "Desktop, TV e dispositivos reais ficam preparados, mas exigem agente local e confirmacao.",
+    ].join(" ");
+  }
+  if (elements.automationVoiceStatus) {
+    const wakeWord = readWakeWordPreference() || status.voice?.wake_word || "Orion";
+    elements.automationVoiceStatus.textContent = `Estados: ${(status.voice?.states || []).join(", ")}. Wake word: ${wakeWord}.`;
+  }
+  if (elements.automationNotificationStatus) {
+    elements.automationNotificationStatus.textContent = `Categorias: ${(status.notifications?.categories || []).join(", ")}. Silencio: ${status.notifications?.quiet_hours}.`;
+  }
+  renderAutomationCapabilities(status.capabilities || []);
+  renderAutomationRoutines(status.routines || []);
+}
+
+function renderAutomationCapabilities(capabilities) {
+  elements.automationCapabilityCount.textContent = String(capabilities.length);
+  elements.automationCapabilityList?.replaceChildren(
+    ...capabilities.map((capability) => {
+      const item = document.createElement("article");
+      item.className = "automation-row";
+      const title = document.createElement("strong");
+      title.textContent = capability.label;
+      const meta = document.createElement("span");
+      meta.textContent = `${capability.kind} | ${capability.status}`;
+      const note = document.createElement("p");
+      note.textContent = capability.notes?.[0] || "Capacidade registrada no ecossistema seguro.";
+      const badge = document.createElement("small");
+      badge.textContent = capability.requires_confirmation ? "Exige confirmacao" : "Seguro por padrao";
+      item.append(title, meta, note, badge);
+      return item;
+    })
+  );
+}
+
+function renderAutomationRoutines(routines) {
+  elements.automationRoutineCount.textContent = String(routines.length);
+  elements.automationRoutineList?.replaceChildren(
+    ...routines.map((routine) => {
+      const item = document.createElement("article");
+      item.className = "automation-row";
+      const title = document.createElement("strong");
+      title.textContent = routine.label;
+      const description = document.createElement("p");
+      description.textContent = routine.description;
+      const button = document.createElement("button");
+      button.className = "mini-action";
+      button.type = "button";
+      button.textContent = "Preview";
+      button.addEventListener("click", () => previewRoutine(routine.routine_id));
+      item.append(title, description, button);
+      return item;
+    })
+  );
+}
+
+async function previewRoutine(routineId) {
+  try {
+    const preview = await previewAutomationRoutine({ user_id: userId, routine_id: routineId });
+    const steps = preview.steps.map((step, index) => `${index + 1}. ${step}`).join(" ");
+    addChatMessage("system", `${preview.label}: ${steps}`);
+    showOrionBubble(preview.message);
+  } catch {
+    showOrionBubble("Nao consegui gerar o preview da rotina agora.");
+  }
+}
+
+async function enableSmartNotifications() {
+  const response = await requestAutomationAction({
+    user_id: userId,
+    action_id: "notifications.smart",
+    target: "projetos",
+  });
+  if (!("Notification" in window)) {
+    showOrionBubble("Seu navegador nao oferece notificacoes para este PWA.");
+    return;
+  }
+  const permission = await Notification.requestPermission();
+  const message = permission === "granted"
+    ? "Notificacoes inteligentes permitidas. Vou respeitar frequencia e horario silencioso."
+    : "Notificacoes nao foram permitidas. Continuo avisando dentro do chat.";
+  showOrionBubble(message);
+  addChatMessage("system", `${response.message} ${message}`);
+}
+
+function saveWakeWordPreference() {
+  const value = (elements.automationWakeWord?.value || "Orion").trim().slice(0, 32) || "Orion";
+  try {
+    window.localStorage.setItem(WAKE_WORD_KEY, value);
+  } catch {
+    // Wake word customization is optional when storage is unavailable.
+  }
+  showOrionBubble(`Palavra de ativacao configurada: ${value}. Estou ouvindo quando o modo voz estiver ativo.`);
+}
+
+function readWakeWordPreference() {
+  try {
+    return window.localStorage.getItem(WAKE_WORD_KEY) || "Orion";
+  } catch {
+    return "Orion";
+  }
 }
 
 export async function openCameraPanel() {
@@ -883,6 +1067,15 @@ function formatBytes(size) {
 
 async function handleLocalFileCommands(text) {
   const normalized = normalizeCommand(text);
+  const isAutomationCommand = AUTOMATION_COMMAND_TERMS.some((term) => normalized.includes(term));
+  if (isAutomationCommand) {
+    await openAutomationPanel();
+    await typeOrionMessage(
+      "Painel de automacoes aberto. Posso mostrar rotinas, notificacoes, voz continua e dispositivos preparados."
+    );
+    return true;
+  }
+
   const isFileCommand = FILE_COMMAND_TERMS.some((term) => normalized.includes(term));
   if (!isFileCommand) {
     return false;
@@ -1549,7 +1742,7 @@ export async function performWebSearch(query, options = {}) {
 
   playOrionReaction("point-chat");
   setOrionState("thinking");
-  setOrionVoiceState("thinking");
+  setOrionVoiceState("searching");
   setBrainVaultState("searching", options.category || "Projetos");
   showOrionBubble("Pesquisando fontes online...");
   try {
@@ -1908,6 +2101,10 @@ function applyAvatarPayload(payload) {
     playOrionReaction("teacher");
     pulseOrionAura("#61d8ff");
     setBrainVaultState("thinking", "Gestao de TI");
+  } else if (payload.intent === "career.mentor") {
+    playOrionReaction("attention");
+    pulseOrionAura("#65ffb6");
+    setBrainVaultState("thinking", "Projetos");
   } else if (payload.intent === "question.general" || payload.intent === "curiosity") {
     playOrionReaction("hand-chin");
     setBrainVaultState("thinking", "Conversas");
@@ -2331,6 +2528,8 @@ function stateLabel(state) {
     typing: "ouvindo",
     ligando: "ligando",
     thinking: "pensando",
+    searching: "pesquisando",
+    sleeping: "dormindo",
     speaking: "falando",
     listening: "ouvindo",
     understanding: "entendendo",

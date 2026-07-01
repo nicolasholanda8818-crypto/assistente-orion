@@ -25,7 +25,7 @@ def test_application_status(client):
     assert payload["database"]["status"] == "ready"
     assert payload["database"]["metadata_records"] == 5
     assert payload["pwa"]["static_dir"] == "frontend"
-    assert payload["pwa"]["cache_name"] == "orion-pwa-v38-intelligence-voice"
+    assert payload["pwa"]["cache_name"] == "orion-pwa-v39-automation-ecosystem"
     assert payload["brain"]["mode"] == "deterministic-fallback"
     assert payload["brain"]["components"]["memory"] == "volatile+user-sqlite+continuity"
     assert payload["brain"]["components"]["orion_memory"] == "profile-facts-summaries"
@@ -34,7 +34,18 @@ def test_application_status(client):
     assert payload["models"]["external_calls"] == "disabled"
     assert payload["voice"]["fallback_provider"] == "speech-synthesis"
     assert "consultant" in payload["voice"]["modes"]
-    assert payload["voice"]["states"] == ["listening", "thinking", "responding"]
+    assert payload["voice"]["states"] == [
+        "sleeping",
+        "listening",
+        "understanding",
+        "thinking",
+        "searching",
+        "responding",
+        "waiting",
+    ]
+    assert payload["voice"]["wake_word"] == "Orion"
+    assert payload["voice"]["continuous_conversation"] is True
+    assert payload["automation"]["status"] == "ready"
     assert payload["web_search"]["requires_user_confirmation"] is True
     assert "news.summary" in payload["web_search"]["capabilities"]
     assert "recency.detection" in payload["web_search"]["capabilities"]

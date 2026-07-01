@@ -84,6 +84,10 @@
             <span class="sidebar-mark">V</span>
             <span>Voz</span>
           </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="automation">
+            <span class="sidebar-mark">A</span>
+            <span>Automacoes</span>
+          </button>
           <button class="sidebar-link" type="button" data-sidebar-action="settings">
             <span class="sidebar-mark">S</span>
             <span>Configuracoes</span>
@@ -120,6 +124,7 @@
           <button class="control-chip" id="brain-mode-button" type="button">Avatar &lt;-&gt; Cerebro</button>
           <button class="control-chip" id="avatar-studio-button" type="button">Avatar Studio</button>
           <button class="control-chip" id="files-panel-button" type="button">Arquivos</button>
+          <button class="control-chip" id="automation-panel-button" type="button">Automacoes</button>
           <label class="control-field" for="wardrobe-select">
             <span>Roupa</span>
             <select id="wardrobe-select">
@@ -403,6 +408,45 @@
             <strong id="file-count">0</strong>
           </div>
           <div class="file-list" id="file-list" role="list" aria-live="polite"></div>
+        </section>
+
+        <section class="automation-panel" id="automation-panel" aria-label="Automacoes do Orion" hidden>
+          <div class="automation-header">
+            <div>
+              <span class="automation-kicker">Ecossistema Orion</span>
+              <h2>Automacoes</h2>
+            </div>
+            <button class="panel-icon-button" id="automation-panel-close-button" type="button" aria-label="Fechar automacoes">x</button>
+          </div>
+          <div class="automation-summary" id="automation-summary" aria-live="polite">
+            Carregando automacoes seguras...
+          </div>
+          <div class="automation-grid">
+            <section class="automation-card">
+              <h3>Voz continua</h3>
+              <p id="automation-voice-status">Preparando estados de voz.</p>
+              <label class="form-field" for="automation-wake-word">
+                <span>Palavra de ativacao</span>
+                <input class="field" id="automation-wake-word" type="text" maxlength="32" value="Orion" />
+              </label>
+              <button class="mini-action" id="automation-save-wake-word-button" type="button">Salvar palavra</button>
+            </section>
+            <section class="automation-card">
+              <h3>Notificacoes</h3>
+              <p id="automation-notification-status">Frequencia moderada e horario silencioso configuravel.</p>
+              <button class="mini-action" id="automation-enable-notifications-button" type="button">Permitir notificacoes</button>
+            </section>
+          </div>
+          <div class="automation-list-header">
+            <span>Capacidades</span>
+            <strong id="automation-capability-count">0</strong>
+          </div>
+          <div class="automation-list" id="automation-capability-list" role="list"></div>
+          <div class="automation-list-header">
+            <span>Rotinas</span>
+            <strong id="automation-routine-count">0</strong>
+          </div>
+          <div class="automation-list" id="automation-routine-list" role="list"></div>
         </section>
 
         <div class="orion-ambient-3d" id="orion-scene" aria-hidden="true"></div>

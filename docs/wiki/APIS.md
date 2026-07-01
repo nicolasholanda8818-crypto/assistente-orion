@@ -9,6 +9,9 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 
 | Metodo | Caminho | Tags | Resumo | Operacao |
 | --- | --- | --- | --- | --- |
+| `POST` | `/api/automation/request` | automation | Request Automation Action | `request_automation_action_api_automation_request_post` |
+| `POST` | `/api/automation/routines/preview` | automation | Preview Automation Routine | `preview_automation_routine_api_automation_routines_preview_post` |
+| `GET` | `/api/automation/status` | automation | Automation Status | `automation_status_api_automation_status_get` |
 | `POST` | `/api/brain/process` | brain | Process Message | `process_message_api_brain_process_post` |
 | `GET` | `/api/brain/status` | brain | Brain Status | `brain_status_api_brain_status_get` |
 | `POST` | `/api/camera/photo` | camera | Save Camera Photo | `save_camera_photo_api_camera_photo_post` |
@@ -51,6 +54,78 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | Campo | Tipo | Obrigatorio |
 | --- | --- | --- |
 | - | - | - |
+
+### `AutomationActionRequest`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `action_id` | `string` | sim |
+| `confirmed` | `boolean` | nao |
+| `target` | `string / null` | nao |
+| `user_id` | `string` | sim |
+
+### `AutomationActionResponse`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `action_id` | `string` | sim |
+| `audit_event` | `object` | sim |
+| `message` | `string` | sim |
+| `required_permissions` | `array[string]` | sim |
+| `requires_confirmation` | `boolean` | sim |
+| `status` | `string (preview, confirmation-required, blocked, accepted)` | sim |
+
+### `AutomationCapability`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `capability_id` | `string` | sim |
+| `kind` | `string (voice, desktop, mobile, tv, device, notification, calendar, routine)` | sim |
+| `label` | `string` | sim |
+| `notes` | `array[string]` | nao |
+| `required_permissions` | `array[string]` | nao |
+| `requires_confirmation` | `boolean` | sim |
+| `status` | `string (available, planned, blocked)` | sim |
+
+### `AutomationRoutinePreview`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `label` | `string / null` | nao |
+| `message` | `string` | sim |
+| `requires_confirmation` | `boolean` | sim |
+| `routine_id` | `string` | sim |
+| `status` | `string (ready, not-found)` | sim |
+| `steps` | `array[string]` | nao |
+
+### `AutomationRoutinePreviewRequest`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `routine_id` | `string` | sim |
+| `user_id` | `string` | sim |
+
+### `AutomationRoutineTemplate`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `description` | `string` | sim |
+| `label` | `string` | sim |
+| `requires_confirmation` | `boolean` | sim |
+| `routine_id` | `string` | sim |
+| `steps` | `array[string]` | sim |
+
+### `AutomationStatus`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `capabilities` | `array[AutomationCapability]` | sim |
+| `notifications` | `NotificationAutomationSettings` | sim |
+| `restrictions` | `array[string]` | sim |
+| `routines` | `array[AutomationRoutineTemplate]` | sim |
+| `runtime` | `string (pwa-safe, local-desktop-required)` | sim |
+| `status` | `string` | sim |
+| `voice` | `VoiceAutomationSettings` | sim |
 
 ### `Body_upload_file_api_files_upload_post`
 
@@ -209,6 +284,15 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | Campo | Tipo | Obrigatorio |
 | --- | --- | --- |
 | - | - | - |
+
+### `NotificationAutomationSettings`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `categories` | `array[string]` | sim |
+| `max_frequency` | `string` | sim |
+| `quiet_hours` | `string` | sim |
+| `requires_user_permission` | `boolean` | sim |
 
 ### `OnboardingProfileResponse`
 
@@ -443,6 +527,17 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `msg` | `string` | sim |
 | `type` | `string` | sim |
 
+### `VoiceAutomationSettings`
+
+| Campo | Tipo | Obrigatorio |
+| --- | --- | --- |
+| `avatar_sync` | `boolean` | sim |
+| `browser_fallback` | `string` | sim |
+| `mode` | `string` | sim |
+| `states` | `array[string]` | sim |
+| `wake_word` | `string` | sim |
+| `wake_word_configurable` | `boolean` | sim |
+
 ### `VoiceCatalog`
 
 | Campo | Tipo | Obrigatorio |
@@ -450,6 +545,7 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `active_default` | `string` | sim |
 | `automatic_selection` | `boolean` | sim |
 | `avatar_sync` | `boolean` | sim |
+| `continuous_conversation` | `boolean` | sim |
 | `fallback_provider` | `string` | sim |
 | `language` | `string` | sim |
 | `modes` | `array[string]` | sim |
@@ -457,6 +553,8 @@ Fonte: OpenAPI gerado pela aplicacao FastAPI e rotas WebSocket registradas.
 | `restrictions` | `array[string]` | sim |
 | `states` | `array[string]` | sim |
 | `status` | `string` | sim |
+| `wake_word` | `string` | sim |
+| `wake_word_configurable` | `boolean` | sim |
 
 ### `VoiceProvider`
 

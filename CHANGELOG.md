@@ -19,6 +19,11 @@ A fonte autoritativa fica em `changelog/entries`.
   - Orion reconhece pedidos de mentoria tecnica para carreira, portfolio, curriculo e entrevistas.
   - Respostas de professor de TI ganharam teoria, pratica, exercicio e proximo passo.
   - Autoteste scripts/run_brain_smoke.py valida conversa, professor, mentor, busca web segura, sentimento e retorno.
+- Adiciona automacoes seguras e ecossistema de dispositivos ao Orion
+  - Backend declara capacidades de voz continua, notificacoes, rotinas e integracoes planejadas sem executar comandos perigosos.
+  - PWA ganha painel Automacoes com wake word local, notificacoes inteligentes, preview de rotinas e orientacao de uso.
+  - Catalogo de voz passa a expor estados completos, palavra de ativacao configuravel e conversa continua.
+  - Cache PWA sobe para v39 e docs/AUTOMATION.md documenta seguranca, limites cloud e testes.
 - Fortalece inteligencia conversacional, vendas, busca web e voz do Orion.
   - Brain adiciona orion_dialogue_manager com estrategia segura, recomendacao de pesquisa web e modo consultor.
   - Orion passa a reconhecer vendas, negociacao, objecao de preco, scripts e mensagens para cliente.

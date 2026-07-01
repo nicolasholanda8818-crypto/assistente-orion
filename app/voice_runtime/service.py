@@ -4,7 +4,7 @@ from app.core.config import settings
 from app.voice_runtime.models import VoiceCatalog, VoiceProvider
 
 VOICE_MODES = ["conversation", "assistant", "teacher", "consultant", "calm", "animated", "grandma", "narrator"]
-VOICE_STATES = ["listening", "thinking", "responding"]
+VOICE_STATES = ["sleeping", "listening", "understanding", "thinking", "searching", "responding", "waiting"]
 
 
 class VoiceRuntimeService:
@@ -97,6 +97,9 @@ class VoiceRuntimeService:
             active_default=active,
             modes=VOICE_MODES,
             states=VOICE_STATES,
+            wake_word="Orion",
+            wake_word_configurable=True,
+            continuous_conversation=True,
             language="pt-BR",
             avatar_sync=True,
             providers=providers,

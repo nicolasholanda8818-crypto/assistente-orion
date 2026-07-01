@@ -17,7 +17,18 @@ def test_voice_runtime_exposes_advanced_provider_catalog():
         "grandma",
         "narrator",
     }
-    assert catalog.states == ["listening", "thinking", "responding"]
+    assert catalog.states == [
+        "sleeping",
+        "listening",
+        "understanding",
+        "thinking",
+        "searching",
+        "responding",
+        "waiting",
+    ]
+    assert catalog.wake_word == "Orion"
+    assert catalog.wake_word_configurable is True
+    assert catalog.continuous_conversation is True
     assert catalog.language == "pt-BR"
     assert catalog.avatar_sync is True
     providers = {provider.provider_id: provider for provider in catalog.providers}

@@ -1,0 +1,13 @@
+{
+  "id": "20260701-adiciona-automacoes-seguras-e-ecossistema-de-dispositivo",
+  "type": "added",
+  "summary": "Adiciona automacoes seguras e ecossistema de dispositivos ao Orion",
+  "details": [
+    "Backend declara capacidades de voz continua, notificacoes, rotinas e integracoes planejadas sem executar comandos perigosos.",
+    "PWA ganha painel Automacoes com wake word local, notificacoes inteligentes, preview de rotinas e orientacao de uso.",
+    "Catalogo de voz passa a expor estados completos, palavra de ativacao configuravel e conversa continua.",
+    "Cache PWA sobe para v39 e docs/AUTOMATION.md documenta seguranca, limites cloud e testes."
+  ],
+  "date": "2026-07-01",
+  "version": null
+}

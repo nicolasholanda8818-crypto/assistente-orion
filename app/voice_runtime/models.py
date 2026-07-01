@@ -26,6 +26,9 @@ class VoiceCatalog(StrictModel):
     active_default: str
     modes: list[str]
     states: list[str]
+    wake_word: str
+    wake_word_configurable: bool
+    continuous_conversation: bool
     language: str
     avatar_sync: bool
     providers: list[VoiceProvider]

@@ -107,6 +107,24 @@ export function uploadCameraPhoto(payload) {
   });
 }
 
+export function getAutomationStatus() {
+  return request("/api/automation/status");
+}
+
+export function requestAutomationAction(payload) {
+  return request("/api/automation/request", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function previewAutomationRoutine(payload) {
+  return request("/api/automation/routines/preview", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export function getOnboardingStatus() {
   return request("/api/onboarding/status");
 }

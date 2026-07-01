@@ -99,6 +99,9 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Correcao total de 2026-06-14 estabilizou lint, canvas 3D/fallback, chat continuo e resposta de identidade local.
 - [x] Living Avatar adiciona personalidade visual, falas dinamicas, comportamento espontaneo, olhar inteligente e quarto futurista interativo.
 - [x] Modo persistente Windows criado para manter o Orion online e reiniciar o servidor local se ele cair.
+- [x] Fase 3 Ultimate adiciona base segura de automacao, conversa continua por voz, palavra de ativacao configuravel e painel `Automacoes`.
+- [x] Contratos para computador, celular, TV, Home Assistant, Wake-on-LAN, calendario e rotinas ficam bloqueados por seguranca ate agente local e permissao explicita.
+- [x] Cache PWA atualizado para `orion-pwa-v39-automation-ecosystem`.
 
 ## Marcos Planejados
 
@@ -121,7 +124,7 @@ Data: `2026-07-01`
 | --- | --- |
 | Ruff lint e format | aprovado |
 | Sintaxe JavaScript e PWA | aprovado |
-| Pytest backend | `186 passed`, `9 warnings` |
+| Pytest backend | `191 passed`, `9 warnings` |
 | Coverage backend | configurado com minimo de 80% |
 | Playwright E2E Chromium | `5 passed` |
 | Onboarding visual desktop e mobile | aprovado |
@@ -135,7 +138,8 @@ Data: `2026-07-01`
 | Inteligencia conversacional | memoria, contexto, pipeline cognitivo, professor, mentor, vendas, negociacao, consultor, API REST e WebSocket aprovados |
 | Web e voz | busca web forte, recencia, fontes, voz masculina pt-BR preferencial e eventos seguros aprovados |
 | Avatar 3D e Cerebro Cosmico | Avatar Studio, skin local, troca Avatar/Cerebro e cache PWA v38 aprovados |
-| Navegador local | Orion carregou, painel Meus Arquivos abriu e chat respondeu `oi` |
+| Automacoes e ecossistema | API `/api/automation/status`, painel PWA, wake word local, notificacoes e rotinas seguras aprovados |
+| Navegador local | Orion carregou com PWA v39, avatar, Lord Dragons, painel Automacoes, WebSocket conectado e chat respondeu `oi` |
 | Performance baseline | aprovado em `docs/releases/0.1.0-rc.1/performance.json` |
 | Build release | `dist/orion-foundation.zip` gerado e verificado |
 | Release Candidate | `0.1.0-rc.1` gerado com manifesto e SHA-256, bloqueado para promocao |

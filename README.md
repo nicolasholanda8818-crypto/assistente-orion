@@ -108,6 +108,27 @@ no chat quando a internet responde.
 
 Consulte `docs/VOICE_SYSTEM.md` e `docs/WEB_SEARCH.md`.
 
+## Automacoes, Voz Continua e Ecossistema
+
+O Orion possui uma base segura de automacao para conversa continua por voz,
+palavra de ativacao configuravel, notificacoes inteligentes e preparacao para
+computador, celular, TV e dispositivos compativeis. O painel `Automacoes` ensina
+como usar os recursos disponiveis e mostra preview de rotinas antes de qualquer
+execucao futura.
+
+Por seguranca, deploys cloud como Render nao executam comandos no computador do
+usuario. Acoes como abrir aplicativos, controlar dispositivos, Wake-on-LAN,
+Home Assistant ou calendario externo permanecem bloqueadas ate existir agente
+local autorizado, confirmacao explicita e credenciais seguras fora do codigo.
+
+Endpoints principais:
+
+- `GET /api/automation/status`
+- `POST /api/automation/request`
+- `POST /api/automation/routines/preview`
+
+Consulte `docs/AUTOMATION.md`.
+
 ## Arquivos, Documentos, PDF e Analise Local
 
 O modulo `orion_files` adiciona armazenamento de arquivos por usuario, captura de

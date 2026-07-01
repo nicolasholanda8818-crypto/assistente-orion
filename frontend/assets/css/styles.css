@@ -1673,6 +1673,102 @@ body {
   justify-content: flex-end;
 }
 
+.automation-panel {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  gap: var(--space-3);
+  width: min(900px, 96vw);
+  max-height: min(64vh, 640px);
+  overflow: auto;
+  border: 1px solid rgba(116, 230, 255, 0.28);
+  border-radius: 18px;
+  padding: var(--space-4);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(101, 255, 182, 0.13), transparent 32%),
+    linear-gradient(135deg, rgba(8, 22, 44, 0.94), rgba(5, 11, 24, 0.86)),
+    rgba(4, 15, 28, 0.88);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.36),
+    0 0 38px rgba(37, 176, 255, 0.14);
+  backdrop-filter: blur(18px);
+}
+
+.automation-panel[hidden] {
+  display: none;
+}
+
+.automation-header,
+.automation-list-header,
+.automation-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.automation-kicker,
+.automation-list-header span,
+.automation-row span,
+.automation-row small {
+  color: rgba(224, 247, 255, 0.68);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+}
+
+.automation-header h2,
+.automation-card h3 {
+  margin: 0;
+  color: #effcff;
+  letter-spacing: 0;
+}
+
+.automation-header h2 {
+  font-size: var(--font-size-lg);
+}
+
+.automation-summary,
+.automation-card p,
+.automation-row p {
+  margin: 0;
+  color: rgba(232, 251, 255, 0.78);
+  line-height: 1.55;
+}
+
+.automation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.automation-card,
+.automation-row {
+  min-width: 0;
+  border: 1px solid rgba(114, 210, 255, 0.22);
+  border-radius: 14px;
+  padding: var(--space-3);
+  background: rgba(7, 20, 38, 0.72);
+}
+
+.automation-card {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.automation-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.automation-row {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.automation-row strong {
+  color: #effcff;
+}
+
 .orion-title {
   margin: -6px 0 0;
   color: #e7fbff;
@@ -2842,7 +2938,13 @@ body {
     padding: var(--space-3);
   }
 
-  .file-vision-grid {
+  .automation-panel {
+    max-height: min(68vh, 620px);
+    padding: var(--space-3);
+  }
+
+  .file-vision-grid,
+  .automation-grid {
     grid-template-columns: 1fr;
   }
 

@@ -12,6 +12,8 @@ from app.monitoring.api import monitoring_router
 from app.monitoring.metrics import metrics_registry
 from app.onboarding.api import onboarding_router
 from app.onboarding.dependencies import get_onboarding_service
+from app.orion_automation.api import automation_router
+from app.orion_automation.service import AutomationService
 from app.orion_files.api import camera_router, files_router
 from app.orion_files.service import OrionFilesService
 from app.orion_web_search.api import web_search_router
@@ -29,6 +31,7 @@ api_router.include_router(onboarding_router)
 api_router.include_router(hosting_router)
 api_router.include_router(monitoring_router)
 api_router.include_router(voice_router)
+api_router.include_router(automation_router)
 api_router.include_router(web_search_router)
 api_router.include_router(files_router)
 api_router.include_router(camera_router)
@@ -56,6 +59,7 @@ def application_status() -> dict:
         "tools": get_tool_registry().catalog().model_dump(),
         "models": get_model_registry().catalog().model_dump(),
         "voice": VoiceRuntimeService().catalog().model_dump(),
+        "automation": AutomationService().status().model_dump(),
         "web_search": WebSearchService().status().model_dump(),
         "files": OrionFilesService().status().model_dump(),
         "onboarding": get_onboarding_service().status().model_dump(),
