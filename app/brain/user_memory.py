@@ -53,6 +53,7 @@ COMMON_NON_NAMES = {
 
 NAME_PATTERNS = (
     re.compile(r"\bmeu nome (?:e|eh|é)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,58})", re.IGNORECASE),
+    re.compile(r"\bmeu apelido (?:e|eh|é)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,58})", re.IGNORECASE),
     re.compile(r"\bme chamo\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,58})", re.IGNORECASE),
     re.compile(r"\bpode me chamar de\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,58})", re.IGNORECASE),
     re.compile(r"\bsou\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,58})", re.IGNORECASE),
@@ -65,6 +66,7 @@ PREFERENCE_PATTERNS = (
 )
 
 PROJECT_PATTERNS = (
+    re.compile(r"\bmeu projeto (?:e|eh|é)\s+([^.,;!?]{2,80})", re.IGNORECASE),
     re.compile(r"\bprojeto\s+([^.,;!?]{2,80})", re.IGNORECASE),
     re.compile(r"\bestou criando\s+([^.,;!?]{2,80})", re.IGNORECASE),
     re.compile(r"\bestou trabalhando em\s+([^.,;!?]{2,80})", re.IGNORECASE),
@@ -80,6 +82,9 @@ GOAL_PATTERNS = (
 RECURRING_TOPIC_PATTERNS = (
     re.compile(r"\bsempre falo de\s+([^.,;!?]{2,80})", re.IGNORECASE),
     re.compile(r"\bassunto recorrente (?:e|eh|é)\s+([^.,;!?]{2,80})", re.IGNORECASE),
+    re.compile(r"\bestou estudando\s+([^.,;!?]{2,80})", re.IGNORECASE),
+    re.compile(r"\btenho interesse em\s+([^.,;!?]{2,80})", re.IGNORECASE),
+    re.compile(r"\bquero aprender\s+([^.,;!?]{2,80})", re.IGNORECASE),
 )
 
 STYLE_PATTERNS = (

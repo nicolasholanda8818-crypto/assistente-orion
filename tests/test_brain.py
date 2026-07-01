@@ -5,6 +5,7 @@ from app.brain.knowledge import KnowledgeService
 from app.brain.learning import LearningService
 from app.brain.memory import MemoryService
 from app.brain.models import BrainPlan, BrainRequest, ContextSnapshot, PlanStep
+from app.brain.orion_context import build_orion_context
 from app.brain.orion_intent import analyze_intent
 from app.brain.orion_intents import classify_emotion, detect_intent, extract_keywords, is_question
 from app.brain.orion_memory import build_orion_memory_context
@@ -25,11 +26,13 @@ def test_brain_status_exposes_separated_components():
         "knowledge": "local-static",
         "orion_reasoning": "intent-emotion-context",
         "orion_memory": "profile-facts-summaries",
+        "orion_context": "style-focus-adaptation",
         "orion_intent": "deterministic-parser",
         "orion_dialogue_manager": "triple-layer-strategy",
     }
     assert "no-host-actions" in status.restrictions
     assert "user.context.continuity" in status.capabilities
+    assert "conversation.context.adaptation" in status.capabilities
     assert "sales.negotiation.guidance" in status.capabilities
 
 
@@ -133,6 +136,78 @@ def test_orion_recommends_web_search_for_recent_information_without_leaking_memo
     assert response.should_search_web is True
     assert response.search_query == "qual e a versao mais recente do FastAPI"
     assert response.dialogue_strategy == "web-search-recommended"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "oi",
+        "como voce esta?",
+        "estou cansado",
+        "quero melhorar o Orion",
+        "me ajuda",
+        "lembra de mim?",
+        "vamos conversar",
+        "me ensina programacao",
+        "nao sei o que fazer",
+    ],
+)
+def test_orion_professional_conversation_examples_always_get_contextual_answer(text):
+    response = BrainService().process(BrainRequest(text=text))
+
+    assert response.message
+    assert response.message.strip().lower() not in {"entendi.", "ok.", "certo."}
+    assert response.avatar_mood
+    assert response.reasoning_state in {"answering", "clarifying", "thinking"}
+    assert response.should_speak is True
+
+
+def test_orion_asks_targeted_question_when_user_wants_to_improve_orion():
+    response = BrainService().process(BrainRequest(text="quero melhorar o Orion"))
+
+    assert "visual" in response.message
+    assert "memoria" in response.message
+    assert "voz" in response.message
+    assert "comportamento" in response.message
+    assert "quero como foco" not in response.message
+
+
+def test_orion_keeps_user_continuity_between_feeling_and_return():
+    user_id = "brain-continuity-test"
+    brain = BrainService()
+
+    brain.process(BrainRequest(text="Nicolas", user_id=user_id, conversation_id="continuity"))
+    tired = brain.process(BrainRequest(text="estou cansado", user_id=user_id, conversation_id="continuity"))
+    returning = brain.process(BrainRequest(text="voltei", user_id=user_id, conversation_id="continuity"))
+
+    assert "cansado" in tired.message
+    assert "Conseguiu descansar?" in returning.message
+    assert returning.user_name == "Nicolas"
+
+
+def test_orion_context_classifies_style_and_depth_from_user_signal():
+    snapshot = UserMemorySnapshot(
+        user_id="context-style-test",
+        display_name="Nicolas",
+        topics=["python"],
+    )
+    memory_context = build_orion_memory_context(
+        snapshot=snapshot,
+        user_text="erro no backend python",
+        intent="technical",
+    )
+
+    context = build_orion_context(
+        user_text="erro no backend python",
+        snapshot=snapshot,
+        memory_context=memory_context,
+        intent="technical",
+        keywords=["erro", "backend", "python"],
+    )
+
+    assert context.style == "technical"
+    assert context.depth == "technical"
+    assert context.focus
 
 
 @pytest.mark.parametrize("text", ["estou cansado", "quero melhorar isso", "me ajuda", "nao sei o que fazer"])

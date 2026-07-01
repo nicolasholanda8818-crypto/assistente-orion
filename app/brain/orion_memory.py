@@ -24,10 +24,11 @@ def build_orion_memory_context(
     intent: str,
 ) -> OrionMemoryContext:
     if snapshot is None or not snapshot.display_name:
+        smart_question = select_general_smart_question(user_text=user_text, intent=intent)
         return OrionMemoryContext(
             profile_summary=None,
             continuity_hint=None,
-            smart_question=None,
+            smart_question=smart_question,
             initiative_prompt=None,
             has_persistent_context=False,
         )
@@ -96,6 +97,10 @@ def select_continuity_hint(*, snapshot: UserMemorySnapshot, user_text: str, inte
 
 def select_smart_question(*, snapshot: UserMemorySnapshot, user_text: str, intent: str) -> str | None:
     normalized = normalize_text(user_text)
+    general_question = select_general_smart_question(user_text=user_text, intent=intent)
+    if general_question:
+        return general_question
+
     vague = intent == "request.incomplete" or len(normalized.split()) <= 2
     if not vague:
         return None
@@ -107,6 +112,27 @@ def select_smart_question(*, snapshot: UserMemorySnapshot, user_text: str, inten
     if snapshot.topics:
         return f"Voce quer continuar no assunto {snapshot.topics[0]}?"
     return "Voce quer que eu explique, organize ou transforme isso em acao?"
+
+
+def select_general_smart_question(*, user_text: str, intent: str) -> str | None:
+    normalized = normalize_text(user_text)
+    if "melhorar" in normalized and "orion" in normalized:
+        return "Voce quer melhorar o visual, a memoria, a voz ou o comportamento do Orion?"
+    if "nao sei o que fazer" in normalized or normalized == "me ajuda":
+        return "Quer que eu te ajude a escolher uma opcao simples agora?"
+    if intent in {"teacher", "study"} and not any(
+        term in normalized
+        for term in {
+            "matematica",
+            "portugues",
+            "programacao",
+            "python",
+            "javascript",
+            "concursos",
+        }
+    ):
+        return "Qual assunto voce quer estudar primeiro: programacao, matematica ou portugues?"
+    return None
 
 
 def select_initiative_prompt(*, snapshot: UserMemorySnapshot, user_text: str, intent: str) -> str | None:

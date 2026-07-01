@@ -5,6 +5,8 @@ from app.brain.knowledge import KnowledgeService
 from app.brain.learning import LearningService
 from app.brain.memory import MemoryService
 from app.brain.models import BrainMode, BrainRequest, BrainResponse, BrainStatus, ContextSummary, PlanStep
+from app.brain.orion_context import OrionConversationContext, build_orion_context, context_instruction
+from app.brain.orion_intents import normalize_text
 from app.brain.orion_memory import OrionMemoryContext, build_orion_memory_context
 from app.brain.orion_reasoning import reason_about_message
 from app.brain.planning import PlanningService
@@ -105,6 +107,13 @@ class BrainService:
             user_text=request.text,
             intent=plan.intent,
         )
+        conversation_context = build_orion_context(
+            user_text=request.text,
+            snapshot=user_snapshot,
+            memory_context=memory_context,
+            intent=plan.intent,
+            keywords=reasoning.keywords,
+        )
         if user_snapshot and user_snapshot.display_name:
             message = self._personalize_message(
                 message=message,
@@ -112,7 +121,15 @@ class BrainService:
                 intent=plan.intent,
                 snapshot=user_snapshot,
                 memory_context=memory_context,
+                conversation_context=conversation_context,
             )
+        message = self._shape_message_for_context(
+            message=message,
+            request=request,
+            intent=plan.intent,
+            memory_context=memory_context,
+            conversation_context=conversation_context,
+        )
 
         self.memory.remember(conversation_id=request.conversation_id, role="user", content=request.text)
         self.memory.remember(conversation_id=request.conversation_id, role="assistant", content=message)
@@ -179,6 +196,7 @@ class BrainService:
         intent: str,
         snapshot,
         memory_context: OrionMemoryContext,
+        conversation_context: OrionConversationContext,
     ) -> str:
         name = snapshot.display_name
         if intent == "identity.user":
@@ -213,13 +231,49 @@ class BrainService:
             hint = memory_context.continuity_hint
             if hint:
                 return f"Estou aqui, {name}. {hint}"
+            if snapshot.recent_feeling == "cansado":
+                return f"Estou aqui, {name}. Percebi que voce esta cansado. Quer reduzir isso a um passo pequeno?"
             return f"Estou aqui, {name}. Quer que eu te ajude a transformar isso em um passo pequeno?"
         if intent == "request.incomplete" and memory_context.smart_question:
+            return f"{message} {memory_context.smart_question}"
+        if intent == "help" and memory_context.smart_question:
             return f"{message} {memory_context.smart_question}"
         if intent in {"conversation.reply", "question.general", "technical", "study", "teacher"}:
             hint = memory_context.continuity_hint
             if hint:
                 return f"{message} {hint}"
+            if conversation_context.focus and conversation_context.has_user_profile:
+                return f"{message} Posso usar {conversation_context.focus} como foco, se fizer sentido."
+        return message
+
+    def _shape_message_for_context(
+        self,
+        *,
+        message: str,
+        request: BrainRequest,
+        intent: str,
+        memory_context: OrionMemoryContext,
+        conversation_context: OrionConversationContext,
+    ) -> str:
+        normalized_message = normalize_text(message)
+        normalized_user_text = normalize_text(request.text)
+
+        if memory_context.smart_question and normalize_text(memory_context.smart_question) not in normalized_message:
+            if intent in {"request.incomplete", "help", "conversation.reply"} or "melhorar" in normalized_user_text:
+                message = f"{message} {memory_context.smart_question}"
+
+        instruction = context_instruction(conversation_context)
+        if instruction and normalize_text(instruction) not in normalize_text(message):
+            if intent in {"technical", "teacher", "study", "question.general", "help"}:
+                message = f"{message} {instruction}"
+
+        if (
+            conversation_context.style == "beginner"
+            and intent in {"teacher", "study", "technical"}
+            and "qual parte" not in normalize_text(message)
+        ):
+            message = f"{message} Qual parte voce quer que eu explique primeiro?"
+
         return message
 
     def _response(
@@ -285,6 +339,7 @@ class BrainService:
                 "knowledge": "local-static",
                 "orion_reasoning": "intent-emotion-context",
                 "orion_memory": "profile-facts-summaries",
+                "orion_context": "style-focus-adaptation",
                 "orion_intent": "deterministic-parser",
                 "orion_dialogue_manager": "triple-layer-strategy",
             },
@@ -296,6 +351,7 @@ class BrainService:
                 "user.context.continuity",
                 "user.goal.memory",
                 "conversation.initiative",
+                "conversation.context.adaptation",
                 "sales.negotiation.guidance",
                 "senior.consultant.mode",
                 "web.search.recommendation",

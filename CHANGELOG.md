@@ -9,6 +9,11 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Aprimora raciocinio contextual e respostas naturais do Orion.
+  - Nova camada orion_context classifica estilo, profundidade, foco e tom da conversa.
+  - Perguntas inteligentes agora cobrem pedidos vagos como melhorar o Orion, me ajuda e estudos sem materia.
+  - Memoria segura reconhece apelido, projeto declarado, interesses e tecnologias estudadas sem armazenar dados sensiveis.
+  - Testes obrigatorios cobrem conversa, continuidade de cansaco, melhoria do Orion e adaptacao de contexto.
 - Fortalece inteligencia conversacional, vendas, busca web e voz do Orion.
   - Brain adiciona orion_dialogue_manager com estrategia segura, recomendacao de pesquisa web e modo consultor.
   - Orion passa a reconhecer vendas, negociacao, objecao de preco, scripts e mensagens para cliente.

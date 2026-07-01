@@ -1,0 +1,13 @@
+{
+  "id": "20260701-aprimora-raciocinio-contextual-do-orion",
+  "type": "added",
+  "summary": "Aprimora raciocinio contextual e respostas naturais do Orion.",
+  "details": [
+    "Nova camada orion_context classifica estilo, profundidade, foco e tom da conversa.",
+    "Perguntas inteligentes agora cobrem pedidos vagos como melhorar o Orion, me ajuda e estudos sem materia.",
+    "Memoria segura reconhece apelido, projeto declarado, interesses e tecnologias estudadas sem armazenar dados sensiveis.",
+    "Testes obrigatorios cobrem conversa, continuidade de cansaco, melhoria do Orion e adaptacao de contexto."
+  ],
+  "date": "2026-07-01",
+  "version": null
+}
