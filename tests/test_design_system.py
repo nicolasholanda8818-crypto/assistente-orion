@@ -69,6 +69,10 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'value="narrator"' in index
     assert 'id="visual-mode-select"' in index
     assert 'value="balanced"' in index
+    assert 'id="system-status-panel"' in index
+    assert 'data-sidebar-action="avatar"' in index
+    assert 'data-sidebar-action="web-search"' in index
+    assert 'data-sidebar-action="notifications"' in index
     assert 'id="brain-mode"' in index
     assert 'id="brain-vault-viewport"' in index
     assert 'id="brain-state-label"' in index
@@ -84,7 +88,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v39-automation-ecosystem";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v40-premium-visuals";' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/js/")' in service_worker
     assert 'requestUrl.pathname.startsWith("/assets/css/")' in service_worker
     assert '"/assets/css/tokens.css"' in service_worker
@@ -95,6 +99,7 @@ def test_service_worker_caches_design_system_assets():
     assert '"/assets/js/design-system.js"' in service_worker
     assert '"/assets/js/living-avatar.js"' in service_worker
     assert '"/assets/js/onboarding.js"' in service_worker
+    assert '"/assets/js/premium-visuals.js"' in service_worker
     assert '"/assets/js/voice-engine.js"' in service_worker
 
 
@@ -216,9 +221,20 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert 'data-accessory="visor"' in stylesheet
     assert ".avatar-studio-panel" in stylesheet
     assert ".avatar-studio-preview" in stylesheet
+    assert ".premium-visuals-ready" in stylesheet
+    assert ".system-status-panel" in stylesheet
+    assert ".quick-actions-panel" in stylesheet
+    assert ".orion-neural-backdrop" in stylesheet
+    assert ".orion-iris" in stylesheet
+    assert "premium-lip-sync" in stylesheet
     assert ".brain-mode" in stylesheet
     assert ".brain-vault-viewport" in stylesheet
     assert "createBrainVault" in main
+    assert "createPremiumVisualSystem" in main
+    assert "premiumVisuals" in main
+    assert "premium-visuals.js" in main
+    assert "GSAP_URL" in read_frontend("assets/js/premium-visuals.js")
+    assert "web-animations" in read_frontend("assets/js/premium-visuals.js")
     assert "MEMORY_CATEGORIES" in brain_vault
     assert "Documentos" in brain_vault
     assert "Aprendizado" in brain_vault

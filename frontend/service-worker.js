@@ -1,4 +1,4 @@
-const CACHE_NAME = "orion-pwa-v39-automation-ecosystem";
+const CACHE_NAME = "orion-pwa-v40-premium-visuals";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -17,6 +17,7 @@ const APP_SHELL = [
   "/assets/js/main.js",
   "/assets/js/living-avatar.js",
   "/assets/js/onboarding.js",
+  "/assets/js/premium-visuals.js",
   "/assets/js/pwa.js",
   "/assets/js/scene.js",
   "/assets/js/socket.js",

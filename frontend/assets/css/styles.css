@@ -3072,3 +3072,587 @@ html[data-visual-mode="ultra"] .chat-log {
     0 0 34px rgba(65, 219, 255, 0.18),
     inset 0 0 24px rgba(65, 219, 255, 0.08);
 }
+
+/* Premium visual layer: additive overrides that preserve the existing DOM contracts. */
+:root {
+  --premium-state-color: #66e7ff;
+  --premium-violet: #b58cff;
+  --premium-green: #6effb8;
+  --premium-amber: #ffd166;
+  --premium-red: #ff5f72;
+  --premium-panel: rgba(4, 9, 20, 0.72);
+}
+
+.premium-visuals-ready .orion-site {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(181, 140, 255, 0.14), transparent 28%),
+    radial-gradient(circle at 18% 62%, rgba(110, 255, 184, 0.08), transparent 24%),
+    radial-gradient(circle at 78% 70%, rgba(255, 95, 114, 0.08), transparent 26%),
+    linear-gradient(180deg, #050816 0%, #06111f 54%, #03050d 100%);
+}
+
+.premium-visuals-ready .orion-stage {
+  grid-template-rows: auto auto auto minmax(360px, 1fr) auto;
+  align-content: start;
+  min-height: calc(100vh - 78px);
+  padding-top: clamp(8px, 2vh, 22px);
+}
+
+.orion-status-row {
+  position: relative;
+  z-index: 20;
+}
+
+.status-pill--primary {
+  min-width: 148px;
+  justify-content: center;
+  border-color: color-mix(in srgb, var(--premium-state-color) 46%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--premium-state-color) 18%, transparent), rgba(5, 14, 28, 0.74)),
+    rgba(3, 9, 20, 0.72);
+  cursor: pointer;
+}
+
+.system-status-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: min(560px, 92vw);
+  gap: 8px;
+  border: 1px solid rgba(135, 226, 255, 0.26);
+  border-radius: 18px;
+  padding: 10px;
+  background: rgba(4, 10, 22, 0.88);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.38), 0 0 32px rgba(90, 220, 255, 0.12);
+  backdrop-filter: blur(18px);
+  transform: translateX(-50%);
+}
+
+.system-status-panel[hidden] {
+  display: none;
+}
+
+.quick-actions-panel {
+  position: relative;
+  z-index: 18;
+  width: min(860px, 96vw);
+  text-align: center;
+}
+
+.quick-actions-panel > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  border: 1px solid rgba(142, 225, 255, 0.24);
+  border-radius: 999px;
+  padding: 0 14px;
+  background: rgba(5, 16, 31, 0.62);
+  color: rgba(232, 251, 255, 0.82);
+  cursor: pointer;
+  list-style: none;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+}
+
+.quick-actions-panel > summary::-webkit-details-marker {
+  display: none;
+}
+
+.quick-actions-panel[open] > summary {
+  color: #ffffff;
+  border-color: rgba(102, 231, 255, 0.52);
+}
+
+.quick-actions-panel .orion-control-deck {
+  margin: 10px auto 0;
+}
+
+.premium-visuals-ready .orion-bubble {
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(102, 231, 255, 0.14), transparent 32%),
+    linear-gradient(180deg, rgba(9, 23, 45, 0.9), rgba(4, 10, 22, 0.82));
+  box-shadow:
+    0 22px 50px rgba(0, 0, 0, 0.34),
+    0 0 40px color-mix(in srgb, var(--premium-state-color) 22%, transparent);
+}
+
+.premium-visuals-ready .living-room {
+  inset: 96px max(10px, 5vw) auto;
+  height: min(56vh, 520px);
+}
+
+.premium-visuals-ready .living-room::after {
+  position: absolute;
+  right: 6%;
+  bottom: -8%;
+  left: 6%;
+  height: 28%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at center, rgba(152, 245, 255, 0.16), transparent 68%),
+    linear-gradient(90deg, transparent, rgba(181, 140, 255, 0.12), transparent);
+  filter: blur(8px);
+  content: "";
+  animation: premium-floor-glow 6.4s ease-in-out infinite;
+}
+
+.premium-visuals-ready .room-monitor,
+.premium-visuals-ready .room-window,
+.premium-visuals-ready .room-console,
+.premium-visuals-ready .room-holo,
+.premium-visuals-ready .room-memory,
+.premium-visuals-ready .room-voice,
+.premium-visuals-ready .room-search,
+.premium-visuals-ready .room-portal {
+  filter: drop-shadow(0 0 12px rgba(105, 231, 255, 0.16));
+}
+
+.premium-visuals-ready .orion-avatar {
+  width: min(360px, 64vw);
+  filter:
+    drop-shadow(0 26px 34px rgba(0, 0, 0, 0.34))
+    drop-shadow(0 0 28px color-mix(in srgb, var(--premium-state-color) 24%, transparent));
+}
+
+.orion-neural-backdrop {
+  position: absolute;
+  inset: 2% -7% 18%;
+  z-index: -1;
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--premium-state-color) 26%, transparent) 0 8deg, transparent 8deg 22deg),
+    radial-gradient(circle, color-mix(in srgb, var(--premium-state-color) 16%, transparent), transparent 64%);
+  filter: blur(0.4px);
+  opacity: 0.28;
+  animation: premium-neural-orbit 18s linear infinite;
+}
+
+.premium-visuals-ready .orion-aura {
+  inset: 3% -8% -1%;
+  border-radius: 48% 48% 36% 36%;
+  background:
+    radial-gradient(circle at 50% 16%, color-mix(in srgb, var(--orion-aura-color) 56%, transparent), transparent 24%),
+    radial-gradient(circle at 50% 58%, color-mix(in srgb, var(--premium-violet) 18%, transparent), transparent 42%),
+    radial-gradient(circle at 50% 80%, color-mix(in srgb, var(--premium-green) 14%, transparent), transparent 54%);
+}
+
+.premium-visuals-ready .orion-body {
+  right: 20%;
+  bottom: 16%;
+  left: 20%;
+  height: 48%;
+  border-radius: 32% 32% 20% 20%;
+  background:
+    linear-gradient(90deg, transparent 0 14%, rgba(255, 255, 255, 0.08) 16%, transparent 19% 81%, rgba(255, 255, 255, 0.08) 84%, transparent 87%),
+    linear-gradient(120deg, transparent 0 34%, color-mix(in srgb, var(--orion-primary-color) 72%, transparent) 35% 38%, transparent 39%),
+    linear-gradient(240deg, transparent 0 34%, color-mix(in srgb, var(--orion-accent-color) 58%, transparent) 35% 38%, transparent 39%),
+    linear-gradient(180deg, #16233a 0%, #070d19 50%, #091b32 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(170, 232, 255, 0.28),
+    inset 0 -28px 32px rgba(0, 0, 0, 0.24),
+    0 0 38px color-mix(in srgb, var(--orion-primary-color) 28%, transparent);
+}
+
+.orion-hood {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  width: 92px;
+  height: 52px;
+  border: 1px solid rgba(190, 235, 255, 0.18);
+  border-radius: 48% 48% 22% 22%;
+  background: linear-gradient(180deg, rgba(120, 180, 220, 0.2), rgba(7, 15, 29, 0.72));
+  box-shadow: inset 0 0 18px rgba(118, 219, 255, 0.14);
+  transform: translateX(-50%);
+}
+
+.orion-zipper {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 2px;
+  height: 54%;
+  background: linear-gradient(180deg, #e9fbff, rgba(97, 216, 255, 0.24));
+  box-shadow: 0 0 10px rgba(97, 216, 255, 0.48);
+  transform: translateX(-50%);
+}
+
+.premium-visuals-ready .orion-shoulder {
+  width: 42px;
+  height: 30px;
+  background: linear-gradient(180deg, #223b62, #081322 72%);
+}
+
+.premium-visuals-ready .orion-arm {
+  top: 18%;
+  width: 28px;
+  height: 118px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent 34%),
+    linear-gradient(180deg, #15243c, #07101d 58%, color-mix(in srgb, var(--orion-primary-color) 56%, #08213b));
+}
+
+.premium-visuals-ready .orion-hand {
+  width: 24px;
+  height: 26px;
+  border-radius: 46% 46% 42% 42%;
+  background: linear-gradient(180deg, #eff9ff, var(--orion-skin-color));
+}
+
+.orion-finger {
+  position: absolute;
+  bottom: -5px;
+  width: 4px;
+  height: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--orion-skin-color) 88%, #ffffff);
+  box-shadow: 0 0 5px rgba(94, 211, 255, 0.12);
+}
+
+.finger-a { left: 5px; }
+.finger-b { left: 10px; height: 14px; }
+.finger-c { left: 15px; }
+
+.premium-visuals-ready .orion-leg {
+  bottom: -104px;
+  width: 30px;
+  height: 112px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent 34%),
+    linear-gradient(180deg, #122039, #07101d 62%, #0b3156);
+}
+
+.orion-knee {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  width: 20px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(116, 219, 255, 0.16);
+  transform: translateX(-50%);
+}
+
+.premium-visuals-ready .orion-boot {
+  width: 46px;
+  height: 22px;
+  border-radius: 18px 22px 10px 10px;
+  background:
+    linear-gradient(90deg, transparent 0 22%, rgba(112, 226, 255, 0.22) 24% 35%, transparent 37%),
+    linear-gradient(180deg, #16345d, #03101b);
+}
+
+.premium-visuals-ready .orion-head {
+  top: -126px;
+  width: 136px;
+  height: 146px;
+  border-radius: 48% 48% 43% 43%;
+  background:
+    radial-gradient(circle at 35% 72%, rgba(255, 138, 170, 0.12), transparent 16%),
+    radial-gradient(circle at 65% 72%, rgba(255, 138, 170, 0.1), transparent 16%),
+    linear-gradient(180deg, color-mix(in srgb, var(--orion-skin-color) 76%, #ffffff) 0 8%, var(--orion-skin-color) 9% 100%);
+  box-shadow:
+    inset 0 -16px 20px rgba(80, 135, 180, 0.16),
+    inset 0 8px 12px rgba(255, 255, 255, 0.2),
+    0 0 34px rgba(74, 194, 255, 0.26);
+}
+
+.orion-face-glow {
+  position: absolute;
+  inset: 35% 20% 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.14), transparent 62%);
+  pointer-events: none;
+}
+
+.premium-visuals-ready .orion-hair {
+  box-shadow: 0 10px 20px rgba(255, 255, 255, 0.14), inset 0 -10px 14px rgba(45, 84, 128, 0.18);
+  animation: premium-hair-sway 5.8s ease-in-out infinite;
+}
+
+.premium-visuals-ready .hair-1 {
+  left: 2px;
+  width: 82px;
+  height: 88px;
+  border-radius: 68% 42% 56% 50%;
+}
+
+.premium-visuals-ready .hair-2 {
+  left: 40px;
+  width: 82px;
+  height: 86px;
+  border-radius: 48% 66% 46% 58%;
+}
+
+.premium-visuals-ready .hair-3 {
+  right: -12px;
+  width: 58px;
+  height: 98px;
+  border-radius: 44% 72% 54% 62%;
+}
+
+.hair-4 {
+  position: absolute;
+  top: -34px;
+  left: 58px;
+  width: 32px;
+  height: 52px;
+  border-radius: 80% 80% 42% 42%;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--orion-hair-color) 86%, #ffffff), var(--orion-hair-color));
+  transform: rotate(12deg);
+  animation: premium-hair-sway 4.9s ease-in-out infinite reverse;
+}
+
+.premium-visuals-ready .orion-brow {
+  top: 58px;
+  height: 6px;
+  background: rgba(16, 36, 62, 0.78);
+}
+
+.premium-visuals-ready .orion-eye {
+  top: 70px;
+  width: 26px;
+  height: 22px;
+  border-radius: 48% 48% 44% 44%;
+  background:
+    radial-gradient(circle at 38% 30%, rgba(255, 255, 255, 0.96) 0 3px, transparent 4px),
+    radial-gradient(circle at 50% 56%, color-mix(in srgb, var(--orion-eye-color) 86%, white) 0 18%, var(--orion-eye-color) 19% 52%, #071426 54% 74%, transparent 75%),
+    #06101d;
+  box-shadow:
+    0 0 10px var(--orion-eye-color),
+    0 0 28px color-mix(in srgb, var(--orion-eye-color) 78%, #126bff),
+    inset 0 0 0 2px rgba(231, 255, 255, 0.26);
+}
+
+.premium-visuals-ready .eye-left { left: 31px; }
+.premium-visuals-ready .eye-right { right: 31px; }
+
+.orion-iris {
+  position: absolute;
+  inset: 5px 8px;
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.55) 0 8deg, transparent 8deg 18deg),
+    radial-gradient(circle, #ffffff 0 10%, var(--orion-eye-color) 12% 72%, transparent 74%);
+  opacity: 0.86;
+  transform: translate(calc(var(--look-x) * 3px), calc(var(--look-y) * 2px));
+}
+
+.orion-nose {
+  position: absolute;
+  top: 90px;
+  left: 50%;
+  width: 8px;
+  height: 11px;
+  border-radius: 50%;
+  border-right: 2px solid rgba(62, 94, 128, 0.24);
+  transform: translateX(-50%);
+}
+
+.orion-cheek {
+  position: absolute;
+  top: 92px;
+  width: 18px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 120, 150, 0.13);
+  filter: blur(1px);
+}
+
+.cheek-left { left: 24px; }
+.cheek-right { right: 24px; }
+
+.premium-visuals-ready .orion-mouth {
+  top: 108px;
+  width: 30px;
+  border-bottom-color: rgba(22, 51, 84, 0.82);
+}
+
+.orion-avatar[data-state="speaking"] .orion-mouth,
+.orion-avatar[data-voice-state="responding"] .orion-mouth {
+  animation: premium-lip-sync 0.34s ease-in-out infinite;
+}
+
+.orion-avatar[data-state="thinking"] .orion-eye,
+.orion-avatar[data-reasoning-state="thinking"] .orion-eye {
+  --orion-eye-color: #4da3ff;
+}
+
+.orion-avatar[data-state="listening"] .orion-eye,
+.orion-avatar[data-voice-state="listening"] .orion-eye {
+  --orion-eye-color: #50f6ff;
+}
+
+.orion-avatar[data-state="speaking"] .orion-eye,
+.orion-avatar[data-voice-state="responding"] .orion-eye {
+  --orion-eye-color: #b58cff;
+}
+
+.orion-avatar[data-voice-state="searching"] .orion-eye,
+.orion-avatar[data-reasoning-state="searching"] .orion-eye {
+  --orion-eye-color: #ff5f72;
+}
+
+.orion-avatar[data-reasoning-state="files"] .orion-eye {
+  --orion-eye-color: #6effb8;
+}
+
+.orion-avatar[data-reasoning-state="learning"] .orion-eye {
+  --orion-eye-color: #ffd166;
+}
+
+.orion-avatar[data-outfit="hacker"] .orion-body,
+.orion-avatar[data-outfit="cyber"] .orion-body {
+  background:
+    linear-gradient(135deg, rgba(80, 246, 255, 0.22), transparent 28%),
+    linear-gradient(225deg, rgba(181, 140, 255, 0.18), transparent 32%),
+    linear-gradient(180deg, #09101d, #030813 60%, #0a243d);
+}
+
+.orion-avatar[data-outfit="executive"] .orion-body {
+  background:
+    linear-gradient(90deg, transparent 0 43%, rgba(240, 248, 255, 0.78) 44% 46%, transparent 47%),
+    linear-gradient(180deg, #111827, #050814 62%, #081322);
+}
+
+.premium-visuals-ready .brain-vault {
+  min-height: min(72vh, 720px);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% 44%, color-mix(in srgb, var(--brain-state-color) 18%, transparent), transparent 34%),
+    radial-gradient(circle at 18% 26%, rgba(181, 140, 255, 0.12), transparent 24%),
+    radial-gradient(circle at 78% 70%, rgba(110, 255, 184, 0.08), transparent 26%),
+    rgba(1, 4, 12, 0.78);
+}
+
+.premium-visuals-ready .brain-shell {
+  width: min(340px, 72vw);
+  filter: drop-shadow(0 0 32px color-mix(in srgb, var(--brain-state-color) 38%, transparent));
+}
+
+.premium-visuals-ready .brain-lobe {
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.82), transparent 8%),
+    repeating-radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--brain-state-color) 44%, transparent) 0 2px, transparent 3px 12px),
+    linear-gradient(135deg, color-mix(in srgb, var(--brain-state-color) 44%, transparent), rgba(17, 83, 177, 0.22));
+}
+
+.premium-visuals-ready .brain-vault-panel {
+  right: clamp(12px, 4vw, 38px);
+  bottom: clamp(12px, 4vw, 38px);
+  border-radius: 22px;
+  background: rgba(4, 10, 22, 0.64);
+}
+
+.premium-visuals-ready .chat-console {
+  width: min(820px, 96vw);
+}
+
+.premium-visuals-ready .chat-log {
+  max-height: min(30vh, 300px);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(8, 20, 38, 0.72), rgba(3, 9, 19, 0.62)),
+    rgba(3, 10, 22, 0.54);
+}
+
+.premium-visuals-ready .chat-message {
+  border-radius: 18px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.premium-visuals-ready .chat-form {
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(102, 231, 255, 0.1), transparent 42%),
+    rgba(5, 16, 31, 0.86);
+}
+
+.premium-visuals-ready .orion-title {
+  margin-top: -4px;
+  letter-spacing: 0;
+  text-shadow: 0 0 28px color-mix(in srgb, var(--premium-state-color) 34%, transparent);
+}
+
+@keyframes premium-floor-glow {
+  0%, 100% { opacity: 0.5; transform: scaleX(0.94); }
+  50% { opacity: 0.9; transform: scaleX(1.04); }
+}
+
+@keyframes premium-neural-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes premium-hair-sway {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 1px -2px; }
+}
+
+@keyframes premium-lip-sync {
+  0%, 100% { height: 7px; border-bottom-width: 3px; border-radius: 0 0 999px 999px; }
+  50% { height: 14px; border-bottom-width: 7px; border-radius: 0 0 60% 60%; }
+}
+
+@media (max-width: 760px) {
+  .premium-visuals-ready .orion-stage {
+    grid-template-rows: auto auto auto minmax(300px, auto) auto;
+    gap: 10px;
+    padding-inline: 10px;
+  }
+
+  .premium-visuals-ready .orion-avatar {
+    width: min(310px, 76vw);
+  }
+
+  .premium-visuals-ready .living-room {
+    inset: 86px 8px auto;
+    height: 46vh;
+  }
+
+  .quick-actions-panel:not([open]) {
+    margin-block: -2px;
+  }
+
+  .premium-visuals-ready .chat-log {
+    max-height: 26vh;
+    padding: 10px;
+  }
+
+  .premium-visuals-ready .chat-form {
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    border-radius: 24px;
+  }
+
+  .premium-visuals-ready .send-action {
+    grid-column: 1 / -1;
+    min-height: 42px;
+  }
+}
+
+html[data-visual-mode="performance"] .orion-neural-backdrop,
+html[data-visual-mode="performance"] .living-room::after,
+html[data-visual-mode="performance"] .orion-finger {
+  display: none;
+}
+
+html[data-visual-mode="ultra"] .orion-neural-backdrop {
+  opacity: 0.44;
+}
+
+html[data-visual-mode="ultra"].premium-visuals-ready .brain-vault,
+html[data-visual-mode="ultra"].premium-visuals-ready .orion-avatar {
+  filter: drop-shadow(0 0 36px color-mix(in srgb, var(--premium-state-color) 30%, transparent));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orion-neural-backdrop,
+  .hair-4,
+  .premium-visuals-ready .orion-hair,
+  .premium-visuals-ready .living-room::after {
+    animation: none !important;
+  }
+}

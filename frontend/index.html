@@ -64,6 +64,10 @@
             <span class="sidebar-mark">C</span>
             <span>Chat</span>
           </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="avatar">
+            <span class="sidebar-mark">A</span>
+            <span>Avatar</span>
+          </button>
           <button class="sidebar-link" type="button" data-sidebar-action="brain">
             <span class="sidebar-mark">B</span>
             <span>Cerebro</span>
@@ -71,6 +75,14 @@
           <button class="sidebar-link" type="button" data-sidebar-action="files">
             <span class="sidebar-mark">F</span>
             <span>Arquivos</span>
+          </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="images">
+            <span class="sidebar-mark">I</span>
+            <span>Imagens</span>
+          </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="pdfs">
+            <span class="sidebar-mark">P</span>
+            <span>PDFs</span>
           </button>
           <a class="sidebar-link" href="/game.html">
             <span class="sidebar-mark">G</span>
@@ -84,13 +96,25 @@
             <span class="sidebar-mark">V</span>
             <span>Voz</span>
           </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="web-search">
+            <span class="sidebar-mark">W</span>
+            <span>Pesquisa Web</span>
+          </button>
           <button class="sidebar-link" type="button" data-sidebar-action="automation">
             <span class="sidebar-mark">A</span>
             <span>Automacoes</span>
           </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="notifications">
+            <span class="sidebar-mark">N</span>
+            <span>Notificacoes</span>
+          </button>
           <button class="sidebar-link" type="button" data-sidebar-action="settings">
             <span class="sidebar-mark">S</span>
             <span>Configuracoes</span>
+          </button>
+          <button class="sidebar-link" type="button" data-sidebar-action="about">
+            <span class="sidebar-mark">?</span>
+            <span>Sobre</span>
           </button>
           <button class="sidebar-link sidebar-link--install" id="sidebar-install-button" type="button" hidden>
             <span class="sidebar-mark">P</span>
@@ -105,10 +129,21 @@
 
       <section class="orion-stage" id="workspace" tabindex="-1" aria-labelledby="orion-title">
         <div class="orion-status-row" aria-label="Estado do sistema">
-          <span class="status-pill" id="orion-state-indicator" data-state="online">online</span>
-          <span class="status-pill status-pill--muted">API <strong id="api-status">verificando</strong></span>
-          <span class="status-pill status-pill--muted">WS <strong id="ws-status">desconectado</strong></span>
-          <span class="status-pill status-pill--muted">PWA <strong id="pwa-status">preparando</strong></span>
+          <button
+            class="status-pill status-pill--primary"
+            id="orion-state-indicator"
+            type="button"
+            data-state="online"
+            aria-controls="system-status-panel"
+            aria-expanded="false"
+          >
+            Orion Online
+          </button>
+          <div class="system-status-panel" id="system-status-panel" hidden>
+            <span class="status-pill status-pill--muted">API <strong id="api-status">verificando</strong></span>
+            <span class="status-pill status-pill--muted">WS <strong id="ws-status">desconectado</strong></span>
+            <span class="status-pill status-pill--muted">PWA <strong id="pwa-status">preparando</strong></span>
+          </div>
           <span class="sr-only" id="backend-detail">-</span>
           <span class="sr-only" id="database-detail">-</span>
           <span class="sr-only" id="cache-detail">-</span>
@@ -120,50 +155,56 @@
           Estou online, Mestre. Pode falar comigo.
         </div>
 
-        <div class="orion-control-deck" id="orion-control-deck" aria-label="Controles do Orion">
-          <button class="control-chip" id="brain-mode-button" type="button">Avatar &lt;-&gt; Cerebro</button>
-          <button class="control-chip" id="avatar-studio-button" type="button">Avatar Studio</button>
-          <button class="control-chip" id="files-panel-button" type="button">Arquivos</button>
-          <button class="control-chip" id="automation-panel-button" type="button">Automacoes</button>
-          <label class="control-field" for="wardrobe-select">
-            <span>Roupa</span>
-            <select id="wardrobe-select">
-              <option value="original">Original Orion</option>
-              <option value="casual">Casual</option>
-              <option value="formal">Formal</option>
-              <option value="future">Futurista</option>
-              <option value="teacher">Professor</option>
-              <option value="adventurer">Aventureiro</option>
-              <option value="lord-dragons">Lord Dragons</option>
-              <option value="tech">Tecnologico</option>
-              <option value="elegant">Elegante</option>
-              <option value="armor">Armadura azul</option>
-              <option value="training">Treino</option>
-              <option value="game">Modo jogo</option>
-            </select>
-          </label>
-          <label class="control-field" for="voice-mode-select">
-            <span>Voz</span>
-            <select id="voice-mode-select">
-              <option value="conversation">Conversa</option>
-              <option value="assistant">Assistente</option>
-              <option value="teacher">Professor</option>
-              <option value="consultant">Consultor</option>
-              <option value="calm">Calma</option>
-              <option value="animated">Animada</option>
-              <option value="grandma">Modo avo</option>
-              <option value="narrator">Narrador</option>
-            </select>
-          </label>
-          <label class="control-field" for="visual-mode-select">
-            <span>Visual</span>
-            <select id="visual-mode-select">
-              <option value="performance">Performance</option>
-              <option value="balanced">Equilibrado</option>
-              <option value="ultra">Ultra Visual</option>
-            </select>
-          </label>
-        </div>
+        <details class="quick-actions-panel" id="quick-actions-panel">
+          <summary>Ajustes rapidos</summary>
+          <div class="orion-control-deck" id="orion-control-deck" aria-label="Controles do Orion">
+            <button class="control-chip" id="brain-mode-button" type="button">Avatar &lt;-&gt; Cerebro</button>
+            <button class="control-chip" id="avatar-studio-button" type="button">Avatar Studio</button>
+            <button class="control-chip" id="files-panel-button" type="button">Arquivos</button>
+            <button class="control-chip" id="automation-panel-button" type="button">Automacoes</button>
+            <label class="control-field" for="wardrobe-select">
+              <span>Roupa</span>
+              <select id="wardrobe-select">
+                <option value="original">Original Orion</option>
+                <option value="casual">Casual</option>
+                <option value="formal">Formal</option>
+                <option value="future">Futurista</option>
+                <option value="teacher">Professor</option>
+                <option value="hacker">Hacker</option>
+                <option value="executive">Executivo</option>
+                <option value="cyber">Cyber</option>
+                <option value="adventurer">Aventureiro</option>
+                <option value="lord-dragons">Lord Dragons</option>
+                <option value="tech">Tecnologico</option>
+                <option value="elegant">Elegante</option>
+                <option value="armor">Armadura azul</option>
+                <option value="training">Treino</option>
+                <option value="game">Modo jogo</option>
+              </select>
+            </label>
+            <label class="control-field" for="voice-mode-select">
+              <span>Voz</span>
+              <select id="voice-mode-select">
+                <option value="conversation">Conversa</option>
+                <option value="assistant">Assistente</option>
+                <option value="teacher">Professor</option>
+                <option value="consultant">Consultor</option>
+                <option value="calm">Calma</option>
+                <option value="animated">Animada</option>
+                <option value="grandma">Modo avo</option>
+                <option value="narrator">Narrador</option>
+              </select>
+            </label>
+            <label class="control-field" for="visual-mode-select">
+              <span>Visual</span>
+              <select id="visual-mode-select">
+                <option value="performance">Performance</option>
+                <option value="balanced">Equilibrado</option>
+                <option value="ultra">Ultra Visual</option>
+              </select>
+            </label>
+          </div>
+        </details>
 
         <section class="avatar-studio-panel" id="avatar-studio-panel" aria-label="Avatar Studio do Orion" hidden>
           <div class="avatar-studio-header">
@@ -190,6 +231,9 @@
                   <option value="formal">Formal</option>
                   <option value="future">Futurista</option>
                   <option value="teacher">Professor</option>
+                  <option value="hacker">Hacker</option>
+                  <option value="executive">Executivo</option>
+                  <option value="cyber">Cyber</option>
                   <option value="adventurer">Aventureiro</option>
                   <option value="lord-dragons">Lord Dragons</option>
                   <option value="tech">Tecnologico</option>
@@ -286,28 +330,48 @@
 
         <button class="orion-avatar" id="orion-avatar" type="button" aria-label="Interagir com Orion">
           <span class="orion-aura"></span>
+          <span class="orion-neural-backdrop"></span>
           <span class="orion-shadow"></span>
           <span class="orion-body">
             <span class="orion-shoulder shoulder-left"></span>
             <span class="orion-shoulder shoulder-right"></span>
-            <span class="orion-arm arm-left"><span class="orion-hand"></span></span>
-            <span class="orion-arm arm-right"><span class="orion-hand"></span></span>
+            <span class="orion-arm arm-left">
+              <span class="orion-hand">
+                <span class="orion-finger finger-a"></span>
+                <span class="orion-finger finger-b"></span>
+                <span class="orion-finger finger-c"></span>
+              </span>
+            </span>
+            <span class="orion-arm arm-right">
+              <span class="orion-hand">
+                <span class="orion-finger finger-a"></span>
+                <span class="orion-finger finger-b"></span>
+                <span class="orion-finger finger-c"></span>
+              </span>
+            </span>
             <span class="orion-coat"></span>
+            <span class="orion-hood"></span>
+            <span class="orion-zipper"></span>
             <span class="orion-suit-detail detail-left"></span>
             <span class="orion-suit-detail detail-right"></span>
             <span class="orion-core"></span>
             <span class="orion-waist"></span>
-            <span class="orion-leg leg-left"><span class="orion-boot"></span></span>
-            <span class="orion-leg leg-right"><span class="orion-boot"></span></span>
+            <span class="orion-leg leg-left"><span class="orion-knee"></span><span class="orion-boot"></span></span>
+            <span class="orion-leg leg-right"><span class="orion-knee"></span><span class="orion-boot"></span></span>
             <span class="orion-neck"></span>
             <span class="orion-head">
+              <span class="orion-face-glow"></span>
               <span class="orion-hair hair-1"></span>
               <span class="orion-hair hair-2"></span>
               <span class="orion-hair hair-3"></span>
+              <span class="orion-hair hair-4"></span>
               <span class="orion-brow brow-left"></span>
               <span class="orion-brow brow-right"></span>
-              <span class="orion-eye eye-left"></span>
-              <span class="orion-eye eye-right"></span>
+              <span class="orion-eye eye-left"><span class="orion-iris"></span></span>
+              <span class="orion-eye eye-right"><span class="orion-iris"></span></span>
+              <span class="orion-nose"></span>
+              <span class="orion-cheek cheek-left"></span>
+              <span class="orion-cheek cheek-right"></span>
               <span class="orion-mouth"></span>
             </span>
           </span>

@@ -78,6 +78,27 @@ espaco. A navegacao lateral centraliza Chat, Cerebro, Arquivos, Lord Dragons,
 Memoria, Voz, Configuracoes e Instalacao PWA. No mobile, o menu abre por um botao
 compacto e fecha apos a escolha do modulo.
 
+## Visual Premium, Avatar e Cerebro Cosmico
+
+A camada visual premium reorganiza a tela principal para mostrar status resumido,
+avatar/cerebro, chat e entrada de mensagem, mantendo detalhes tecnicos em painel
+oculto. O Orion usa GSAP quando disponivel, Web Animations como fallback e
+Three.js/canvas para o Cerebro Cosmico.
+
+O avatar preserva a identidade do projeto e adiciona corpo inteiro mais detalhado,
+olhos holograficos, lip sync simples, aura neural, novas roupas e Avatar Studio.
+O Cerebro Cosmico representa memorias, documentos, projetos, arquivos e Lord
+Dragons como grafo neural animado.
+
+Modos visuais:
+
+- `Performance`: reduz efeitos para celular e dispositivos fracos.
+- `Equilibrado`: visual premium com boa fluidez.
+- `Ultra Visual`: efeitos mais fortes para PC.
+
+Consulte `docs/VISUAL_SYSTEM.md`, `docs/AVATAR_SYSTEM.md`,
+`docs/COSMIC_BRAIN.md` e `docs/PERFORMANCE_VISUAL.md`.
+
 ## Modo Cerebro 3D
 
 O Modo Cerebro da PWA possui um nucleo neural premium com Three.js, particulas,

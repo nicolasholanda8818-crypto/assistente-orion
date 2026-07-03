@@ -9,6 +9,11 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Adiciona reboot visual premium do Orion
+  - PWA ganha camada premium com GSAP opcional, fallback Web Animations, status tecnico oculto e ajustes rapidos recolhidos.
+  - Avatar recebe corpo inteiro mais detalhado, olhos holograficos, lip sync simples, aura neural e novas roupas Hacker, Executivo e Cyber.
+  - Cerebro Cosmico alinha cores por estado, grafo neural e modos Performance, Equilibrado e Ultra Visual.
+  - Cache PWA sobe para v40 e novas docs cobrem visual, avatar, cerebro, performance, estabilidade e escala.
 - Aprimora raciocinio contextual e respostas naturais do Orion.
   - Nova camada orion_context classifica estilo, profundidade, foco e tom da conversa.
   - Perguntas inteligentes agora cobrem pedidos vagos como melhorar o Orion, me ajuda e estudos sem materia.

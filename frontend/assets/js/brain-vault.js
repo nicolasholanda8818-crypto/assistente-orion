@@ -20,12 +20,16 @@ const MEMORY_CATEGORIES = [
 ];
 
 const BRAIN_STATES = {
-  idle: { color: 0x62e8ff, accent: 0x7cffbd, speed: 0.45, particleSpeed: 0.4, bloom: 0.32 },
-  thinking: { color: 0xffd166, accent: 0x62e8ff, speed: 0.82, particleSpeed: 0.82, bloom: 0.46 },
-  learning: { color: 0x7cffbd, accent: 0xffffff, speed: 1.05, particleSpeed: 1.1, bloom: 0.58 },
-  searching: { color: 0x9b8cff, accent: 0x62e8ff, speed: 1.15, particleSpeed: 1.2, bloom: 0.55 },
-  remembering: { color: 0x80a8ff, accent: 0xffd166, speed: 0.7, particleSpeed: 0.72, bloom: 0.48 },
-  files: { color: 0xff7a90, accent: 0x80a8ff, speed: 0.9, particleSpeed: 0.9, bloom: 0.5 },
+  idle: { color: 0x62e8ff, accent: 0xb58cff, speed: 0.45, particleSpeed: 0.4, bloom: 0.32 },
+  listening: { color: 0x50f6ff, accent: 0xffffff, speed: 0.62, particleSpeed: 0.58, bloom: 0.42 },
+  thinking: { color: 0x4da3ff, accent: 0x62e8ff, speed: 0.82, particleSpeed: 0.82, bloom: 0.46 },
+  responding: { color: 0xb58cff, accent: 0xffffff, speed: 0.74, particleSpeed: 0.76, bloom: 0.44 },
+  learning: { color: 0xffd166, accent: 0xffffff, speed: 1.05, particleSpeed: 1.1, bloom: 0.58 },
+  searching: { color: 0xff5f72, accent: 0x62e8ff, speed: 1.15, particleSpeed: 1.2, bloom: 0.55 },
+  remembering: { color: 0xb58cff, accent: 0xffd166, speed: 0.7, particleSpeed: 0.72, bloom: 0.48 },
+  files: { color: 0x6effb8, accent: 0x80a8ff, speed: 0.9, particleSpeed: 0.9, bloom: 0.5 },
+  ready: { color: 0xf4ffff, accent: 0x62e8ff, speed: 0.5, particleSpeed: 0.5, bloom: 0.38 },
+  alert: { color: 0xff9f43, accent: 0xff5f72, speed: 0.95, particleSpeed: 0.94, bloom: 0.5 },
 };
 
 export function createBrainVault({ container, getVisualMode } = {}) {

@@ -1,0 +1,13 @@
+{
+  "id": "20260702-adiciona-reboot-visual-premium-do-orion",
+  "type": "added",
+  "summary": "Adiciona reboot visual premium do Orion",
+  "details": [
+    "PWA ganha camada premium com GSAP opcional, fallback Web Animations, status tecnico oculto e ajustes rapidos recolhidos.",
+    "Avatar recebe corpo inteiro mais detalhado, olhos holograficos, lip sync simples, aura neural e novas roupas Hacker, Executivo e Cyber.",
+    "Cerebro Cosmico alinha cores por estado, grafo neural e modos Performance, Equilibrado e Ultra Visual.",
+    "Cache PWA sobe para v40 e novas docs cobrem visual, avatar, cerebro, performance, estabilidade e escala."
+  ],
+  "date": "2026-07-02",
+  "version": null
+}

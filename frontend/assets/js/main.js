@@ -16,6 +16,7 @@ import {
 } from "./api.js";
 import { setupDesignSystem } from "./design-system.js";
 import { setupOnboarding } from "./onboarding.js";
+import { createPremiumVisualSystem } from "./premium-visuals.js?v=40";
 import { registerPwa, setupInstallPrompt } from "./pwa.js";
 import { startScene } from "./scene.js";
 import { createOrionSocket } from "./socket.js";
@@ -91,6 +92,9 @@ const WARDROBE_LINES = {
   casual: "Essa roupa casual ficou boa em mim.",
   formal: "Visual formal ativado. Agora eu pareco pronto para uma reuniao intergalactica.",
   teacher: "Jaleco tecnologico ativado. Agora eu pareco ainda mais professor.",
+  hacker: "Modo hacker ativado. Prometo usar esse casaco apenas para coisas autorizadas.",
+  executive: "Visual executivo calibrado. Presenca premium, postura de reuniao e brilho discreto.",
+  cyber: "Visual cyber ligado. Linhas de energia prontas sem perder a identidade Orion.",
   elegant: "Visual elegante aprovado. Estou tentando nao parecer convencido.",
   future: "Modo futurista ligado. Essa energia combina comigo.",
   armor: "Armadura azul pronta. Visual aprovado para dominar o sistema.",
@@ -164,6 +168,7 @@ const elements = {
   cacheDetail: document.querySelector("#cache-detail"),
   appMode: document.querySelector("#app-mode"),
   settingsButton: document.querySelector("#settings-button"),
+  systemStatusPanel: document.querySelector("#system-status-panel"),
   installButton: document.querySelector("#install-button"),
   sidebarInstallButton: document.querySelector("#sidebar-install-button"),
   app: document.querySelector("#app"),
@@ -255,6 +260,7 @@ let conversationId = `site-${userId.slice(-10)}-${Date.now().toString(36)}`;
 let livingAvatar;
 let brainVault;
 let voiceEngine;
+let premiumVisuals;
 let speechRecognition;
 let voiceInputActive = false;
 let voiceReplyEnabled = false;
@@ -284,6 +290,11 @@ export function initOrionVisual() {
     container: elements.brainVaultViewport,
     getVisualMode: () => document.documentElement.dataset.visualMode || "performance",
   });
+  premiumVisuals = createPremiumVisualSystem({
+    elements,
+    getVisualMode: () => document.documentElement.dataset.visualMode || "performance",
+  });
+  premiumVisuals.start();
   voiceEngine = createOrionVoiceEngine({ getMode: () => voiceMode });
   loadVisualPreferences();
   bindOrionControls();
@@ -333,6 +344,7 @@ export function setOrionState(state) {
   elements.orionAvatar.dataset.state = state;
   elements.orionStateIndicator.dataset.state = state;
   elements.orionStateIndicator.textContent = stateLabel(state);
+  premiumVisuals?.setState(state);
 }
 
 export function showOrionBubble(text) {
@@ -361,6 +373,7 @@ export function bindOrionControls() {
   elements.bodyModeButton?.addEventListener("click", exitBrainMode);
   elements.avatarStudioButton?.addEventListener("click", openAvatarStudio);
   elements.automationPanelButton?.addEventListener("click", openAutomationPanel);
+  elements.orionStateIndicator?.addEventListener("click", toggleSystemStatusPanel);
   elements.wardrobeSelect?.addEventListener("change", () => {
     applyWardrobe(elements.wardrobeSelect.value, { react: true });
   });
@@ -370,6 +383,15 @@ export function bindOrionControls() {
   elements.visualModeSelect?.addEventListener("change", () => {
     applyVisualMode(elements.visualModeSelect.value, { react: true });
   });
+}
+
+function toggleSystemStatusPanel() {
+  if (!elements.systemStatusPanel || !elements.orionStateIndicator) {
+    return;
+  }
+  const shouldOpen = elements.systemStatusPanel.hidden;
+  elements.systemStatusPanel.hidden = !shouldOpen;
+  elements.orionStateIndicator.setAttribute("aria-expanded", String(shouldOpen));
 }
 
 export function bindAvatarStudioControls() {
@@ -470,18 +492,34 @@ function handleSidebarAction(action) {
     showOrionBubble("Modo assistente pronto. O chat esta limpo para continuar.");
   } else if (action === "brain") {
     enterBrainMode();
+  } else if (action === "avatar") {
+    openAvatarStudio();
   } else if (action === "files") {
     openFileVisionPanel();
+  } else if (action === "images") {
+    openFileVisionPanel({ startCamera: true });
+  } else if (action === "pdfs") {
+    openFileVisionPanel();
+    showOrionBubble("Abra Meus Arquivos e envie seu PDF. Posso resumir, explicar ou transformar em material.");
   } else if (action === "memory") {
     enterBrainMode();
     setBrainVaultState("remembering", "Usuarios");
     showOrionBubble("Abrindo meu mapa de memoria local.");
   } else if (action === "voice") {
     toggleVoiceCallMode();
+  } else if (action === "web-search") {
+    showOrionBubble("Pesquisa web pronta. Peca informacoes atuais e eu peço confirmacao antes de buscar fontes.");
+    addChatMessage("orion", "Posso pesquisar na web com sua confirmacao e mostrar fontes resumidas.");
   } else if (action === "automation") {
     openAutomationPanel();
+  } else if (action === "notifications") {
+    openAutomationPanel();
+    showOrionBubble("Notificacoes inteligentes ficam no painel de Automacoes.");
   } else if (action === "settings") {
     elements.settingsButton?.click();
+  } else if (action === "about") {
+    showOrionBubble("Sou o Orion: assistente visual, PWA, voz, memoria, arquivos, web e automacoes seguras.");
+    addChatMessage("orion", "Sou o Orion. Continuo evoluindo como assistente vivo sem remover os modulos que ja funcionam.");
   }
 }
 
@@ -1641,6 +1679,7 @@ export function applyVisualMode(mode, options = {}) {
   const selected = ["performance", "balanced", "ultra"].includes(mode) ? mode : "performance";
   document.documentElement.dataset.visualMode = selected;
   document.documentElement.classList.toggle("low-power", selected === "performance");
+  premiumVisuals?.applyMode(selected);
   if (elements.visualModeSelect) {
     elements.visualModeSelect.value = selected;
   }
@@ -1675,6 +1714,7 @@ export function enterBrainMode() {
   brainVault?.setVisualMode(document.documentElement.dataset.visualMode || "performance");
   setBrainVaultState("thinking", "Conversas");
   brainVault?.start().then(() => brainVault?.pulseMemory("Conversas"));
+  premiumVisuals?.transitionToBrain();
   setOrionState("thinking");
   pulseOrionAura("#61d8ff");
   showOrionBubble("Entrando no meu nucleo cognitivo.");
@@ -1691,6 +1731,7 @@ export function exitBrainMode() {
   }
   setBrainVaultState("idle");
   brainVault?.stop();
+  premiumVisuals?.transitionToAvatar();
   setOrionState("online");
   showOrionBubble("Retornando ao modo avatar.");
   addChatMessage("orion", "Retornando ao modo avatar.");
@@ -1816,7 +1857,7 @@ function mapReasoningToBrainState(reasoningState) {
     thinking: "thinking",
     clarifying: "thinking",
     understanding: "remembering",
-    answering: "remembering",
+    answering: "responding",
     searching: "searching",
     learning: "learning",
     files: "files",
@@ -1848,9 +1889,13 @@ function brainStateLabel(state) {
   const labels = {
     idle: "nucleo ocioso",
     thinking: "pensando",
+    listening: "ouvindo",
     learning: "aprendendo",
     searching: "pesquisando",
     remembering: "lembrando",
+    responding: "respondendo",
+    ready: "resposta pronta",
+    alert: "alerta leve",
     files: "analisando arquivos",
   };
   return labels[state] || "nucleo ativo";
@@ -1910,6 +1955,7 @@ export function addChatMessage(role, text) {
   message.dataset.role = role;
   message.textContent = text;
   elements.eventFeed.append(message);
+  premiumVisuals?.animateMessage(message);
   trimVisibleMessages();
   elements.eventFeed.scrollTo({ top: elements.eventFeed.scrollHeight, behavior: "smooth" });
   elements.eventCount.textContent = `${visibleMessages} mensagens visÃ­veis`;
@@ -2524,7 +2570,7 @@ function bindChatEvents() {
 
 function stateLabel(state) {
   const labels = {
-    online: "online",
+    online: "Orion Online",
     typing: "ouvindo",
     ligando: "ligando",
     thinking: "pensando",
