@@ -47,6 +47,16 @@ A versao 2.0 aumenta a sensacao de nucleo cognitivo vivo:
 - estados por cor preservados;
 - WebGL continua opcional.
 
+## Plano 3D Supremo
+
+O Cerebro Cosmico continua sendo o centro neural visual do Orion. A nova camada
+de cenario em `scene.js` nao substitui `brain-vault.js`; ela complementa o mundo
+visual do avatar e compartilha os estados cognitivos por cor.
+
+O plano documentado em `docs/COSMIC_BRAIN_3D_PLAN.md` define como memorias,
+documentos, projetos, arquivos, conversas e Lord Dragons devem evoluir como nos
+e conexoes sem expor cadeia interna de pensamento ou dados sensiveis.
+
 ## Performance
 
 O motor seleciona automaticamente particulas e pos-processamento conforme modo visual:

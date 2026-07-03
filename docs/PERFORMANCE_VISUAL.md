@@ -36,6 +36,9 @@ Modo para computadores mais fortes.
 - GSAP e opcional em runtime: se falhar, Web Animations assume.
 - O modo Portfolio usa cards leves e reduz automaticamente a grade no mobile.
 - O Cerebro Cosmico mantem fallback Canvas quando Three.js ou pos-processamento falham.
+- O avatar 3D humanoide procedural so assume quando o runtime WebGL inicia com sucesso.
+- O cenario 3D usa contagem de particulas por modo visual e fallback Canvas.
+- O avatar HTML/CSS permanece carregado para reduzir risco em mobile, Render e PWA offline.
 
 ## Como Alternar
 

@@ -9,6 +9,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Adiciona Fase Visual Suprema do Orion
+  - Avatar ganha camada humanoide procedural em Three.js quando nao ha GLB/VRM ativo, preservando o avatar HTML/CSS como fallback.
+  - Cenario 3D leve passa a responder aos estados do Orion, modos visuais e interacoes do quarto com fallback Canvas.
+  - Cache PWA sobe para orion-pwa-v44-supreme-visual e novas docs registram pipeline de avatar, cenario 3D e plano do Cerebro Cosmico.
 - Adiciona Fase Visual 2.0 com Portfolio e cerebro premium
   - Cria modo Portfolio na PWA com sidebar, ajustes rapidos, comandos de chat e animacoes GSAP opcionais.
   - Reforca o Cerebro Cosmico com sulcos neurais, fragmentos holograficos e fallback Canvas preservado.

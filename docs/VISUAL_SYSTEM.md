@@ -29,6 +29,18 @@ A camada visual premium transforma a PWA do Orion em uma interface mais limpa, f
 - O cache PWA foi versionado para `orion-pwa-v43-visual-portfolio`.
 - O modo Portfolio funciona sem backend novo e sem alterar rotas existentes.
 
+## Fase Visual Suprema
+
+- `avatar-3d.js` agora possui uma ponte humanoide procedural em Three.js quando
+  nenhum GLB/VRM real esta habilitado.
+- `scene.js` virou um gerenciador de cenario 3D leve com plataforma holografica,
+  paineis reativos, particulas e fallback Canvas.
+- `main.js` sincroniza estados do Orion, modo visual e interacoes do quarto com
+  o avatar, o Cerebro Cosmico e o cenario.
+- O cache PWA foi versionado para `orion-pwa-v44-supreme-visual`.
+- O avatar HTML/CSS, WebSocket, chat, voz, memoria, arquivos, Portfolio e Lord
+  Dragons permanecem preservados.
+
 ## Estados Visuais
 
 - `online`: Orion Online.

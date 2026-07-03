@@ -97,3 +97,12 @@ Quando encontrados, eles recebem pulsos simples durante fala. Quando nao existem
 - `Ultra Visual`: pixel ratio maior quando o dispositivo suporta.
 
 Em mobile fraco ou `prefers-reduced-motion`, o runtime reduz automaticamente a carga visual.
+
+## Ponte Procedural Three.js
+
+Na Fase Visual Suprema, quando o manifesto GLB/VRM esta desabilitado ou nao
+aponta para um modelo valido, `avatar-3d.js` tenta criar um avatar humanoide
+procedural em Three.js. Essa ponte permite testar corpo inteiro, gestos, estados,
+roupas e lip sync leve antes de empacotar um modelo real.
+
+O avatar HTML/CSS continua sendo o fallback final e nao e removido.

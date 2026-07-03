@@ -95,7 +95,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v43-visual-portfolio";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v44-supreme-visual";' in service_worker
     assert "cache.addAll(APP_SHELL.map((path) => freshRequest(path)))" in service_worker
     assert 'event.data.type === "SKIP_WAITING"' in service_worker
     assert "self.clients.claim()" in service_worker
@@ -249,6 +249,8 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert ".orion-neural-backdrop" in stylesheet
     assert ".orion-avatar-3d-shell" in stylesheet
     assert ".orion-avatar-3d-canvas" in stylesheet
+    assert ".orion-avatar-procedural-canvas" in stylesheet
+    assert ".orion-scene-canvas" in stylesheet
     assert ".avatar-3d-ready" in stylesheet
     assert ".orion-iris" in stylesheet
     assert "premium-lip-sync" in stylesheet
@@ -257,6 +259,8 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "createBrainVault" in main
     assert "createAvatar3DSystem" in main
     assert "avatar3D" in main
+    assert "sceneManager" in main
+    assert "startScene(elements.scene" in main
     assert "createPremiumVisualSystem" in main
     assert "premiumVisuals" in main
     assert "premium-visuals.js" in main
@@ -267,6 +271,9 @@ def test_orion_visual_modes_and_search_contract_are_available():
     avatar_3d = read_frontend("assets/js/avatar-3d.js")
     assert "GLTFLoader" in avatar_3d
     assert "VRMLoaderPlugin" in avatar_3d
+    assert "createProceduralAvatarEngine" in avatar_3d
+    assert "buildProceduralRig" in avatar_3d
+    assert "procedural-three" in avatar_3d
     assert "orion:avatar3d:modelUrl" in avatar_3d
     assert "avatar-manifest.json" in avatar_3d
     assert "data-avatar-3d-fallback" in avatar_3d
@@ -301,3 +308,8 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "suggestWebResearchForFile" in main
     assert 'data-visual-mode="performance"' in stylesheet
     assert 'data-visual-mode="balanced"' in stylesheet
+    scene = read_frontend("assets/js/scene.js")
+    assert "createSceneManager" in scene
+    assert "buildPlatform" in scene
+    assert "buildPanels" in scene
+    assert "particleCountFor" in scene

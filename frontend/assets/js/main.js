@@ -14,12 +14,12 @@ import {
   uploadCameraPhoto,
   uploadOrionFile,
 } from "./api.js";
-import { createAvatar3DSystem } from "./avatar-3d.js?v=41";
+import { createAvatar3DSystem } from "./avatar-3d.js?v=44";
 import { setupDesignSystem } from "./design-system.js";
 import { setupOnboarding } from "./onboarding.js";
 import { createPremiumVisualSystem } from "./premium-visuals.js?v=43";
 import { registerPwa, setupInstallPrompt } from "./pwa.js";
-import { startScene } from "./scene.js";
+import { startScene } from "./scene.js?v=44";
 import { createOrionSocket } from "./socket.js";
 import { createLivingAvatar } from "./living-avatar.js?v=36";
 import { createBrainVault } from "./brain-vault.js?v=43";
@@ -280,6 +280,7 @@ let brainVault;
 let voiceEngine;
 let premiumVisuals;
 let avatar3D;
+let sceneManager;
 let speechRecognition;
 let voiceInputActive = false;
 let voiceReplyEnabled = false;
@@ -357,6 +358,11 @@ export function initOrionVisual() {
   document.querySelector('a[href="/game.html"]')?.addEventListener("click", () => {
     livingAvatar.reactToLordDragons();
   });
+  document.querySelectorAll("[data-room-object]").forEach((object) => {
+    object.addEventListener("click", () => {
+      sceneManager?.pulsePanel(object.dataset.roomObject || "panel");
+    });
+  });
   elements.brainVaultViewport?.addEventListener("orion:brain-node", (event) => {
     const label = event.detail?.label || "memoria";
     setBrainVaultState("remembering", label);
@@ -371,6 +377,7 @@ export function setOrionState(state) {
   elements.orionStateIndicator.textContent = stateLabel(state);
   premiumVisuals?.setState(state);
   avatar3D?.setState(state);
+  sceneManager?.setState(state);
 }
 
 export function showOrionBubble(text) {
@@ -1780,6 +1787,7 @@ export function applyVisualMode(mode, options = {}) {
     writeUserVisualPreferences({ visualMode: selected });
   }
   brainVault?.setVisualMode(selected);
+  sceneManager?.setVisualMode(selected);
   if (options.react) {
     const lines = {
       performance: "Modo Performance ativado. Ficarei leve e atento.",
@@ -2738,7 +2746,10 @@ async function boot() {
     status: document.querySelector("#onboarding-status"),
   });
   bindChatEvents();
-  startScene(elements.scene);
+  sceneManager = await startScene(elements.scene, {
+    getVisualMode: () => document.documentElement.dataset.visualMode || "performance",
+  });
+  sceneManager?.setState(elements.orionAvatar?.dataset.state || "online");
   connectWebSocket();
   await loadBackendStatus();
 

@@ -822,7 +822,8 @@ body {
 }
 
 .orion-ambient-3d canvas,
-.scene-fallback-canvas {
+.scene-fallback-canvas,
+.orion-scene-canvas {
   display: block;
   width: 100%;
   height: 100%;
@@ -3249,6 +3250,12 @@ html[data-visual-mode="ultra"] .chat-log {
   height: 100%;
 }
 
+.orion-avatar-procedural-canvas {
+  filter:
+    drop-shadow(0 22px 34px rgba(0, 0, 0, 0.28))
+    drop-shadow(0 0 26px color-mix(in srgb, var(--premium-state-color) 26%, transparent));
+}
+
 .avatar-3d-ready .orion-avatar[data-avatar-3d-fallback="standby"] > :not(.orion-avatar-3d-shell) {
   opacity: 0;
 }
@@ -3910,7 +3917,7 @@ html[data-visual-mode="ultra"] .chat-log {
     padding-inline: 10px;
   }
 
-  .premium-visuals-ready .orion-avatar {
+.premium-visuals-ready .orion-avatar {
     width: min(310px, 76vw);
   }
 
@@ -3965,6 +3972,25 @@ html[data-visual-mode="ultra"] .chat-log {
   .portfolio-timeline li {
     grid-template-columns: 1fr;
   }
+}
+
+.premium-visuals-ready .orion-ambient-3d {
+  position: absolute;
+  top: clamp(250px, 42vh, 420px);
+  left: 50%;
+  z-index: 1;
+  width: min(760px, 96vw);
+  height: min(30vh, 280px);
+  margin: 0;
+  opacity: 0.76;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+html[data-visual-mode="performance"].premium-visuals-ready .orion-ambient-3d {
+  width: min(520px, 92vw);
+  height: 150px;
+  opacity: 0.5;
 }
 
 html[data-visual-mode="performance"] .orion-neural-backdrop,

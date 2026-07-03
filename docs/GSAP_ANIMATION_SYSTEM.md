@@ -30,3 +30,5 @@ Se GSAP nao carregar, `document.documentElement.dataset.animationEngine` recebe 
 - transicao Avatar/Cerebro;
 - abertura de paineis;
 - cards e barras do Portfolio.
+- sincronizacao leve com estados do avatar 3D procedural e cenario 3D quando
+  esses runtimes estao ativos.

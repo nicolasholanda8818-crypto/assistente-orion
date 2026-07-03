@@ -70,3 +70,19 @@ O avatar procedural continua sendo o fallback principal. A camada premium adicio
 - postura de apresentacao no modo Portfolio.
 
 Esses efeitos sao interrompidos quando a aba fica oculta ou quando o usuario prefere movimento reduzido.
+
+## Fase Visual Suprema
+
+A fase suprema adiciona um avatar humanoide procedural em Three.js como ponte
+entre o avatar HTML/CSS e futuros modelos GLB/VRM reais. Essa ponte cria corpo
+inteiro, cabeca, cabelo, olhos, sobrancelhas, boca, torso, bracos, maos, pernas,
+botas e aura usando geometrias leves.
+
+Estados como `listening`, `thinking`, `speaking`, `searching`, `explaining`,
+`confident`, `tired` e `worried` alteram postura, gestos, aura e boca. As roupas
+continuam vindo do contrato visual existente por `data-outfit`.
+
+Se Three.js ou WebGL falharem, o avatar HTML/CSS segue ativo sem mudar a
+experiencia do chat, voz, PWA ou WebSocket.
+
+Consulte `docs/AVATAR_3D_PIPELINE.md`.

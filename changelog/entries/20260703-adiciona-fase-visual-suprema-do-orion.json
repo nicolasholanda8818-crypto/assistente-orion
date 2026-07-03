@@ -1,0 +1,12 @@
+{
+  "id": "20260703-adiciona-fase-visual-suprema-do-orion",
+  "type": "added",
+  "summary": "Adiciona Fase Visual Suprema do Orion",
+  "details": [
+    "Avatar ganha camada humanoide procedural em Three.js quando nao ha GLB/VRM ativo, preservando o avatar HTML/CSS como fallback.",
+    "Cenario 3D leve passa a responder aos estados do Orion, modos visuais e interacoes do quarto com fallback Canvas.",
+    "Cache PWA sobe para orion-pwa-v44-supreme-visual e novas docs registram pipeline de avatar, cenario 3D e plano do Cerebro Cosmico."
+  ],
+  "date": "2026-07-03",
+  "version": null
+}

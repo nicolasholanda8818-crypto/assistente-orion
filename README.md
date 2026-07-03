@@ -99,6 +99,13 @@ sidebar, pelos Ajustes rapidos ou pelo chat com comandos como `abrir portfolio`
 e apresenta o desenvolvedor, habilidades, tecnologias, evolucao do Orion e
 projetos em uma vitrine interativa.
 
+A Fase Visual Suprema adiciona uma ponte 3D local: quando nenhum GLB/VRM real
+esta habilitado, o Orion pode renderizar um avatar humanoide procedural em
+Three.js com corpo inteiro, gestos, estados emocionais, roupas e lip sync leve.
+O cenario principal tambem ganha uma camada WebGL/canvas estilo jogo, com
+plataforma holografica, paineis reativos e iluminacao por estado. O avatar
+HTML/CSS e o fallback Canvas continuam obrigatorios para Render, PWA e mobile.
+
 Modos visuais:
 
 - `Performance`: reduz efeitos para celular e dispositivos fracos.
@@ -107,8 +114,10 @@ Modos visuais:
 
 Consulte `docs/VISUAL_SYSTEM.md`, `docs/AVATAR_SYSTEM.md`,
 `docs/AVATAR_GLB_VRM.md`, `docs/AVATAR_GLB_VRM_PLAN.md`,
-`docs/COSMIC_BRAIN.md`, `docs/PERFORMANCE_VISUAL.md`,
-`docs/GSAP_ANIMATION_SYSTEM.md` e `docs/PORTFOLIO_MODE.md`.
+`docs/AVATAR_3D_PIPELINE.md`, `docs/COSMIC_BRAIN.md`,
+`docs/COSMIC_BRAIN_3D_PLAN.md`, `docs/SCENE_3D_SYSTEM.md`,
+`docs/PERFORMANCE_VISUAL.md`, `docs/GSAP_ANIMATION_SYSTEM.md` e
+`docs/PORTFOLIO_MODE.md`.
 
 ## Modo Cerebro 3D
 
