@@ -108,7 +108,9 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Cache PWA atualizado para `orion-pwa-v40-premium-visuals`.
 - [x] Fase Visual 2 adiciona runtime GLB/VRM com lazy loading, manifesto local, VRM opcional e fallback procedural obrigatorio.
 - [x] Avatar 3D real acompanha estados online, ouvindo, pensando, falando, pesquisando, arquivos e aprendizado quando o modelo esta disponivel.
-- [x] Cache PWA atualizado para `orion-pwa-v41-avatar-glb-vrm`.
+- [x] Cache PWA atualizado para `orion-pwa-v43-visual-portfolio`, com ativacao imediata do service worker e recarregamento controlado dos clientes.
+- [x] Fase Visual 2.0 adiciona `gsap-orion.js`, loops GSAP com fallback, Cerebro Cosmico com sulcos neurais e fragmentos holograficos.
+- [x] Modo Portfolio interativo adicionado na sidebar, nos Ajustes rapidos e por comando no chat, preservando avatar, PWA, WebSocket e Lord Dragons.
 
 ## Marcos Planejados
 

@@ -1,0 +1,11 @@
+{
+  "id": "20260702-fortalece-atualizacao-do-service-worker-do-orion",
+  "type": "changed",
+  "summary": "Fortalece atualizacao do service worker do Orion",
+  "details": [
+    "Atualiza o cache PWA para orion-pwa-v43-visual-portfolio e obriga instalacao fresca do app shell.",
+    "Ativa skipWaiting, clients.claim e recarregamento controlado dos clientes quando um novo service worker assume."
+  ],
+  "date": "2026-07-02",
+  "version": null
+}

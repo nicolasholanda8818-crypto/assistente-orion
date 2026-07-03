@@ -17,6 +17,7 @@ REQUIRED_FILES = [
     FRONTEND / "assets" / "css" / "accessibility.css",
     FRONTEND / "assets" / "js" / "api.js",
     FRONTEND / "assets" / "js" / "design-system.js",
+    FRONTEND / "assets" / "js" / "gsap-orion.js",
     FRONTEND / "assets" / "js" / "main.js",
     FRONTEND / "assets" / "js" / "onboarding.js",
     FRONTEND / "assets" / "js" / "pwa.js",

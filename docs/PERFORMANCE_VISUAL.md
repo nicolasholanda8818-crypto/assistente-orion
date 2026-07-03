@@ -34,6 +34,8 @@ Modo para computadores mais fortes.
 - O service worker usa cache versionado para evitar visual antigo.
 - A interface nao depende de assets externos obrigatorios para funcionar.
 - GSAP e opcional em runtime: se falhar, Web Animations assume.
+- O modo Portfolio usa cards leves e reduz automaticamente a grade no mobile.
+- O Cerebro Cosmico mantem fallback Canvas quando Three.js ou pos-processamento falham.
 
 ## Como Alternar
 

@@ -1,4 +1,4 @@
-const GSAP_URL = "https://esm.sh/gsap@3.15.0";
+import { GSAP_URL, animateWithOrionEngine, loadGsapEngine } from "./gsap-orion.js";
 
 const STATE_ACCENTS = {
   online: "#66e7ff",
@@ -20,6 +20,7 @@ export function createPremiumVisualSystem({ elements, getVisualMode } = {}) {
   let running = false;
   let reducedMotion = false;
   let cleanupVisibility;
+  let idleTweens = [];
 
   function visualMode() {
     return typeof getVisualMode === "function" ? getVisualMode() : document.documentElement.dataset.visualMode || "performance";
@@ -30,19 +31,16 @@ export function createPremiumVisualSystem({ elements, getVisualMode } = {}) {
   }
 
   async function loadGsap() {
-    if (gsapRef || loadPromise) {
+    if (gsapRef) {
       return gsapRef;
     }
-    loadPromise = import(GSAP_URL)
-      .then((module) => {
-        gsapRef = module.gsap || module.default?.gsap || module.default;
-        document.documentElement.dataset.animationEngine = gsapRef ? "gsap" : "web-animations";
-        return gsapRef;
-      })
-      .catch(() => {
-        document.documentElement.dataset.animationEngine = "web-animations";
-        return undefined;
-      });
+    if (loadPromise) {
+      return loadPromise;
+    }
+    loadPromise = loadGsapEngine().then((gsap) => {
+      gsapRef = gsap;
+      return gsapRef;
+    });
     return loadPromise;
   }
 
@@ -55,6 +53,7 @@ export function createPremiumVisualSystem({ elements, getVisualMode } = {}) {
     document.documentElement.classList.add("premium-visuals-ready");
     applyMode(visualMode());
     await loadGsap();
+    startIdleLoops();
     animateEntrance();
 
     if (!cleanupVisibility) {
@@ -71,6 +70,8 @@ export function createPremiumVisualSystem({ elements, getVisualMode } = {}) {
 
   function dispose() {
     running = false;
+    idleTweens.forEach((tween) => tween?.kill?.());
+    idleTweens = [];
     cleanupVisibility?.();
     cleanupVisibility = undefined;
   }
@@ -122,6 +123,22 @@ export function createPremiumVisualSystem({ elements, getVisualMode } = {}) {
     animate(message, { y: [12, 0], opacity: [0, 1], scale: [0.97, 1] }, { duration: 0.32 });
   }
 
+  function animatePanel(panel) {
+    if (!panel || document.hidden) {
+      return;
+    }
+    animate(panel, { y: [18, 0], opacity: [0, 1], scale: [0.98, 1] }, { duration: 0.44 });
+  }
+
+  function animatePortfolio(panel, options = {}) {
+    if (!panel || document.hidden) {
+      return;
+    }
+    animatePanel(panel);
+    animate(Array.from(options.cards || []), { y: [28, 0], opacity: [0, 1], scale: [0.96, 1] }, { duration: 0.48, stagger: 0.05 });
+    animate(Array.from(options.skills || []), { x: [-14, 0], opacity: [0, 1] }, { duration: 0.42, stagger: 0.04 });
+  }
+
   function transitionToBrain() {
     if (isPerformanceMode() || document.hidden) {
       return;
@@ -156,20 +173,33 @@ export function createPremiumVisualSystem({ elements, getVisualMode } = {}) {
     if (!targets.length) {
       return;
     }
-    const gsap = gsapRef || (await loadGsap());
-    if (gsap) {
-      targets.forEach((item) => {
-        gsap.fromTo(item, fromVars(vars), { ...toVars(vars), duration: options.duration || 0.4, ease: options.ease || "power2.out" });
-      });
+    await animateWithOrionEngine(targets, vars, options);
+  }
+
+  async function startIdleLoops() {
+    if (idleTweens.length || isPerformanceMode() || document.hidden) {
       return;
     }
-    targets.forEach((item) => {
-      item.animate(keyframesFrom(vars), {
-        duration: Math.round((options.duration || 0.4) * 1000),
-        easing: "cubic-bezier(.2,.8,.2,1)",
-        fill: "both",
-      });
-    });
+    const gsap = gsapRef || (await loadGsap());
+    if (!gsap) {
+      return;
+    }
+    const avatar = elements?.orionAvatar;
+    const head = avatar?.querySelector(".orion-head");
+    const shoulders = avatar ? Array.from(avatar.querySelectorAll(".orion-shoulder")) : [];
+    const aura = avatar?.querySelector(".orion-aura");
+    if (avatar) {
+      idleTweens.push(gsap.to(avatar, { y: -5, rotate: -0.45, duration: 3.8, yoyo: true, repeat: -1, ease: "sine.inOut" }));
+    }
+    if (head) {
+      idleTweens.push(gsap.to(head, { y: -2, rotate: 1.1, duration: 4.6, yoyo: true, repeat: -1, ease: "sine.inOut" }));
+    }
+    if (shoulders.length) {
+      idleTweens.push(gsap.to(shoulders, { y: 2, duration: 3.2, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: 0.08 }));
+    }
+    if (aura) {
+      idleTweens.push(gsap.to(aura, { opacity: 0.96, scale: 1.025, duration: 2.8, yoyo: true, repeat: -1, ease: "sine.inOut" }));
+    }
   }
 
   return {
@@ -178,43 +208,9 @@ export function createPremiumVisualSystem({ elements, getVisualMode } = {}) {
     setState,
     applyMode,
     animateMessage,
+    animatePanel,
+    animatePortfolio,
     transitionToBrain,
     transitionToAvatar,
   };
-}
-
-function fromVars(vars) {
-  return Object.fromEntries(Object.entries(vars).map(([key, value]) => [key, Array.isArray(value) ? value[0] : value]));
-}
-
-function toVars(vars) {
-  return Object.fromEntries(Object.entries(vars).map(([key, value]) => [key, Array.isArray(value) ? value[value.length - 1] : value]));
-}
-
-function keyframesFrom(vars) {
-  const start = {};
-  const end = {};
-  const startTransform = [];
-  const endTransform = [];
-  Object.entries(vars).forEach(([key, value]) => {
-    const first = Array.isArray(value) ? value[0] : value;
-    const last = Array.isArray(value) ? value[value.length - 1] : value;
-    if (key === "y") {
-      startTransform.push(`translateY(${first}px)`);
-      endTransform.push(`translateY(${last}px)`);
-      return;
-    }
-    if (key === "scale") {
-      startTransform.push(`scale(${first})`);
-      endTransform.push(`scale(${last})`);
-      return;
-    }
-    start[key] = first;
-    end[key] = last;
-  });
-  if (startTransform.length) {
-    start.transform = startTransform.join(" ");
-    end.transform = endTransform.join(" ");
-  }
-  return [start, end];
 }

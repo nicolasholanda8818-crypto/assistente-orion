@@ -1,10 +1,63 @@
+function requestSkipWaiting(worker) {
+  if (worker) {
+    worker.postMessage({ type: "SKIP_WAITING" });
+  }
+}
+
+function bindServiceWorkerReload() {
+  if (window.__orionServiceWorkerReloadBound) {
+    return;
+  }
+
+  window.__orionServiceWorkerReloadBound = true;
+  let refreshing = false;
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (refreshing) {
+      return;
+    }
+
+    refreshing = true;
+    window.location.reload();
+  });
+}
+
+function bindImmediateServiceWorkerUpdate(registration) {
+  if (registration.waiting && navigator.serviceWorker.controller) {
+    requestSkipWaiting(registration.waiting);
+  }
+
+  registration.addEventListener("updatefound", () => {
+    const installingWorker = registration.installing;
+
+    if (!installingWorker) {
+      return;
+    }
+
+    installingWorker.addEventListener("statechange", () => {
+      if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
+        requestSkipWaiting(installingWorker);
+      }
+    });
+  });
+}
+
 export async function registerPwa() {
   if (!("serviceWorker" in navigator)) {
     return { ok: false, reason: "unsupported" };
   }
 
   try {
-    await navigator.serviceWorker.register("/service-worker.js");
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    const registration = await navigator.serviceWorker.register("/service-worker.js");
+
+    if (hadController) {
+      bindServiceWorkerReload();
+    }
+
+    bindImmediateServiceWorkerUpdate(registration);
+    await registration.update();
+
     return { ok: true };
   } catch (error) {
     return { ok: false, reason: error.message };

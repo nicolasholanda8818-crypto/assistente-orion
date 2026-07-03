@@ -17,12 +17,12 @@ import {
 import { createAvatar3DSystem } from "./avatar-3d.js?v=41";
 import { setupDesignSystem } from "./design-system.js";
 import { setupOnboarding } from "./onboarding.js";
-import { createPremiumVisualSystem } from "./premium-visuals.js?v=40";
+import { createPremiumVisualSystem } from "./premium-visuals.js?v=43";
 import { registerPwa, setupInstallPrompt } from "./pwa.js";
 import { startScene } from "./scene.js";
 import { createOrionSocket } from "./socket.js";
 import { createLivingAvatar } from "./living-avatar.js?v=36";
-import { createBrainVault } from "./brain-vault.js?v=36";
+import { createBrainVault } from "./brain-vault.js?v=43";
 import { createOrionVoiceEngine } from "./voice-engine.js?v=38";
 
 const MAX_VISIBLE_MESSAGES = 42;
@@ -87,6 +87,16 @@ const AUTOMATION_COMMAND_TERMS = [
   "rotina",
   "abrir programas",
   "notificacoes inteligentes",
+];
+const PORTFOLIO_COMMAND_TERMS = [
+  "abrir portfolio",
+  "mostrar portfolio",
+  "meu portfolio",
+  "apresente meu trabalho",
+  "mostrar meu trabalho",
+  "mostrar projetos",
+  "modo apresentacao",
+  "portfolio",
 ];
 const WARDROBE_LINES = {
   original: "Visual original carregado. Classico, luminoso e meu.",
@@ -197,6 +207,12 @@ const elements = {
   brainModeButton: document.querySelector("#brain-mode-button"),
   bodyModeButton: document.querySelector("#body-mode-button"),
   avatarStudioButton: document.querySelector("#avatar-studio-button"),
+  portfolioModeButton: document.querySelector("#portfolio-mode-button"),
+  portfolioPanel: document.querySelector("#portfolio-panel"),
+  portfolioCloseButton: document.querySelector("#portfolio-close-button"),
+  portfolioChatFocusButton: document.querySelector("#portfolio-chat-focus-button"),
+  portfolioCards: document.querySelectorAll("[data-portfolio-card]"),
+  portfolioSkills: document.querySelectorAll(".portfolio-skill"),
   automationPanelButton: document.querySelector("#automation-panel-button"),
   automationPanel: document.querySelector("#automation-panel"),
   automationPanelCloseButton: document.querySelector("#automation-panel-close-button"),
@@ -382,6 +398,13 @@ export function bindOrionControls() {
   elements.brainModeButton?.addEventListener("click", enterBrainMode);
   elements.bodyModeButton?.addEventListener("click", exitBrainMode);
   elements.avatarStudioButton?.addEventListener("click", openAvatarStudio);
+  elements.portfolioModeButton?.addEventListener("click", () => openPortfolioMode({ source: "quick-action" }));
+  elements.portfolioCloseButton?.addEventListener("click", closePortfolioMode);
+  elements.portfolioChatFocusButton?.addEventListener("click", () => {
+    closePortfolioMode({ keepMessage: true });
+    elements.messageInput?.focus();
+    showOrionBubble("Pode perguntar sobre arquitetura, tecnologias, roadmap ou resultados do Orion.");
+  });
   elements.automationPanelButton?.addEventListener("click", openAutomationPanel);
   elements.orionStateIndicator?.addEventListener("click", toggleSystemStatusPanel);
   elements.wardrobeSelect?.addEventListener("change", () => {
@@ -498,10 +521,15 @@ function handleSidebarAction(action) {
     if (!elements.fileVisionPanel?.hidden) {
       closeFileVisionPanel();
     }
+    if (!elements.portfolioPanel?.hidden) {
+      closePortfolioMode({ keepMessage: true });
+    }
     elements.messageInput?.focus();
     showOrionBubble("Modo assistente pronto. O chat esta limpo para continuar.");
   } else if (action === "brain") {
     enterBrainMode();
+  } else if (action === "portfolio") {
+    openPortfolioMode({ source: "sidebar" });
   } else if (action === "avatar") {
     openAvatarStudio();
   } else if (action === "files") {
@@ -530,6 +558,57 @@ function handleSidebarAction(action) {
   } else if (action === "about") {
     showOrionBubble("Sou o Orion: assistente visual, PWA, voz, memoria, arquivos, web e automacoes seguras.");
     addChatMessage("orion", "Sou o Orion. Continuo evoluindo como assistente vivo sem remover os modulos que ja funcionam.");
+  }
+}
+
+export function openPortfolioMode(options = {}) {
+  if (!elements.portfolioPanel) {
+    return false;
+  }
+  if (!elements.brainMode?.hidden) {
+    exitBrainMode();
+  }
+  if (!elements.fileVisionPanel?.hidden) {
+    closeFileVisionPanel();
+  }
+  if (!elements.automationPanel?.hidden) {
+    closeAutomationPanel({ silent: true });
+  }
+  if (elements.avatarStudioPanel) {
+    elements.avatarStudioPanel.hidden = true;
+  }
+
+  elements.portfolioPanel.hidden = false;
+  elements.workspace?.classList.add("is-portfolio-mode");
+  setSidebarActive("portfolio");
+  setBrainVaultState("learning", "Projetos");
+  setOrionState("speaking");
+  livingAvatar?.playReaction("teacher");
+  pulseOrionAura("#b58cff");
+  premiumVisuals?.animatePortfolio(elements.portfolioPanel, {
+    cards: elements.portfolioCards,
+    skills: elements.portfolioSkills,
+  });
+  elements.portfolioPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  const line = "Ativando modo apresentacao. Vou mostrar o que foi construido ate aqui.";
+  showOrionBubble(line);
+  if (options.source !== "command-silent") {
+    addChatMessage("orion", line);
+  }
+  return true;
+}
+
+export function closePortfolioMode(options = {}) {
+  if (!elements.portfolioPanel) {
+    return;
+  }
+  elements.portfolioPanel.hidden = true;
+  elements.workspace?.classList.remove("is-portfolio-mode");
+  setBrainVaultState("idle");
+  setOrionState("online");
+  if (!options.keepMessage) {
+    showOrionBubble("Portfolio em espera. Posso abrir novamente quando voce quiser.");
   }
 }
 
@@ -611,13 +690,15 @@ export async function openAutomationPanel() {
   setOrionState("online");
 }
 
-export function closeAutomationPanel() {
+export function closeAutomationPanel(options = {}) {
   if (elements.automationPanel) {
     elements.automationPanel.hidden = true;
   }
   setBrainVaultState("idle");
   setOrionState("online");
-  showOrionBubble("Automacoes em espera. Eu so executo algo sensivel com sua autorizacao.");
+  if (!options.silent) {
+    showOrionBubble("Automacoes em espera. Eu so executo algo sensivel com sua autorizacao.");
+  }
 }
 
 async function loadAutomationPanel() {
@@ -1749,6 +1830,21 @@ export function exitBrainMode() {
   addChatMessage("orion", "Retornando ao modo avatar.");
 }
 
+export function handlePortfolioCommand(text) {
+  const normalized = normalizeCommand(text);
+  const shouldOpen = PORTFOLIO_COMMAND_TERMS.some((term) => normalized.includes(term));
+  if (!shouldOpen) {
+    return false;
+  }
+
+  openPortfolioMode({ source: "command-silent" });
+  addChatMessage(
+    "orion",
+    "Eu sou o Orion. Posso apresentar a arquitetura, as tecnologias, a evolucao e os resultados deste projeto como uma vitrine interativa."
+  );
+  return true;
+}
+
 export async function handleOptionalWebSearch(text) {
   const request = extractWebSearchRequest(text);
   if (!request.query) {
@@ -2028,6 +2124,10 @@ export async function sendMessageToOrion(text) {
   livingAvatar.noteActivity();
 
   if (await handleLocalFileCommands(cleanText)) {
+    return;
+  }
+
+  if (handlePortfolioCommand(cleanText)) {
     return;
   }
 

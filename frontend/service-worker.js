@@ -1,4 +1,4 @@
-const CACHE_NAME = "orion-pwa-v41-avatar-glb-vrm";
+const CACHE_NAME = "orion-pwa-v43-visual-portfolio";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -15,6 +15,7 @@ const APP_SHELL = [
   "/assets/js/avatar-3d.js",
   "/assets/js/brain-vault.js",
   "/assets/js/design-system.js",
+  "/assets/js/gsap-orion.js",
   "/assets/js/main.js",
   "/assets/js/living-avatar.js",
   "/assets/js/onboarding.js",
@@ -37,24 +38,74 @@ const APP_SHELL = [
   "/assets/icons/orion-maskable.svg"
 ];
 
+function freshRequest(input) {
+  return new Request(input, { cache: "reload" });
+}
+
+function isAppShellPath(pathname) {
+  return (
+    APP_SHELL.includes(pathname) ||
+    pathname.startsWith("/assets/js/") ||
+    pathname.startsWith("/assets/css/") ||
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/assets/models/avatar-manifest.json"
+  );
+}
+
+async function putFreshResponse(request) {
+  const response = await fetch(freshRequest(request));
+
+  if (response && response.ok && request.method === "GET") {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, response.clone());
+  }
+
+  return response;
+}
+
+async function deleteOldCaches() {
+  const cacheNames = await caches.keys();
+  await Promise.all(cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name)));
+}
+
+async function notifyClients() {
+  const clients = await self.clients.matchAll({ includeUncontrolled: true, type: "window" });
+  clients.forEach((client) => {
+    client.postMessage({
+      type: "ORION_SW_ACTIVATED",
+      cacheName: CACHE_NAME
+    });
+  });
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL.map((path) => freshRequest(path))))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name)))
-    )
+    deleteOldCaches()
+      .then(() => self.clients.claim())
+      .then(() => notifyClients())
   );
-  self.clients.claim();
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("fetch", (event) => {
   const requestUrl = new URL(event.request.url);
+
+  if (requestUrl.origin !== self.location.origin) {
+    return;
+  }
 
   if (requestUrl.pathname.startsWith("/api/")) {
     event.respondWith(fetch(event.request));
@@ -63,25 +114,15 @@ self.addEventListener("fetch", (event) => {
 
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
-          return response;
-        })
+      putFreshResponse(event.request)
         .catch(() => caches.match("/offline.html"))
     );
     return;
   }
 
-  if (requestUrl.pathname.startsWith("/assets/js/") || requestUrl.pathname.startsWith("/assets/css/")) {
+  if (isAppShellPath(requestUrl.pathname)) {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
-          return response;
-        })
+      putFreshResponse(event.request)
         .catch(() => caches.match(event.request))
     );
     return;

@@ -38,6 +38,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'id="sidebar-toggle"' in index
     assert 'id="orion-sidebar"' in index
     assert 'data-sidebar-action="brain"' in index
+    assert 'data-sidebar-action="portfolio"' in index
     assert 'data-sidebar-action="files"' in index
     assert 'data-sidebar-action="voice"' in index
     assert 'aria-current="page"' in index
@@ -50,6 +51,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'id="mic-button"' in index
     assert 'id="camera-button"' in index
     assert 'id="brain-mode-button"' in index
+    assert 'id="portfolio-mode-button"' in index
     assert 'Avatar &lt;-&gt; Cerebro' in index
     assert 'id="avatar-studio-button"' in index
     assert 'id="avatar-studio-panel"' in index
@@ -77,6 +79,10 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'id="brain-mode"' in index
     assert 'id="brain-vault-viewport"' in index
     assert 'id="brain-state-label"' in index
+    assert 'id="portfolio-panel"' in index
+    assert 'id="portfolio-close-button"' in index
+    assert 'id="portfolio-chat-focus-button"' in index
+    assert "Portfolio Orion" in index
     assert "Documentos" in index
     assert "Aprendizado" in index
     assert 'id="web-search-panel"' in index
@@ -89,9 +95,14 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v41-avatar-glb-vrm";' in service_worker
-    assert 'requestUrl.pathname.startsWith("/assets/js/")' in service_worker
-    assert 'requestUrl.pathname.startsWith("/assets/css/")' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v43-visual-portfolio";' in service_worker
+    assert "cache.addAll(APP_SHELL.map((path) => freshRequest(path)))" in service_worker
+    assert 'event.data.type === "SKIP_WAITING"' in service_worker
+    assert "self.clients.claim()" in service_worker
+    assert "ORION_SW_ACTIVATED" in service_worker
+    assert 'new Request(input, { cache: "reload" })' in service_worker
+    assert 'pathname.startsWith("/assets/js/")' in service_worker
+    assert 'pathname.startsWith("/assets/css/")' in service_worker
     assert '"/assets/css/tokens.css"' in service_worker
     assert '"/assets/css/base.css"' in service_worker
     assert '"/assets/css/components.css"' in service_worker
@@ -99,6 +110,7 @@ def test_service_worker_caches_design_system_assets():
     assert '"/assets/js/avatar-3d.js"' in service_worker
     assert '"/assets/js/brain-vault.js"' in service_worker
     assert '"/assets/js/design-system.js"' in service_worker
+    assert '"/assets/js/gsap-orion.js"' in service_worker
     assert '"/assets/js/living-avatar.js"' in service_worker
     assert '"/assets/js/onboarding.js"' in service_worker
     assert '"/assets/js/premium-visuals.js"' in service_worker
@@ -145,6 +157,9 @@ def test_orion_visual_chat_controller_exposes_required_functions():
         "stopOrionSpeech",
         "bindSidebarControls",
         "toggleSidebar",
+        "openPortfolioMode",
+        "closePortfolioMode",
+        "handlePortfolioCommand",
         "startVoiceCallMode",
         "stopVoiceCallMode",
         "toggleVoiceCallMode",
@@ -215,6 +230,7 @@ def test_orion_visual_modes_and_search_contract_are_available():
         "applyVisualMode",
         "enterBrainMode",
         "exitBrainMode",
+        "openPortfolioMode",
         "handleOptionalWebSearch",
     ]:
         assert f"function {function_name}" in main
@@ -225,6 +241,9 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert ".avatar-studio-panel" in stylesheet
     assert ".avatar-studio-preview" in stylesheet
     assert ".premium-visuals-ready" in stylesheet
+    assert ".portfolio-panel" in stylesheet
+    assert ".portfolio-card" in stylesheet
+    assert ".portfolio-timeline" in stylesheet
     assert ".system-status-panel" in stylesheet
     assert ".quick-actions-panel" in stylesheet
     assert ".orion-neural-backdrop" in stylesheet
@@ -242,7 +261,9 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "premiumVisuals" in main
     assert "premium-visuals.js" in main
     assert "GSAP_URL" in read_frontend("assets/js/premium-visuals.js")
-    assert "web-animations" in read_frontend("assets/js/premium-visuals.js")
+    assert "loadGsapEngine" in read_frontend("assets/js/gsap-orion.js")
+    assert "animateWithOrionEngine" in read_frontend("assets/js/gsap-orion.js")
+    assert "web-animations" in read_frontend("assets/js/gsap-orion.js")
     avatar_3d = read_frontend("assets/js/avatar-3d.js")
     assert "GLTFLoader" in avatar_3d
     assert "VRMLoaderPlugin" in avatar_3d
@@ -254,6 +275,8 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "Aprendizado" in brain_vault
     assert "bloom" in brain_vault.lower()
     assert "selectedVisualMode" in brain_vault
+    assert "buildBrainSulci" in brain_vault
+    assert "premiumCodeShard" in brain_vault
     assert ".web-search-panel" in stylesheet
     assert ".file-vision-panel" in stylesheet
     assert ".orion-sidebar" in stylesheet

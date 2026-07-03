@@ -9,6 +9,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Adiciona Fase Visual 2.0 com Portfolio e cerebro premium
+  - Cria modo Portfolio na PWA com sidebar, ajustes rapidos, comandos de chat e animacoes GSAP opcionais.
+  - Reforca o Cerebro Cosmico com sulcos neurais, fragmentos holograficos e fallback Canvas preservado.
+  - Documenta GSAP, Portfolio e plano futuro GLB/VRM sem remover funcionalidades existentes.
 - Adiciona suporte progressivo a avatar GLB/VRM
   - Frontend ganha runtime avatar-3d.js com Three.js, GLTFLoader, VRM opcional e lazy loading por manifesto local.
   - Avatar procedural permanece como fallback obrigatorio e so entra em standby quando o modelo 3D carrega com sucesso.
@@ -105,6 +109,9 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Alterado
 
+- Fortalece atualizacao do service worker do Orion
+  - Atualiza o cache PWA para orion-pwa-v43-visual-portfolio e obriga instalacao fresca do app shell.
+  - Ativa skipWaiting, clients.claim e recarregamento controlado dos clientes quando um novo service worker assume.
 - Orion ganhou tela principal visual com personagem 2D e chat continuo.
   - Chat usa WebSocket com fallback REST e renderiza apenas mensagens recentes para manter performance.
   - Personagem reage a digitacao, resposta, pensamento, erro e toque.

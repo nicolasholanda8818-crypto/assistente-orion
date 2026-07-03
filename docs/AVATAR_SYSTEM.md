@@ -58,3 +58,15 @@ O avatar procedural HTML/CSS permanece como fallback:
 - se o navegador estiver em modo restrito.
 
 Consulte `docs/AVATAR_GLB_VRM.md`.
+
+## Fase Visual 2.0
+
+O avatar procedural continua sendo o fallback principal. A camada premium adiciona movimento por GSAP quando disponivel:
+
+- respiracao suave do corpo;
+- micro movimento de cabeca;
+- ombros com variacao leve;
+- aura pulsando de forma coordenada;
+- postura de apresentacao no modo Portfolio.
+
+Esses efeitos sao interrompidos quando a aba fica oculta ou quando o usuario prefere movimento reduzido.

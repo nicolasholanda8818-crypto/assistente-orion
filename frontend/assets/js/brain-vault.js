@@ -383,6 +383,7 @@ function buildBrainCore(THREE, brainGroup, activeState) {
   shell.scale.set(1.18, 0.84, 0.76);
   shell.position.y = 0.08;
   brainGroup.add(shell);
+  buildBrainSulci(THREE, brainGroup, activeState);
 
   const stem = new THREE.Mesh(
     new THREE.CapsuleGeometry(0.18, 0.9, 8, 18),
@@ -391,6 +392,36 @@ function buildBrainCore(THREE, brainGroup, activeState) {
   stem.position.set(0, -1.04, -0.05);
   stem.rotation.z = 0.08;
   brainGroup.add(stem);
+}
+
+function buildBrainSulci(THREE, brainGroup, activeState) {
+  for (let side = -1; side <= 1; side += 2) {
+    for (let track = 0; track < 9; track += 1) {
+      const points = [];
+      const y = 0.58 - track * 0.17;
+      for (let step = 0; step <= 42; step += 1) {
+        const progress = step / 42;
+        const arc = -1.15 + progress * 2.3;
+        const wave = Math.sin(progress * Math.PI * 3 + track * 0.8) * 0.08;
+        points.push(new THREE.Vector3(
+          side * (0.16 + Math.cos(arc) * (0.78 + wave)),
+          y + Math.sin(arc * 1.3) * 0.08,
+          Math.sin(arc) * 0.42 + Math.cos(track + progress * 4) * 0.05
+        ));
+      }
+      const curve = new THREE.CatmullRomCurve3(points);
+      const geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(80));
+      const material = new THREE.LineBasicMaterial({
+        color: track % 2 === 0 ? 0x9cf6ff : 0xb58cff,
+        transparent: true,
+        opacity: 0.46,
+      });
+      const line = new THREE.Line(geometry, material);
+      line.userData = { premiumSulcus: true, side, track };
+      activeState.lineMaterials.push(material);
+      brainGroup.add(line);
+    }
+  }
 }
 
 function buildMemoryGraph(THREE, graphGroup, activeState) {
@@ -459,6 +490,19 @@ function buildHolograms(THREE, ringGroup, activeState) {
   );
   holoPanel.rotation.x = Math.PI / 2;
   ringGroup.add(holoPanel);
+
+  for (let index = 0; index < 18; index += 1) {
+    const angle = (Math.PI * 2 * index) / 18;
+    const codeShard = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.18, 0.035),
+      index % 2 === 0 ? ringMaterial : accentMaterial
+    );
+    codeShard.position.set(Math.cos(angle) * 3.2, Math.sin(index * 0.9) * 1.25, Math.sin(angle) * 2.2);
+    codeShard.rotation.y = -angle;
+    codeShard.rotation.z = angle * 0.35;
+    codeShard.userData = { premiumCodeShard: true };
+    ringGroup.add(codeShard);
+  }
 }
 
 function buildParticles(THREE, particleGroup, activeState, visualMode) {
@@ -694,6 +738,31 @@ function drawCanvasBrain(context, centerX, centerY, pulse, stateConfig) {
   context.beginPath();
   context.arc(centerX, centerY - 4, 40 + pulse * 0.2, 0, Math.PI * 2);
   context.fill();
+  context.strokeStyle = "rgba(224, 252, 255, 0.58)";
+  context.lineWidth = 1.2;
+  for (let index = 0; index < 11; index += 1) {
+    const offsetY = -46 + index * 9;
+    context.beginPath();
+    context.bezierCurveTo(
+      centerX - 88,
+      centerY + offsetY,
+      centerX - 34,
+      centerY + offsetY + Math.sin(index) * 18,
+      centerX - 8,
+      centerY + offsetY + Math.cos(index) * 10
+    );
+    context.stroke();
+    context.beginPath();
+    context.bezierCurveTo(
+      centerX + 88,
+      centerY + offsetY,
+      centerX + 34,
+      centerY + offsetY - Math.sin(index) * 18,
+      centerX + 8,
+      centerY + offsetY - Math.cos(index) * 10
+    );
+    context.stroke();
+  }
   context.restore();
 }
 

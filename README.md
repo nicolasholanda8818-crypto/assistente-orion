@@ -92,6 +92,13 @@ obrigatorio para o avatar procedural atual.
 O Cerebro Cosmico representa memorias, documentos, projetos, arquivos e Lord
 Dragons como grafo neural animado.
 
+A Fase Visual 2.0 adiciona `gsap-orion.js` como carregador compartilhado de
+GSAP com fallback Web Animations, reforca o Cerebro Cosmico com sulcos neurais
+e cria o modo `Portfolio` dentro da PWA. O Portfolio pode ser aberto pela
+sidebar, pelos Ajustes rapidos ou pelo chat com comandos como `abrir portfolio`
+e apresenta o desenvolvedor, habilidades, tecnologias, evolucao do Orion e
+projetos em uma vitrine interativa.
+
 Modos visuais:
 
 - `Performance`: reduz efeitos para celular e dispositivos fracos.
@@ -99,8 +106,9 @@ Modos visuais:
 - `Ultra Visual`: efeitos mais fortes para PC.
 
 Consulte `docs/VISUAL_SYSTEM.md`, `docs/AVATAR_SYSTEM.md`,
-`docs/AVATAR_GLB_VRM.md`, `docs/COSMIC_BRAIN.md` e
-`docs/PERFORMANCE_VISUAL.md`.
+`docs/AVATAR_GLB_VRM.md`, `docs/AVATAR_GLB_VRM_PLAN.md`,
+`docs/COSMIC_BRAIN.md`, `docs/PERFORMANCE_VISUAL.md`,
+`docs/GSAP_ANIMATION_SYSTEM.md` e `docs/PORTFOLIO_MODE.md`.
 
 ## Modo Cerebro 3D
 

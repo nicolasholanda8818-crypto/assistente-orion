@@ -14,10 +14,20 @@ A camada visual premium transforma a PWA do Orion em uma interface mais limpa, f
 
 ## Componentes
 
+- `gsap-orion.js`: carregador compartilhado do GSAP com fallback para Web Animations.
 - `premium-visuals.js`: motor visual opcional com GSAP/fallback.
 - `styles.css`: overrides premium aditivos sobre o visual existente.
 - `system-status-panel`: painel tecnico oculto acionado pelo status principal.
 - `quick-actions-panel`: controles compactos para nao poluir a tela principal.
+- `portfolio-panel`: modo Portfolio interativo dentro da mesma PWA.
+
+## Fase Visual 2.0
+
+- GSAP passa a ser carregado por um modulo dedicado e opcional.
+- O avatar recebe loops GSAP leves para respiracao, cabeca, ombros e aura.
+- Paineis e cards podem usar animacoes coordenadas sem impedir o fallback CSS.
+- O cache PWA foi versionado para `orion-pwa-v43-visual-portfolio`.
+- O modo Portfolio funciona sem backend novo e sem alterar rotas existentes.
 
 ## Estados Visuais
 

@@ -37,6 +37,16 @@ Categorias visuais:
 - Aprendizado;
 - Lord Dragons.
 
+## Cerebro Cosmico 2.0
+
+A versao 2.0 aumenta a sensacao de nucleo cognitivo vivo:
+
+- sulcos cerebrais luminosos no modelo Three.js;
+- fragmentos holograficos orbitais;
+- fallback Canvas com linhas cerebrais adicionais;
+- estados por cor preservados;
+- WebGL continua opcional.
+
 ## Performance
 
 O motor seleciona automaticamente particulas e pos-processamento conforme modo visual:
