@@ -95,7 +95,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v44-supreme-visual";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v45-cosmic-avatar";' in service_worker
     assert "cache.addAll(APP_SHELL.map((path) => freshRequest(path)))" in service_worker
     assert 'event.data.type === "SKIP_WAITING"' in service_worker
     assert "self.clients.claim()" in service_worker
@@ -273,6 +273,9 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "VRMLoaderPlugin" in avatar_3d
     assert "createProceduralAvatarEngine" in avatar_3d
     assert "buildProceduralRig" in avatar_3d
+    assert "createLuxuryJacketDetails" in avatar_3d
+    assert "orion-original-back-sigil" in avatar_3d
+    assert "catchlight" in avatar_3d
     assert "procedural-three" in avatar_3d
     assert "orion:avatar3d:modelUrl" in avatar_3d
     assert "avatar-manifest.json" in avatar_3d
@@ -283,6 +286,10 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "bloom" in brain_vault.lower()
     assert "selectedVisualMode" in brain_vault
     assert "buildBrainSulci" in brain_vault
+    assert "buildCosmicEnvironment" in brain_vault
+    assert "updateCosmicEnvironment" in brain_vault
+    assert "drawCanvasCosmos" in brain_vault
+    assert "neuralTendril" in brain_vault
     assert "premiumCodeShard" in brain_vault
     assert ".web-search-panel" in stylesheet
     assert ".file-vision-panel" in stylesheet

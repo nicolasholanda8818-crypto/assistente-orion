@@ -57,6 +57,19 @@ O plano documentado em `docs/COSMIC_BRAIN_3D_PLAN.md` define como memorias,
 documentos, projetos, arquivos, conversas e Lord Dragons devem evoluir como nos
 e conexoes sem expor cadeia interna de pensamento ou dados sensiveis.
 
+## Cerebro Cosmico 3
+
+A terceira direcao visual adiciona ao WebGL e ao fallback Canvas:
+
+- estrelas com profundidade;
+- planetas e aneis orbitais;
+- espirais galacticas;
+- linhas neurais partindo do nucleo;
+- pulsos de memoria sincronizados ao estado cognitivo.
+
+Esses elementos continuam leves, reduzem em modo Performance e nao substituem o
+grafo de memoria existente.
+
 ## Performance
 
 O motor seleciona automaticamente particulas e pos-processamento conforme modo visual:

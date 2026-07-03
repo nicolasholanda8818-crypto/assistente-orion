@@ -39,6 +39,7 @@ Modo para computadores mais fortes.
 - O avatar 3D humanoide procedural so assume quando o runtime WebGL inicia com sucesso.
 - O cenario 3D usa contagem de particulas por modo visual e fallback Canvas.
 - O avatar HTML/CSS permanece carregado para reduzir risco em mobile, Render e PWA offline.
+- O Cerebro Cosmico reduz estrelas, planetas decorativos e linhas neurais em modo Performance.
 
 ## Como Alternar
 

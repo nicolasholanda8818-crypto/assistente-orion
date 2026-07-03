@@ -1146,6 +1146,8 @@ body {
   border: 1px solid rgba(118, 235, 255, 0.35);
   border-radius: 26px;
   background:
+    radial-gradient(circle at 18% 74%, rgba(255, 209, 102, 0.18) 0 2%, transparent 9%),
+    radial-gradient(circle at 84% 22%, rgba(128, 168, 255, 0.2) 0 1.8%, transparent 8%),
     radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.42) 0 1px, transparent 2px),
     radial-gradient(circle at 82% 24%, rgba(142, 245, 255, 0.48) 0 1px, transparent 2px),
     radial-gradient(circle at 72% 74%, rgba(255, 209, 102, 0.32) 0 1px, transparent 2px),
@@ -1213,6 +1215,8 @@ body {
 
 .brain-vault-viewport::before {
   background:
+    radial-gradient(ellipse at 18% 74%, rgba(255, 209, 102, 0.16), transparent 18%),
+    radial-gradient(ellipse at 82% 24%, rgba(128, 168, 255, 0.18), transparent 16%),
     radial-gradient(ellipse at 52% 48%, rgba(98, 232, 255, 0.12), transparent 34%),
     conic-gradient(from 90deg at 50% 50%, transparent, rgba(98, 232, 255, 0.08), transparent, rgba(255, 122, 144, 0.08), transparent);
   filter: blur(10px);

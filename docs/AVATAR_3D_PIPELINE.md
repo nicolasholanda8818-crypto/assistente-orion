@@ -62,6 +62,24 @@ O runtime respeita `data-outfit` e aplica uma cor de roupa compativel com o modo
 
 No avatar procedural, a roupa e representada por materiais e detalhes luminosos. No futuro, modelos GLB/VRM podem mapear o mesmo contrato para materiais, variantes ou malhas separadas.
 
+## Direcao Artistica De Referencia
+
+Referencias visuais externas devem ser usadas apenas como direcao, nunca como
+copia. O que pode ser aproveitado:
+
+- proporcoes humanas;
+- olhos expressivos;
+- materiais de alta qualidade;
+- roupa futurista original;
+- corpo inteiro bem modelado;
+- iluminacao forte;
+- identidade visual propria.
+
+O avatar procedural agora reforca essa direcao com uma jaqueta futurista propria,
+paineis assimetricos, tiras luminosas, tenis/botas com detalhes, catchlights nos
+olhos e um simbolo traseiro original do Orion. Ele nao copia roupas, marcas,
+logos ou personagens das referencias.
+
 ## Lip Sync
 
 Para GLB/VRM, o runtime tenta usar morph targets comuns de boca. Para o avatar procedural, a boca abre e fecha em pulsos leves durante `speaking` e `responding`.

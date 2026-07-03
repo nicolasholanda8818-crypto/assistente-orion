@@ -122,6 +122,11 @@ O cenario principal tambem ganha uma camada WebGL/canvas estilo jogo, com
 plataforma holografica, paineis reativos e iluminacao por estado. O avatar
 HTML/CSS e o fallback Canvas continuam obrigatorios para Render, PWA e mobile.
 
+A evolucao visual `Cosmic Avatar` reforca o avatar com proporcoes mais humanas,
+olhos expressivos, materiais mais refinados e roupa futurista original. O Cerebro
+Cosmico ganha planetas, espirais galacticas e linhas neurais em Three.js/canvas,
+sem copiar personagens, logos ou assets externos.
+
 Modos visuais:
 
 - `Performance`: reduz efeitos para celular e dispositivos fracos.

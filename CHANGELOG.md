@@ -9,6 +9,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Refina avatar e Cerebro Cosmico com referencias visuais
+  - Avatar procedural Three.js ganha proporcoes mais humanas, olhos com catchlight, materiais refinados e roupa futurista original.
+  - Cerebro Cosmico adiciona planetas, espirais galacticas, estrelas e linhas neurais com reducao automatica em modo Performance.
+  - Cache PWA sobe para orion-pwa-v45-cosmic-avatar e documentos registram que referencias externas sao apenas direcao artistica, nao copia.
 - Documenta Nucleo de Inteligencia OPS 2.0
   - Cria docs/COGNITIVE_CORE.md como contrato oficial para raciocinio, contexto, memoria, modos cognitivos e qualidade das respostas.
   - Cria contratos para Vision Engine, Document Engine e Memory System, preservando privacidade e limites de seguranca.

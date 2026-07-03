@@ -213,7 +213,7 @@ async function createProceduralAvatarEngine(container, { getVisualMode }) {
   renderer.setPixelRatio(pixelRatioFor(state.visualMode));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  camera.position.set(0, 1.68, 6.4);
+  camera.position.set(0, 1.7, 6.7);
   scene.add(root);
   root.add(rig.group);
 
@@ -551,18 +551,22 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
 function buildProceduralRig(THREE) {
   const group = new THREE.Group();
   group.name = "orion-procedural-humanoid";
-  group.scale.setScalar(0.92);
-  group.position.y = -1.45;
+  group.scale.setScalar(0.96);
+  group.position.y = -1.58;
 
   const materials = {
-    skin: new THREE.MeshStandardMaterial({ color: 0xd8ecff, roughness: 0.48, metalness: 0.05 }),
-    hair: new THREE.MeshStandardMaterial({ color: 0xf5fbff, roughness: 0.34, metalness: 0.16 }),
-    coat: new THREE.MeshStandardMaterial({ color: 0x101827, roughness: 0.36, metalness: 0.24 }),
-    pants: new THREE.MeshStandardMaterial({ color: 0x1a2e45, roughness: 0.42, metalness: 0.18 }),
-    accent: new THREE.MeshStandardMaterial({ color: 0x45c7ff, emissive: 0x126bff, emissiveIntensity: 0.28, roughness: 0.28, metalness: 0.42 }),
-    eye: new THREE.MeshStandardMaterial({ color: 0x49d9ff, emissive: 0x49d9ff, emissiveIntensity: 1.35, roughness: 0.18, metalness: 0.18 }),
-    dark: new THREE.MeshStandardMaterial({ color: 0x06101d, roughness: 0.38, metalness: 0.28 }),
-    white: new THREE.MeshStandardMaterial({ color: 0xf8fdff, roughness: 0.26, metalness: 0.12 }),
+    skin: new THREE.MeshStandardMaterial({ color: 0xd8ecff, roughness: 0.42, metalness: 0.04 }),
+    hair: new THREE.MeshStandardMaterial({ color: 0xf5fbff, roughness: 0.28, metalness: 0.18 }),
+    coat: new THREE.MeshStandardMaterial({ color: 0x101827, roughness: 0.3, metalness: 0.32 }),
+    coatSecondary: new THREE.MeshStandardMaterial({ color: 0x182d4b, roughness: 0.34, metalness: 0.28 }),
+    pants: new THREE.MeshStandardMaterial({ color: 0x16243a, roughness: 0.38, metalness: 0.2 }),
+    trim: new THREE.MeshStandardMaterial({ color: 0x9bc7e8, roughness: 0.22, metalness: 0.48 }),
+    accent: new THREE.MeshStandardMaterial({ color: 0x45c7ff, emissive: 0x126bff, emissiveIntensity: 0.44, roughness: 0.22, metalness: 0.5 }),
+    eye: new THREE.MeshStandardMaterial({ color: 0x49d9ff, emissive: 0x49d9ff, emissiveIntensity: 1.6, roughness: 0.12, metalness: 0.22 }),
+    irisRing: new THREE.MeshBasicMaterial({ color: 0xdff8ff, transparent: true, opacity: 0.84, depthWrite: false }),
+    dark: new THREE.MeshStandardMaterial({ color: 0x06101d, roughness: 0.34, metalness: 0.34 }),
+    white: new THREE.MeshStandardMaterial({ color: 0xf8fdff, roughness: 0.22, metalness: 0.16 }),
+    catchlight: new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.94, depthWrite: false }),
     aura: new THREE.MeshBasicMaterial({ color: 0x66e7ff, transparent: true, opacity: 0.12, depthWrite: false }),
   };
 
@@ -574,16 +578,16 @@ function buildProceduralRig(THREE) {
   const leftLeg = createLeg(THREE, materials, -1);
   const rightLeg = createLeg(THREE, materials, 1);
 
-  hips.position.set(0, 1.06, 0);
-  chest.position.set(0, 1.74, 0);
-  headPivot.position.set(0, 2.54, 0);
-  leftArm.shoulder.position.set(-0.58, 2.02, 0.02);
-  rightArm.shoulder.position.set(0.58, 2.02, 0.02);
-  leftLeg.hip.position.set(-0.26, 0.98, 0.02);
-  rightLeg.hip.position.set(0.26, 0.98, 0.02);
+  hips.position.set(0, 1.08, 0);
+  chest.position.set(0, 1.84, 0);
+  headPivot.position.set(0, 2.68, 0);
+  leftArm.shoulder.position.set(-0.64, 2.16, 0.02);
+  rightArm.shoulder.position.set(0.64, 2.16, 0.02);
+  leftLeg.hip.position.set(-0.24, 1.0, 0.02);
+  rightLeg.hip.position.set(0.24, 1.0, 0.02);
 
-  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.48, 0.78, 12, 24), materials.coat);
-  torso.scale.set(0.95, 1.08, 0.62);
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.45, 0.88, 14, 28), materials.coat);
+  torso.scale.set(0.86, 1.12, 0.56);
   torso.position.y = -0.1;
   const core = new THREE.Mesh(new THREE.SphereGeometry(0.09, 18, 12), materials.accent);
   core.position.set(0, -0.1, 0.42);
@@ -592,16 +596,17 @@ function buildProceduralRig(THREE) {
   const hood = new THREE.Mesh(new THREE.TorusGeometry(0.43, 0.052, 12, 48), materials.pants);
   hood.position.set(0, 0.48, -0.02);
   hood.rotation.x = Math.PI / 2;
-  chest.add(torso, core, zipper, hood);
+  const jacketDetails = createLuxuryJacketDetails(THREE, materials);
+  chest.add(torso, core, zipper, hood, ...jacketDetails.frontPanels, ...jacketDetails.shoulderPads, ...jacketDetails.lightStrips, jacketDetails.backSigil);
 
   const pelvis = new THREE.Mesh(new THREE.CapsuleGeometry(0.38, 0.24, 10, 18), materials.pants);
-  pelvis.scale.set(1, 0.8, 0.58);
+  pelvis.scale.set(0.9, 0.78, 0.54);
   hips.add(pelvis);
 
   const neck = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.22, 8, 16), materials.skin);
   neck.position.y = -0.22;
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 32, 24), materials.skin);
-  head.scale.set(0.9, 1.02, 0.86);
+  head.scale.set(0.82, 1.0, 0.78);
   head.position.y = 0.16;
   const faceGlow = new THREE.Mesh(new THREE.SphereGeometry(0.424, 32, 16), new THREE.MeshBasicMaterial({
     color: 0xffffff,
@@ -626,8 +631,8 @@ function buildProceduralRig(THREE) {
 
   const leftEye = createEye(THREE, materials, -1);
   const rightEye = createEye(THREE, materials, 1);
-  leftEye.group.position.set(-0.17, 0.19, 0.36);
-  rightEye.group.position.set(0.17, 0.19, 0.36);
+  leftEye.group.position.set(-0.15, 0.19, 0.35);
+  rightEye.group.position.set(0.15, 0.19, 0.35);
   const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.028, 0.018), materials.dark);
   mouth.position.set(0, -0.08, 0.39);
   mouth.name = "orion-procedural-mouth";
@@ -662,19 +667,62 @@ function buildProceduralRig(THREE) {
     rightLeg,
     aura,
     hairPieces,
+    jacketDetails,
   };
+}
+
+function createLuxuryJacketDetails(THREE, materials) {
+  const frontPanels = [];
+  const shoulderPads = [];
+  const lightStrips = [];
+
+  const leftPanel = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.72, 0.022), materials.coatSecondary);
+  leftPanel.position.set(-0.15, -0.12, 0.455);
+  leftPanel.rotation.z = -0.08;
+  const rightPanel = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.62, 0.022), materials.coatSecondary);
+  rightPanel.position.set(0.17, -0.14, 0.455);
+  rightPanel.rotation.z = 0.1;
+  frontPanels.push(leftPanel, rightPanel);
+
+  for (let side = -1; side <= 1; side += 2) {
+    const shoulderPad = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.08, 0.24), materials.trim);
+    shoulderPad.position.set(side * 0.48, 0.28, 0.04);
+    shoulderPad.rotation.set(0.08, side * 0.16, side * 0.08);
+    shoulderPads.push(shoulderPad);
+
+    const lightStrip = new THREE.Mesh(new THREE.BoxGeometry(0.026, 0.76, 0.018), materials.accent);
+    lightStrip.position.set(side * 0.27, -0.1, 0.47);
+    lightStrip.rotation.z = side * 0.12;
+    lightStrips.push(lightStrip);
+  }
+
+  const backSigil = new THREE.Group();
+  backSigil.name = "orion-original-back-sigil";
+  backSigil.position.set(0, -0.05, -0.455);
+  for (let index = 0; index < 3; index += 1) {
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.28 - index * 0.035, 0.035, 0.018), index === 1 ? materials.white : materials.accent);
+    bar.position.set(0, 0.14 - index * 0.14, 0);
+    bar.rotation.z = index === 1 ? 0 : (index === 0 ? 0.38 : -0.38);
+    backSigil.add(bar);
+  }
+
+  return { frontPanels, shoulderPads, lightStrips, backSigil };
 }
 
 function createEye(THREE, materials, side) {
   const group = new THREE.Group();
-  const sclera = new THREE.Mesh(new THREE.SphereGeometry(0.074, 18, 12), materials.white);
-  const iris = new THREE.Mesh(new THREE.SphereGeometry(0.043, 18, 12), materials.eye);
-  sclera.scale.set(1.14, 0.8, 0.32);
-  iris.scale.set(1, 1, 0.32);
+  const sclera = new THREE.Mesh(new THREE.SphereGeometry(0.082, 24, 14), materials.white);
+  const iris = new THREE.Mesh(new THREE.SphereGeometry(0.047, 24, 14), materials.eye);
+  const irisRing = new THREE.Mesh(new THREE.TorusGeometry(0.052, 0.004, 6, 28), materials.irisRing);
+  const catchlight = new THREE.Mesh(new THREE.SphereGeometry(0.014, 10, 8), materials.catchlight);
+  sclera.scale.set(1.22, 0.78, 0.3);
+  iris.scale.set(1, 1, 0.3);
   iris.position.z = 0.03;
-  group.add(sclera, iris);
+  irisRing.position.z = 0.035;
+  catchlight.position.set(side * -0.016, 0.018, 0.062);
+  group.add(sclera, iris, irisRing, catchlight);
   group.userData.side = side;
-  return { group, sclera, iris };
+  return { group, sclera, iris, irisRing, catchlight };
 }
 
 function createArm(THREE, materials, side) {
@@ -684,12 +732,17 @@ function createArm(THREE, materials, side) {
   const upper = new THREE.Mesh(new THREE.CapsuleGeometry(0.095, 0.48, 8, 16), materials.coat);
   const lower = new THREE.Mesh(new THREE.CapsuleGeometry(0.083, 0.45, 8, 16), materials.coat);
   const hand = new THREE.Mesh(new THREE.SphereGeometry(0.105, 16, 12), materials.skin);
+  const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.086, 0.014, 8, 24), materials.trim);
+  const sleeveLight = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.3, 0.015), materials.accent);
   upper.position.y = -0.28;
   elbow.position.y = -0.56;
   lower.position.y = -0.24;
   wrist.position.y = -0.48;
   hand.scale.set(0.88, 0.72, 0.72);
   hand.position.y = -0.02;
+  cuff.rotation.x = Math.PI / 2;
+  cuff.position.y = 0.02;
+  sleeveLight.position.set(side * 0.055, -0.22, 0.07);
   for (let index = 0; index < 4; index += 1) {
     const finger = new THREE.Mesh(new THREE.CapsuleGeometry(0.014, 0.11, 5, 8), materials.skin);
     finger.position.set((index - 1.5) * 0.035, -0.085, 0.02);
@@ -697,10 +750,12 @@ function createArm(THREE, materials, side) {
     wrist.add(finger);
   }
   shoulder.rotation.z = side * 0.14;
+  lower.add(sleeveLight);
   elbow.add(lower, wrist);
   wrist.add(hand);
+  wrist.add(cuff);
   shoulder.add(upper, elbow);
-  return { shoulder, elbow, wrist, hand, upper, lower };
+  return { shoulder, elbow, wrist, hand, upper, lower, cuff, sleeveLight };
 }
 
 function createLeg(THREE, materials, side) {
@@ -710,16 +765,20 @@ function createLeg(THREE, materials, side) {
   const upper = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.58, 8, 16), materials.pants);
   const lower = new THREE.Mesh(new THREE.CapsuleGeometry(0.105, 0.56, 8, 16), materials.pants);
   const boot = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.34), materials.dark);
+  const sole = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.035, 0.38), materials.white);
+  const sneakerAccent = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.026, 0.026), materials.accent);
   upper.position.y = -0.34;
   knee.position.y = -0.68;
   lower.position.y = -0.31;
   ankle.position.y = -0.62;
   boot.position.set(side * 0.03, -0.08, 0.08);
   boot.rotation.x = 0.08;
+  sole.position.set(side * 0.03, -0.15, 0.09);
+  sneakerAccent.position.set(side * 0.03, -0.05, 0.26);
   knee.add(lower, ankle);
-  ankle.add(boot);
+  ankle.add(boot, sole, sneakerAccent);
   hip.add(upper, knee);
-  return { hip, knee, ankle, boot, upper, lower };
+  return { hip, knee, ankle, boot, sole, sneakerAccent, upper, lower };
 }
 
 function applyProceduralPose(rig, gesture, elapsed, speed, speechPulse) {
@@ -757,8 +816,13 @@ function applyProceduralExpression(rig, state, color, speechPulse) {
   rig.materials.eye.color.setHex(color);
   rig.materials.eye.emissive.setHex(color);
   rig.materials.eye.emissiveIntensity = state === "listening" ? 1.8 : 1.25 + speechPulse * 0.55;
-  rig.leftEye.iris.scale.setScalar(1 + speechPulse * 0.12);
-  rig.rightEye.iris.scale.setScalar(1 + speechPulse * 0.12);
+  const eyeScale = 1 + speechPulse * 0.12 + (state === "curious" ? 0.08 : 0);
+  rig.leftEye.iris.scale.setScalar(eyeScale);
+  rig.rightEye.iris.scale.setScalar(eyeScale);
+  rig.leftEye.catchlight.scale.setScalar(state === "thinking" ? 1.24 : 1 + speechPulse * 0.18);
+  rig.rightEye.catchlight.scale.setScalar(state === "thinking" ? 1.24 : 1 + speechPulse * 0.18);
+  rig.leftEye.irisRing.material.opacity = state === "listening" ? 0.98 : 0.74 + speechPulse * 0.18;
+  rig.rightEye.irisRing.material.opacity = state === "listening" ? 0.98 : 0.74 + speechPulse * 0.18;
   rig.mouth.scale.set(1, state === "speaking" || state === "responding" ? 1 + speechPulse * 2.2 : 0.72, 1);
   rig.mouth.material.color.setHex(state === "happy" ? 0x24485f : 0x06101d);
   rig.leftBrow.rotation.z = state === "curious" ? 0.26 : state === "annoyed" ? -0.14 : 0.08;
@@ -770,20 +834,26 @@ function applyProceduralOutfit(THREE, rig, outfit) {
   const color = new THREE.Color(tint);
   rig.materials.accent.color.lerp(color, 0.8);
   rig.materials.accent.emissive.lerp(color, 0.8);
+  rig.materials.trim.color.lerp(new THREE.Color(0xd7f6ff).lerp(color, 0.34), 0.65);
   if (["executive", "formal"].includes(outfit)) {
     rig.materials.coat.color.setHex(0x060b14);
+    rig.materials.coatSecondary.color.setHex(0x152238);
     rig.materials.pants.color.setHex(0x111827);
-  } else if (["teacher"].includes(outfit)) {
+  } else if (["teacher", "professor"].includes(outfit)) {
     rig.materials.coat.color.setHex(0xdfefff);
+    rig.materials.coatSecondary.color.setHex(0xb8d8ff);
     rig.materials.pants.color.setHex(0x152438);
   } else if (["lord-dragons"].includes(outfit)) {
     rig.materials.coat.color.setHex(0x221324);
+    rig.materials.coatSecondary.color.setHex(0x3b172c);
     rig.materials.pants.color.setHex(0x2b1019);
   } else if (["cyber", "hacker"].includes(outfit)) {
     rig.materials.coat.color.setHex(0x070d19);
+    rig.materials.coatSecondary.color.setHex(0x102f55);
     rig.materials.pants.color.setHex(0x0a243d);
   } else {
     rig.materials.coat.color.setHex(0x101827);
+    rig.materials.coatSecondary.color.setHex(0x182d4b);
     rig.materials.pants.color.setHex(0x1a2e45);
   }
 }

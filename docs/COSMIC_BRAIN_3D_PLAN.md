@@ -25,6 +25,19 @@ O Cerebro Cosmico deve representar:
 - aprendizado como conexoes novas;
 - Lord Dragons como categoria propria do grafo.
 
+## Direcao Visual 3: Universo Neural
+
+A referencia cosmica deve ser traduzida como linguagem propria do Orion:
+
+- cerebro luminoso no centro;
+- planetas orbitando como dominios de conhecimento;
+- galaxias laterais como repositorios distantes;
+- tendrils neurais como caminhos de raciocinio;
+- estrelas como pequenas memorias ou sinais de contexto.
+
+Nenhum asset externo e obrigatorio. A cena e gerada em Three.js/canvas para
+preservar Render, PWA e mobile.
+
 ## Estados Cognitivos
 
 - `idle`: pulso lento e particulas suaves.

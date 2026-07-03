@@ -32,6 +32,12 @@ const BRAIN_STATES = {
   alert: { color: 0xff9f43, accent: 0xff5f72, speed: 0.95, particleSpeed: 0.94, bloom: 0.5 },
 };
 
+const COSMIC_BODIES = [
+  { label: "Saturno neural", color: 0xd6c7ff, ring: 0x9cf6ff, radius: 4.1, y: -1.05, size: 0.23, speed: 0.12 },
+  { label: "Planeta contexto", color: 0x80a8ff, ring: 0xffffff, radius: 3.45, y: 1.05, size: 0.16, speed: -0.16 },
+  { label: "Lua de memoria", color: 0xf4f7ff, ring: 0x62e8ff, radius: 2.55, y: -0.2, size: 0.095, speed: 0.22 },
+];
+
 export function createBrainVault({ container, getVisualMode } = {}) {
   let engine;
   let loadPromise;
@@ -148,6 +154,7 @@ async function createWebGlEngine(container, options) {
   const brainGroup = new THREE.Group();
   const graphGroup = new THREE.Group();
   const ringGroup = new THREE.Group();
+  const cosmicGroup = new THREE.Group();
   const particleGroup = new THREE.Group();
   const clock = new THREE.Clock();
   const raycaster = new THREE.Raycaster();
@@ -166,6 +173,9 @@ async function createWebGlEngine(container, options) {
     particleGeometry: undefined,
     lineMaterials: [],
     baseParticlePositions: undefined,
+    cosmicBodies: [],
+    neuralTendrils: [],
+    galaxySpirals: [],
   };
 
   camera.position.set(0, 0.45, 8.6);
@@ -187,8 +197,9 @@ async function createWebGlEngine(container, options) {
   warmLight.position.set(-3, -1.6, 3);
   backLight.position.set(3, 4, -4);
   scene.add(ambient, keyLight, warmLight, backLight, root);
-  root.add(brainGroup, graphGroup, ringGroup, particleGroup);
+  root.add(cosmicGroup, brainGroup, graphGroup, ringGroup, particleGroup);
 
+  buildCosmicEnvironment(THREE, cosmicGroup, activeState, activeState.visualMode);
   buildBrainCore(THREE, brainGroup, activeState);
   buildMemoryGraph(THREE, graphGroup, activeState);
   buildHolograms(THREE, ringGroup, activeState);
@@ -223,10 +234,13 @@ async function createWebGlEngine(container, options) {
     graphGroup.rotation.y = -elapsed * 0.08 * stateConfig.speed;
     ringGroup.rotation.y = elapsed * 0.22 * stateConfig.speed;
     ringGroup.rotation.x = Math.sin(elapsed * 0.22) * 0.16;
+    cosmicGroup.rotation.y = elapsed * 0.035;
+    cosmicGroup.rotation.x = Math.sin(elapsed * 0.11) * 0.035;
     particleGroup.rotation.y = elapsed * 0.045 * stateConfig.particleSpeed;
     particleGroup.rotation.x = Math.sin(elapsed * 0.15) * 0.08;
 
     updateColors(THREE, activeState, stateConfig);
+    updateCosmicEnvironment(elapsed, activeState, stateConfig);
     updateMemoryNodes(elapsed, activeState);
     updateParticles(elapsed, activeState, stateConfig);
 
@@ -392,6 +406,114 @@ function buildBrainCore(THREE, brainGroup, activeState) {
   stem.position.set(0, -1.04, -0.05);
   stem.rotation.z = 0.08;
   brainGroup.add(stem);
+}
+
+function buildCosmicEnvironment(THREE, cosmicGroup, activeState, visualMode) {
+  const starMaterial = new THREE.PointsMaterial({
+    color: 0xf4fbff,
+    size: visualMode === "ultra" ? 0.028 : 0.022,
+    transparent: true,
+    opacity: visualMode === "performance" ? 0.36 : 0.62,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const starGeometry = new THREE.BufferGeometry();
+  const starCount = visualMode === "ultra" ? 420 : visualMode === "balanced" ? 260 : 120;
+  const starPositions = new Float32Array(starCount * 3);
+  for (let index = 0; index < starCount; index += 1) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 3.2 + Math.random() * 4.8;
+    starPositions[index * 3] = Math.cos(angle) * radius;
+    starPositions[index * 3 + 1] = (Math.random() - 0.5) * 4.6;
+    starPositions[index * 3 + 2] = Math.sin(angle) * radius * 0.72 - 1.2;
+  }
+  starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+  cosmicGroup.add(new THREE.Points(starGeometry, starMaterial));
+  activeState.materials.push(starMaterial);
+
+  COSMIC_BODIES.forEach((body, index) => {
+    const orbit = new THREE.Group();
+    const planetMaterial = new THREE.MeshStandardMaterial({
+      color: body.color,
+      emissive: body.color,
+      emissiveIntensity: 0.34,
+      roughness: 0.36,
+      metalness: 0.12,
+    });
+    const ringMaterial = new THREE.MeshBasicMaterial({
+      color: body.ring,
+      transparent: true,
+      opacity: 0.36,
+      side: THREE.DoubleSide,
+    });
+    const planet = new THREE.Mesh(new THREE.SphereGeometry(body.size, 24, 16), planetMaterial);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(body.size * 1.8, 0.006, 8, 64), ringMaterial);
+    const angle = (Math.PI * 2 * index) / COSMIC_BODIES.length + 0.5;
+    orbit.userData = { ...body, angle, baseAngle: angle };
+    planet.position.set(body.radius, body.y, -0.85);
+    ring.position.copy(planet.position);
+    ring.rotation.set(Math.PI / 2.35, 0.25, 0.34);
+    orbit.add(planet, ring);
+    cosmicGroup.add(orbit);
+    activeState.materials.push(planetMaterial, ringMaterial);
+    activeState.cosmicBodies.push({ orbit, planet, ring, config: body });
+  });
+
+  for (let index = 0; index < 2; index += 1) {
+    const geometry = new THREE.BufferGeometry();
+    const points = [];
+    const offsetX = index === 0 ? -3.8 : 3.6;
+    const offsetY = index === 0 ? 1.35 : -1.25;
+    for (let step = 0; step < 150; step += 1) {
+      const progress = step / 149;
+      const angle = progress * Math.PI * 7;
+      const radius = 0.08 + progress * 0.58;
+      points.push(new THREE.Vector3(
+        offsetX + Math.cos(angle) * radius,
+        offsetY + Math.sin(angle) * radius * 0.62,
+        -1.25 + progress * 0.32
+      ));
+    }
+    geometry.setFromPoints(points);
+    const material = new THREE.LineBasicMaterial({
+      color: index === 0 ? 0xffd166 : 0x62e8ff,
+      transparent: true,
+      opacity: visualMode === "performance" ? 0.28 : 0.54,
+    });
+    const spiral = new THREE.Line(geometry, material);
+    spiral.userData = { galaxySpiral: true, spin: index === 0 ? 1 : -1 };
+    cosmicGroup.add(spiral);
+    activeState.galaxySpirals.push(spiral);
+    activeState.lineMaterials.push(material);
+  }
+
+  const tendrilCount = visualMode === "ultra" ? 18 : visualMode === "balanced" ? 13 : 8;
+  for (let index = 0; index < tendrilCount; index += 1) {
+    const angle = (Math.PI * 2 * index) / tendrilCount;
+    const length = 3.4 + (index % 4) * 0.34;
+    const points = [];
+    for (let step = 0; step <= 32; step += 1) {
+      const progress = step / 32;
+      const wave = Math.sin(progress * Math.PI * 3 + index) * 0.18;
+      points.push(new THREE.Vector3(
+        Math.cos(angle) * (0.6 + progress * length) + Math.cos(angle + Math.PI / 2) * wave,
+        Math.sin(index * 0.7) * 0.18 + Math.sin(progress * Math.PI) * (0.55 + (index % 3) * 0.08),
+        Math.sin(angle) * (0.42 + progress * length * 0.55)
+      ));
+    }
+    const curve = new THREE.CatmullRomCurve3(points);
+    const geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(72));
+    const material = new THREE.LineBasicMaterial({
+      color: index % 3 === 0 ? 0xffd166 : index % 3 === 1 ? 0x62e8ff : 0xb58cff,
+      transparent: true,
+      opacity: visualMode === "performance" ? 0.24 : 0.5,
+    });
+    const tendril = new THREE.Line(geometry, material);
+    tendril.userData = { neuralTendril: true, phase: index * 0.37 };
+    cosmicGroup.add(tendril);
+    activeState.neuralTendrils.push(tendril);
+    activeState.lineMaterials.push(material);
+  }
 }
 
 function buildBrainSulci(THREE, brainGroup, activeState) {
@@ -588,6 +710,26 @@ function updateMemoryNodes(elapsed, activeState) {
   });
 }
 
+function updateCosmicEnvironment(elapsed, activeState, stateConfig) {
+  activeState.cosmicBodies.forEach(({ orbit, planet, ring, config }, index) => {
+    orbit.rotation.y = elapsed * config.speed;
+    orbit.rotation.x = Math.sin(elapsed * 0.18 + index) * 0.08;
+    const glow = 1 + Math.sin(elapsed * 1.5 + index) * 0.08;
+    planet.scale.setScalar(glow);
+    ring.rotation.z = elapsed * (0.12 + index * 0.03);
+  });
+
+  activeState.galaxySpirals.forEach((spiral, index) => {
+    spiral.rotation.z = elapsed * 0.08 * spiral.userData.spin;
+    spiral.material.opacity = (activeState.visualMode === "performance" ? 0.22 : 0.46) + Math.sin(elapsed * 0.9 + index) * 0.08;
+  });
+
+  activeState.neuralTendrils.forEach((tendril) => {
+    const pulse = (Math.sin(elapsed * 1.8 * stateConfig.speed + tendril.userData.phase) + 1) / 2;
+    tendril.material.opacity = (activeState.visualMode === "performance" ? 0.18 : 0.34) + pulse * 0.22;
+  });
+}
+
 function updateParticles(elapsed, activeState, stateConfig) {
   if (!activeState.particleGeometry || !activeState.baseParticlePositions) {
     return;
@@ -645,6 +787,7 @@ function createCanvasFallback(container, options) {
 
     context.clearRect(0, 0, width, height);
     drawCanvasBackground(context, width, height, stateConfig);
+    drawCanvasCosmos(context, width, height, frame, stateConfig, visualMode);
     drawCanvasBrain(context, centerX, centerY, pulse, stateConfig);
     drawCanvasGraph(context, centerX, centerY, frame, categories);
 
@@ -720,6 +863,56 @@ function drawCanvasBackground(context, width, height, stateConfig) {
   gradient.addColorStop(1, "rgba(2, 9, 20, 0)");
   context.fillStyle = gradient;
   context.fillRect(0, 0, width, height);
+}
+
+function drawCanvasCosmos(context, width, height, frame, stateConfig, visualMode) {
+  const starCount = visualMode === "ultra" ? 72 : visualMode === "balanced" ? 48 : 28;
+  context.save();
+  for (let index = 0; index < starCount; index += 1) {
+    const x = (index * 73 + frame * 0.22) % width;
+    const y = (index * 41 + Math.sin(frame / 80 + index) * 12 + height) % height;
+    const size = index % 7 === 0 ? 1.8 : 1;
+    context.fillStyle = index % 5 === 0 ? "rgba(255, 209, 102, 0.72)" : "rgba(232, 252, 255, 0.7)";
+    context.fillRect(x, y, size, size);
+  }
+
+  const planetColor = `#${stateConfig.color.toString(16).padStart(6, "0")}`;
+  const planets = [
+    { x: width * 0.18, y: height * 0.74, r: 22, ring: 46 },
+    { x: width * 0.82, y: height * 0.25, r: 16, ring: 35 },
+  ];
+  planets.forEach((planet, index) => {
+    context.strokeStyle = index === 0 ? "rgba(255, 209, 102, 0.46)" : "rgba(156, 246, 255, 0.48)";
+    context.lineWidth = 1.4;
+    context.beginPath();
+    context.ellipse(planet.x, planet.y, planet.ring, planet.ring * 0.22, frame / 240 + index, 0, Math.PI * 2);
+    context.stroke();
+    const gradient = context.createRadialGradient(planet.x - 6, planet.y - 7, 2, planet.x, planet.y, planet.r);
+    gradient.addColorStop(0, "rgba(255,255,255,0.9)");
+    gradient.addColorStop(1, `${planetColor}88`);
+    context.fillStyle = gradient;
+    context.beginPath();
+    context.arc(planet.x, planet.y, planet.r, 0, Math.PI * 2);
+    context.fill();
+  });
+
+  context.strokeStyle = "rgba(156, 246, 255, 0.28)";
+  context.lineWidth = 1.2;
+  for (let index = 0; index < 12; index += 1) {
+    const angle = (Math.PI * 2 * index) / 12 + frame / 260;
+    context.beginPath();
+    context.moveTo(width / 2, height / 2);
+    context.bezierCurveTo(
+      width / 2 + Math.cos(angle) * 90,
+      height / 2 + Math.sin(angle) * 60,
+      width / 2 + Math.cos(angle) * width * 0.28,
+      height / 2 + Math.sin(angle) * height * 0.28,
+      width / 2 + Math.cos(angle) * width * 0.48,
+      height / 2 + Math.sin(angle) * height * 0.38
+    );
+    context.stroke();
+  }
+  context.restore();
 }
 
 function drawCanvasBrain(context, centerX, centerY, pulse, stateConfig) {
