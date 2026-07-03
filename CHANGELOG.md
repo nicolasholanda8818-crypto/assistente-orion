@@ -9,6 +9,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Documenta Nucleo de Inteligencia OPS 2.0
+  - Cria docs/COGNITIVE_CORE.md como contrato oficial para raciocinio, contexto, memoria, modos cognitivos e qualidade das respostas.
+  - Cria contratos para Vision Engine, Document Engine e Memory System, preservando privacidade e limites de seguranca.
+  - Atualiza WEB_SEARCH, README, PROJECT_STATUS e testes para rastrear a especificacao do Cognitive Core.
 - Adiciona Fase Visual Suprema do Orion
   - Avatar ganha camada humanoide procedural em Three.js quando nao ha GLB/VRM ativo, preservando o avatar HTML/CSS como fallback.
   - Cenario 3D leve passa a responder aos estados do Orion, modos visuais e interacoes do quarto com fallback Canvas.

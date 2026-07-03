@@ -39,6 +39,22 @@ python scripts\run_brain_smoke.py
 
 Consulte `BRAIN.md`.
 
+## Nucleo De Inteligencia OPS 2.0
+
+O Volume II da especificacao oficial define o Cognitive Core do Orion como uma
+camada conversacional organizada: entender intencao, recuperar contexto, consultar
+memoria, decidir estrategia, verificar necessidade de pesquisa e responder de
+forma natural. Esse contrato tambem orienta memoria, visao, documentos, professor,
+planejamento, desenvolvimento, pesquisa e apresentacao.
+
+Documentos principais:
+
+- `docs/COGNITIVE_CORE.md`
+- `docs/MEMORY_SYSTEM.md`
+- `docs/VISION_ENGINE.md`
+- `docs/DOCUMENT_ENGINE.md`
+- `docs/WEB_SEARCH.md`
+
 ## Inteligencia, Vendas e Consultor
 
 O Orion reconhece pedidos de vendas, negociacao, objecao de preco, mensagem para
