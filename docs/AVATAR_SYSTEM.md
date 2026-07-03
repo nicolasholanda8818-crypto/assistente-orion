@@ -44,3 +44,17 @@ O Avatar Studio continua usando as preferencias locais por usuario. A fase premi
 - Cyber.
 
 As skins por imagem continuam sendo usadas como inspiracao visual, sem copiar personagens protegidos, pessoas reais ou identidades externas.
+
+## GLB/VRM Progressivo
+
+A Fase Visual 2 adiciona um shell 3D real em `orion-avatar-3d-shell`. Ele tenta carregar GLB/VRM por manifesto local e so assume a renderizacao quando o modelo carrega com sucesso.
+
+O avatar procedural HTML/CSS permanece como fallback:
+
+- se o manifesto estiver desativado;
+- se o modelo nao existir;
+- se WebGL falhar;
+- se os imports de Three.js/VRM falharem;
+- se o navegador estiver em modo restrito.
+
+Consulte `docs/AVATAR_GLB_VRM.md`.

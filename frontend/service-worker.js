@@ -1,4 +1,4 @@
-const CACHE_NAME = "orion-pwa-v40-premium-visuals";
+const CACHE_NAME = "orion-pwa-v41-avatar-glb-vrm";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -12,6 +12,7 @@ const APP_SHELL = [
   "/assets/css/components.css",
   "/assets/css/accessibility.css",
   "/assets/js/api.js",
+  "/assets/js/avatar-3d.js",
   "/assets/js/brain-vault.js",
   "/assets/js/design-system.js",
   "/assets/js/main.js",
@@ -22,6 +23,7 @@ const APP_SHELL = [
   "/assets/js/scene.js",
   "/assets/js/socket.js",
   "/assets/js/voice-engine.js",
+  "/assets/models/avatar-manifest.json",
   "/assets/js/lord-dragons/content.js",
   "/assets/js/lord-dragons/audio.js",
   "/assets/js/lord-dragons/main.js",

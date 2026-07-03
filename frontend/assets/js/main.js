@@ -14,6 +14,7 @@ import {
   uploadCameraPhoto,
   uploadOrionFile,
 } from "./api.js";
+import { createAvatar3DSystem } from "./avatar-3d.js?v=41";
 import { setupDesignSystem } from "./design-system.js";
 import { setupOnboarding } from "./onboarding.js";
 import { createPremiumVisualSystem } from "./premium-visuals.js?v=40";
@@ -183,6 +184,7 @@ const elements = {
   messageInput: document.querySelector("#message-input"),
   micButton: document.querySelector("#mic-button"),
   cameraButton: document.querySelector("#camera-button"),
+  avatar3DShell: document.querySelector("#orion-avatar-3d-shell"),
   orionAvatar: document.querySelector("#orion-avatar"),
   orionBubble: document.querySelector("#orion-bubble"),
   scene: document.querySelector("#orion-scene"),
@@ -261,6 +263,7 @@ let livingAvatar;
 let brainVault;
 let voiceEngine;
 let premiumVisuals;
+let avatar3D;
 let speechRecognition;
 let voiceInputActive = false;
 let voiceReplyEnabled = false;
@@ -296,7 +299,13 @@ export function initOrionVisual() {
   });
   premiumVisuals.start();
   voiceEngine = createOrionVoiceEngine({ getMode: () => voiceMode });
+  avatar3D = createAvatar3DSystem({
+    container: elements.avatar3DShell,
+    fallbackAvatar: elements.orionAvatar,
+    getVisualMode: () => document.documentElement.dataset.visualMode || "performance",
+  });
   loadVisualPreferences();
+  avatar3D.start();
   bindOrionControls();
   bindAvatarStudioControls();
   bindSidebarControls();
@@ -345,6 +354,7 @@ export function setOrionState(state) {
   elements.orionStateIndicator.dataset.state = state;
   elements.orionStateIndicator.textContent = stateLabel(state);
   premiumVisuals?.setState(state);
+  avatar3D?.setState(state);
 }
 
 export function showOrionBubble(text) {
@@ -1231,6 +1241,7 @@ export function applyWardrobe(outfit, options = {}) {
     elements.avatarStudioOutfit.value = selected;
   }
   currentAvatarSkin = { ...currentAvatarSkin, outfit: selected };
+  avatar3D?.setOutfit(selected);
   updateAvatarStudioPreview(currentAvatarSkin);
   if (options.persist !== false) {
     writeUserVisualPreferences({
@@ -1680,6 +1691,7 @@ export function applyVisualMode(mode, options = {}) {
   document.documentElement.dataset.visualMode = selected;
   document.documentElement.classList.toggle("low-power", selected === "performance");
   premiumVisuals?.applyMode(selected);
+  avatar3D?.setVisualMode(selected);
   if (elements.visualModeSelect) {
     elements.visualModeSelect.value = selected;
   }
@@ -1803,6 +1815,7 @@ export async function performWebSearch(query, options = {}) {
 function setOrionVoiceState(state) {
   elements.orionAvatar.dataset.voiceState = state;
   currentReasoningState = state;
+  avatar3D?.setVoiceState(state);
 }
 
 function applyReasoningVisual(reasoningState, payload = {}) {
@@ -1925,6 +1938,7 @@ export function blinkOrionEyes() {
 
 export function animateOrionSpeaking(text = "") {
   livingAvatar?.whileSpeaking(text);
+  avatar3D?.speak(text);
   setOrionState("speaking");
 }
 

@@ -87,6 +87,8 @@ Three.js/canvas para o Cerebro Cosmico.
 
 O avatar preserva a identidade do projeto e adiciona corpo inteiro mais detalhado,
 olhos holograficos, lip sync simples, aura neural, novas roupas e Avatar Studio.
+A Fase Visual 2 tambem prepara um runtime GLB/VRM real com lazy loading e fallback
+obrigatorio para o avatar procedural atual.
 O Cerebro Cosmico representa memorias, documentos, projetos, arquivos e Lord
 Dragons como grafo neural animado.
 
@@ -97,7 +99,8 @@ Modos visuais:
 - `Ultra Visual`: efeitos mais fortes para PC.
 
 Consulte `docs/VISUAL_SYSTEM.md`, `docs/AVATAR_SYSTEM.md`,
-`docs/COSMIC_BRAIN.md` e `docs/PERFORMANCE_VISUAL.md`.
+`docs/AVATAR_GLB_VRM.md`, `docs/COSMIC_BRAIN.md` e
+`docs/PERFORMANCE_VISUAL.md`.
 
 ## Modo Cerebro 3D
 

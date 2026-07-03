@@ -1,0 +1,20 @@
+{
+  "enabled": false,
+  "defaultModelId": "orion-local-glb",
+  "models": [
+    {
+      "id": "orion-local-glb",
+      "label": "Orion GLB local",
+      "type": "glb",
+      "url": "/assets/models/orion-avatar.glb",
+      "enabled": false
+    },
+    {
+      "id": "orion-local-vrm",
+      "label": "Orion VRM local",
+      "type": "vrm",
+      "url": "/assets/models/orion-avatar.vrm",
+      "enabled": false
+    }
+  ]
+}

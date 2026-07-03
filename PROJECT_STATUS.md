@@ -106,6 +106,9 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Avatar ganhou camadas de corpo inteiro, olhos holograficos, lip sync simples, roupas Hacker/Executivo/Cyber e microdetalhes sem remover o avatar atual.
 - [x] Cerebro Cosmico alinhou cores por estado, grafo de conhecimento e modos Performance, Equilibrado e Ultra Visual.
 - [x] Cache PWA atualizado para `orion-pwa-v40-premium-visuals`.
+- [x] Fase Visual 2 adiciona runtime GLB/VRM com lazy loading, manifesto local, VRM opcional e fallback procedural obrigatorio.
+- [x] Avatar 3D real acompanha estados online, ouvindo, pensando, falando, pesquisando, arquivos e aprendizado quando o modelo esta disponivel.
+- [x] Cache PWA atualizado para `orion-pwa-v41-avatar-glb-vrm`.
 
 ## Marcos Planejados
 

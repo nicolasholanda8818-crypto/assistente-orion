@@ -3218,6 +3218,53 @@ html[data-visual-mode="ultra"] .chat-log {
     drop-shadow(0 0 28px color-mix(in srgb, var(--premium-state-color) 24%, transparent));
 }
 
+.orion-avatar-3d-shell {
+  position: absolute;
+  inset: -8% -12% -2%;
+  z-index: 12;
+  display: block;
+  border-radius: 42% 42% 30% 30%;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateZ(28px);
+  transition: opacity 280ms ease, filter 240ms ease;
+}
+
+.orion-avatar-3d-shell[hidden] {
+  display: none;
+}
+
+.orion-avatar-3d-shell[data-status="probing"] {
+  opacity: 0;
+}
+
+.avatar-3d-ready .orion-avatar-3d-shell[data-status="ready"] {
+  opacity: 1;
+  filter: drop-shadow(0 0 30px color-mix(in srgb, var(--premium-state-color) 28%, transparent));
+}
+
+.orion-avatar-3d-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-3d-ready .orion-avatar[data-avatar-3d-fallback="standby"] > :not(.orion-avatar-3d-shell) {
+  opacity: 0;
+}
+
+.avatar-3d-ready .orion-avatar[data-avatar-3d-fallback="standby"] {
+  background: transparent;
+}
+
+.orion-avatar-3d-shell[data-avatar-state="thinking"],
+.orion-avatar-3d-shell[data-avatar-state="listening"],
+.orion-avatar-3d-shell[data-avatar-state="searching"] {
+  filter:
+    drop-shadow(0 0 32px color-mix(in srgb, var(--premium-state-color) 34%, transparent))
+    saturate(1.08);
+}
+
 .orion-neural-backdrop {
   position: absolute;
   inset: 2% -7% 18%;

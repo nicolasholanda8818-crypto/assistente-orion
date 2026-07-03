@@ -1,0 +1,13 @@
+{
+  "id": "20260702-adiciona-suporte-progressivo-a-avatar-glb-vrm",
+  "type": "added",
+  "summary": "Adiciona suporte progressivo a avatar GLB/VRM",
+  "details": [
+    "Frontend ganha runtime avatar-3d.js com Three.js, GLTFLoader, VRM opcional e lazy loading por manifesto local.",
+    "Avatar procedural permanece como fallback obrigatorio e so entra em standby quando o modelo 3D carrega com sucesso.",
+    "Estados de voz, fala, pensamento, pesquisa, arquivos e roupas passam a sincronizar com o runtime 3D quando disponivel.",
+    "Cache PWA sobe para v41 e docs/AVATAR_GLB_VRM.md documenta ativacao, seguranca, lip sync e performance."
+  ],
+  "date": "2026-07-02",
+  "version": null
+}

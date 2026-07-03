@@ -9,6 +9,11 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Adiciona suporte progressivo a avatar GLB/VRM
+  - Frontend ganha runtime avatar-3d.js com Three.js, GLTFLoader, VRM opcional e lazy loading por manifesto local.
+  - Avatar procedural permanece como fallback obrigatorio e so entra em standby quando o modelo 3D carrega com sucesso.
+  - Estados de voz, fala, pensamento, pesquisa, arquivos e roupas passam a sincronizar com o runtime 3D quando disponivel.
+  - Cache PWA sobe para v41 e docs/AVATAR_GLB_VRM.md documenta ativacao, seguranca, lip sync e performance.
 - Adiciona reboot visual premium do Orion
   - PWA ganha camada premium com GSAP opcional, fallback Web Animations, status tecnico oculto e ajustes rapidos recolhidos.
   - Avatar recebe corpo inteiro mais detalhado, olhos holograficos, lip sync simples, aura neural e novas roupas Hacker, Executivo e Cyber.
