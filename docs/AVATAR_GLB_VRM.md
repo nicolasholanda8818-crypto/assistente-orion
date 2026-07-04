@@ -126,3 +126,24 @@ Caracteristicas detectadas:
 Como o modelo nao traz clips de animacao, o Orion usa movimentos procedurais
 leves para idle, pensamento, escuta e fala, combinados com o `expressionManager`
 do VRM para lip sync e emocoes.
+
+## Avatar GLB Real
+
+A atualizacao seguinte do Volume IV habilita
+`frontend/assets/models/orion-avatar.glb` como modelo visual principal. O arquivo
+usa extensao `.glb`, mas contem `VRMC_vrm`, entao o manifesto define
+`vrmCompatible: true` para ativar o plugin VRM e preservar expressoes, piscadas e
+lip sync.
+
+Caracteristicas detectadas:
+
+- GLB 2.0 com extensao interna VRM 1.0;
+- 54 ossos humanoides;
+- 399 morph targets faciais distribuidos nas primitivas do rosto;
+- presets de expressao `aa`, `blink`, `happy`, `angry`, `sad`, `surprised` e outros;
+- 16 materiais MToon/unlit;
+- 28 texturas PNG embutidas;
+- nenhuma animacao embutida.
+
+O `orion-avatar.vrm` permanece no manifesto como alternativa preservada. O
+fallback procedural e o avatar HTML/CSS continuam obrigatorios.

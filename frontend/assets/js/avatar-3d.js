@@ -170,6 +170,7 @@ async function resolveModelConfig() {
     label: selected.label || selected.id,
     type: selected.type === "vrm" || selected.url.toLowerCase().endsWith(".vrm") ? "vrm" : "glb",
     url: selected.url,
+    vrmCompatible: Boolean(selected.vrmCompatible || selected.profile?.hasVrmExtension),
   };
 }
 
@@ -401,7 +402,7 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
   root.add(ambient, key, rim, aura);
 
   const loader = new GLTFLoader();
-  if (modelConfig.type === "vrm") {
+  if (modelConfig.type === "vrm" || modelConfig.vrmCompatible) {
     const vrmModule = await import(VRM_URL);
     if (vrmModule.VRMLoaderPlugin) {
       loader.register((parser) => new vrmModule.VRMLoaderPlugin(parser));

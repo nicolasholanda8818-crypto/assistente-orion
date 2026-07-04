@@ -1,13 +1,24 @@
 {
   "enabled": true,
-  "defaultModelId": "orion-local-vrm",
+  "defaultModelId": "orion-local-glb",
   "models": [
     {
       "id": "orion-local-glb",
-      "label": "Orion GLB local",
+      "label": "Orion GLB real",
       "type": "glb",
       "url": "/assets/models/orion-avatar.glb",
-      "enabled": false
+      "enabled": true,
+      "vrmCompatible": true,
+      "profile": {
+        "source": "VRoid Studio 2.14.0",
+        "format": "GLB 2.0 with VRM 1.0 extension",
+        "sizeBytes": 16142956,
+        "hasVrmExtension": true,
+        "hasHumanoidRig": true,
+        "hasExpressions": true,
+        "hasEmbeddedAnimations": false,
+        "fallback": "orion-local-vrm/procedural-three"
+      }
     },
     {
       "id": "orion-local-vrm",

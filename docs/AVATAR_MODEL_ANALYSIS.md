@@ -14,6 +14,18 @@ Arquivo integrado:
 frontend/assets/models/orion-avatar.vrm
 ```
 
+Arquivo GLB analisado posteriormente:
+
+```text
+C:\Users\nicolas keven lopes\Documents\orion.glb
+```
+
+Arquivo GLB integrado:
+
+```text
+frontend/assets/models/orion-avatar.glb
+```
+
 ## Resultado
 
 O modelo e compativel com a integracao progressiva GLB/VRM do Orion.
@@ -31,6 +43,30 @@ O modelo e compativel com a integracao progressiva GLB/VRM do Orion.
 - Skins: 3.
 - Rig humanoide VRM: 54 ossos.
 - Morph targets faciais: 57 no mesh de rosto.
+
+## Resultado Do GLB
+
+O arquivo `orion.glb` tambem e compativel com a integracao do Orion. Apesar da
+extensao `.glb`, ele contem a extensao `VRMC_vrm`, entao pode usar o mesmo
+pipeline de expressoes VRM do runtime.
+
+- Formato externo: GLB 2.0.
+- Extensao interna: VRM 1.0 (`VRMC_vrm`).
+- Gerador: VRoid Studio 2.14.0.
+- Tamanho: 16.142.956 bytes.
+- Chunks GLB: `JSON` e `BIN`.
+- Cenas: 1.
+- Nos: 171.
+- Meshes: 3.
+- Materiais: 16.
+- Texturas: 28 imagens PNG embutidas.
+- Animacoes embutidas: 0.
+- Skins: 3.
+- Rig humanoide VRM: 54 ossos.
+- Morph targets faciais: 399 entradas em primitivas do mesh de rosto.
+- Presets VRM: `neutral`, `aa`, `ih`, `ou`, `ee`, `oh`, `blink`,
+  `blinkLeft`, `blinkRight`, `happy`, `angry`, `sad`, `surprised`,
+  `relaxed`.
 
 ## Extensoes Detectadas
 
@@ -118,24 +154,31 @@ transparencia e evitar conversoes destrutivas.
   procedurais no runtime.
 - O arquivo tem 16 MB, entao nao deve entrar no cache obrigatorio do app shell.
 - A fidelidade MToon depende do suporte do loader VRM no navegador.
+- A metadata do GLB informa `avatarPermission: onlyAuthor`,
+  `commercialUsage: personalNonProfit`, `creditNotation: required`,
+  `allowRedistribution: false` e `modification: prohibited`. Antes de manter
+  esse asset em distribuicao publica, o responsavel do projeto deve confirmar
+  que possui permissao/licenca adequada ou substituir por um modelo proprio.
 
 ## Decisao De Integracao
 
-O Orion passa a usar `orion-avatar.vrm` como avatar visual principal por
+O Orion passa a usar `orion-avatar.glb` como avatar visual principal por
 manifesto:
 
 ```text
 frontend/assets/models/avatar-manifest.json
 ```
 
-O avatar procedural Three.js e o avatar HTML/CSS continuam como fallback. Se o
-VRM falhar, o Orion continua funcional.
+O GLB foi marcado como `vrmCompatible` porque contem `VRMC_vrm`. O
+`orion-avatar.vrm`, o avatar procedural Three.js e o avatar HTML/CSS continuam
+preservados como alternativas/fallback. Se o modelo real falhar, o Orion continua
+funcional.
 
 ## Validacao Manual
 
 1. Abrir o Orion.
 2. Confirmar que o canvas do avatar fica `ready`.
-3. Confirmar `data-model-type="vrm"`.
+3. Confirmar `data-model-type="glb"` e `data-model-status="ready"`.
 4. Enviar mensagem no chat e observar expressao de fala.
 5. Alternar estados de pensamento/escuta/fala.
 6. Confirmar que WebSocket, PWA, voz, chat e Render continuam funcionando.

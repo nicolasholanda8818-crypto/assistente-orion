@@ -125,6 +125,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Alterado
 
+- Habilita avatar real GLB do Orion
+  - Analisa o arquivo orion.glb como GLB 2.0 com extensao interna VRM 1.0, rig humanoide, materiais MToon e texturas embutidas.
+  - Habilita frontend/assets/models/orion-avatar.glb como modelo principal no manifesto com vrmCompatible, preservando o VRM anterior e fallback procedural.
+  - Atualiza o cache PWA para orion-pwa-v47-real-glb e documenta limitacoes tecnicas e de licenca detectadas na metadata do modelo.
 - Fortalece atualizacao do service worker do Orion
   - Atualiza o cache PWA para orion-pwa-v43-visual-portfolio e obriga instalacao fresca do app shell.
   - Ativa skipWaiting, clients.claim e recarregamento controlado dos clientes quando um novo service worker assume.

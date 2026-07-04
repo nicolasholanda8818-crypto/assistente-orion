@@ -131,6 +131,9 @@ O Volume IV integra `orion-avatar.vrm` como avatar real principal. O arquivo foi
 analisado como VRM 1.0/GLB 2.0 com rig humanoide, materiais MToon, texturas
 embutidas e expressoes faciais. Como ele nao possui animacoes embutidas, o Orion
 mantem movimentos procedurais e usa expressoes VRM para fala e emocao.
+Em seguida, `orion-avatar.glb` passa a ser o modelo principal. Ele e um GLB 2.0
+com extensao interna VRM 1.0, carregado com `vrmCompatible` para manter o mesmo
+pipeline de expressoes.
 
 Modos visuais:
 

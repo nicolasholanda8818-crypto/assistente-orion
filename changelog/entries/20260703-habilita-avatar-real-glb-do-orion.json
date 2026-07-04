@@ -1,0 +1,12 @@
+{
+  "id": "20260703-habilita-avatar-real-glb-do-orion",
+  "type": "changed",
+  "summary": "Habilita avatar real GLB do Orion",
+  "details": [
+    "Analisa o arquivo orion.glb como GLB 2.0 com extensao interna VRM 1.0, rig humanoide, materiais MToon e texturas embutidas.",
+    "Habilita frontend/assets/models/orion-avatar.glb como modelo principal no manifesto com vrmCompatible, preservando o VRM anterior e fallback procedural.",
+    "Atualiza o cache PWA para orion-pwa-v47-real-glb e documenta limitacoes tecnicas e de licenca detectadas na metadata do modelo."
+  ],
+  "date": "2026-07-03",
+  "version": null
+}
