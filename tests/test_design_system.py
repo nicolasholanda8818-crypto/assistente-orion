@@ -95,7 +95,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v48-idle-animation";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v49-avatar-framing";' in service_worker
     assert "cache.addAll(APP_SHELL.map((path) => freshRequest(path)))" in service_worker
     assert 'event.data.type === "SKIP_WAITING"' in service_worker
     assert "self.clients.claim()" in service_worker
@@ -286,6 +286,8 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "animation-manifest.json" in avatar_3d
     assert "retargetMixamoClipToVrm" in avatar_3d
     assert "MIXAMO_TO_VROID_BONES" in avatar_3d
+    assert "applyAvatarPoseCorrection" in avatar_3d
+    assert "collectAvatarBones" in avatar_3d
     assert "data-avatar-3d-fallback" in avatar_3d
     assert "vrmCompatible" in avatar_3d
     manifest = read_frontend("assets/models/avatar-manifest.json")

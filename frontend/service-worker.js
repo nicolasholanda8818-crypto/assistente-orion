@@ -1,4 +1,4 @@
-const CACHE_NAME = "orion-pwa-v48-idle-animation";
+const CACHE_NAME = "orion-pwa-v49-avatar-framing";
 const APP_SHELL = [
   "/",
   "/index.html",

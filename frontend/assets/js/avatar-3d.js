@@ -377,6 +377,9 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
     vrm: undefined,
     morphTargets: [],
     vrmExpressionNames: [],
+    bones: {},
+    poseEuler: new THREE.Euler(),
+    poseQuaternion: new THREE.Quaternion(),
     animationStatus: "breathing-procedural",
     emissiveMaterials: [],
     outfit: "original",
@@ -420,6 +423,7 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
   normalizeModel(THREE, avatarScene);
   modelRoot.add(avatarScene);
   collectMaterials(avatarScene, state);
+  state.bones = collectAvatarBones(avatarScene);
   setupAnimations(THREE, gltf, avatarScene, state);
   await setupExternalAnimations(THREE, avatarScene, state);
   container.dataset.animationStatus = state.animationStatus;
@@ -447,6 +451,7 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
     state.mixer?.update(delta * config.speed);
     applyVrmExpressions(state, state.current, speechPulse, elapsed);
     state.vrm?.update?.(delta);
+    applyAvatarPoseCorrection(state, elapsed, config.gesture);
 
     if (!state.activeAction) {
       modelRoot.position.y = Math.sin(elapsed * 1.45 * config.speed) * 0.018;
@@ -897,9 +902,9 @@ function normalizeModel(THREE, model) {
   const size = box.getSize(new THREE.Vector3());
   const center = box.getCenter(new THREE.Vector3());
   const height = Math.max(size.y, 0.001);
-  const scale = 3.15 / height;
+  const scale = 1.2 / height;
   model.scale.setScalar(scale);
-  model.position.set(-center.x * scale, -box.min.y * scale - 1.52, -center.z * scale);
+  model.position.set(-center.x * scale, -box.min.y * scale + 0.42, -center.z * scale);
 }
 
 function collectMaterials(model, state) {
@@ -917,6 +922,62 @@ function collectMaterials(model, state) {
       }
     }
   });
+}
+
+function collectAvatarBones(model) {
+  const bones = {};
+  const byName = {
+    chest: "J_Bip_C_Chest",
+    upperChest: "J_Bip_C_UpperChest",
+    neck: "J_Bip_C_Neck",
+    head: "J_Bip_C_Head",
+    leftShoulder: "J_Bip_L_Shoulder",
+    leftUpperArm: "J_Bip_L_UpperArm",
+    leftLowerArm: "J_Bip_L_LowerArm",
+    leftHand: "J_Bip_L_Hand",
+    rightShoulder: "J_Bip_R_Shoulder",
+    rightUpperArm: "J_Bip_R_UpperArm",
+    rightLowerArm: "J_Bip_R_LowerArm",
+    rightHand: "J_Bip_R_Hand",
+    leftUpperLeg: "J_Bip_L_UpperLeg",
+    rightUpperLeg: "J_Bip_R_UpperLeg",
+  };
+  model.traverse((node) => {
+    Object.entries(byName).forEach(([key, nodeName]) => {
+      if (node.name === nodeName) {
+        bones[key] = node;
+      }
+    });
+  });
+  return bones;
+}
+
+function applyAvatarPoseCorrection(state, elapsed, gesture) {
+  const breathe = Math.sin(elapsed * 1.28);
+  setBoneRotation(state, state.bones.chest, -0.02 + breathe * 0.012, 0, 0, 0.08);
+  setBoneRotation(state, state.bones.upperChest, -0.035 + breathe * 0.014, 0, 0, 0.08);
+  setBoneRotation(state, state.bones.neck, 0.025 + gesturePitch(gesture, elapsed) * 0.45, 0, 0, 0.08);
+  setBoneRotation(state, state.bones.head, -0.018 + gesturePitch(gesture, elapsed) * 0.65, Math.sin(elapsed * 0.52) * 0.045, 0, 0.08);
+
+  setBoneRotation(state, state.bones.leftShoulder, 0, 0, -0.42, 0.14);
+  setBoneRotation(state, state.bones.rightShoulder, 0, 0, 0.42, 0.14);
+  setBoneRotation(state, state.bones.leftUpperArm, 0.1, 0.12, -2.25 + breathe * 0.024, 0.2);
+  setBoneRotation(state, state.bones.rightUpperArm, 0.1, -0.12, 2.25 - breathe * 0.024, 0.2);
+  setBoneRotation(state, state.bones.leftLowerArm, 0.02, 0.06, -0.42, 0.15);
+  setBoneRotation(state, state.bones.rightLowerArm, 0.02, -0.06, 0.42, 0.15);
+  setBoneRotation(state, state.bones.leftHand, 0, 0, -0.14, 0.12);
+  setBoneRotation(state, state.bones.rightHand, 0, 0, 0.14, 0.12);
+  setBoneRotation(state, state.bones.leftUpperLeg, -0.015, 0, 0.025, 0.08);
+  setBoneRotation(state, state.bones.rightUpperLeg, -0.015, 0, -0.025, 0.08);
+}
+
+function setBoneRotation(state, bone, x, y, z, alpha) {
+  if (!bone) {
+    return;
+  }
+  state.poseEuler.set(x, y, z, "XYZ");
+  state.poseQuaternion.setFromEuler(state.poseEuler);
+  bone.quaternion.slerp(state.poseQuaternion, alpha);
 }
 
 function setupAnimations(THREE, gltf, avatarScene, state) {
