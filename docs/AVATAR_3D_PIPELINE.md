@@ -12,6 +12,9 @@ O avatar possui tres camadas progressivas:
 2. Avatar humanoide procedural em Three.js, criado localmente com primitivas leves quando nao ha GLB/VRM habilitado.
 3. Avatar GLB/VRM real, carregado por manifesto local quando o administrador habilitar um modelo proprio.
 
+Na integracao Volume IV, `orion-avatar.vrm` passa a ser o modelo principal do
+manifesto. As duas camadas anteriores continuam como fallback.
+
 Nenhuma camada remove a anterior. Se WebGL, Three.js, manifesto ou modelo falharem, o Orion volta para o avatar HTML/CSS.
 
 ## Fluxo de Carregamento
@@ -85,6 +88,10 @@ logos ou personagens das referencias.
 Para GLB/VRM, o runtime tenta usar morph targets comuns de boca. Para o avatar procedural, a boca abre e fecha em pulsos leves durante `speaking` e `responding`.
 
 Esse lip sync e intencionalmente simples para manter compatibilidade mobile e nao depender de analise de audio pesada.
+
+No VRM real, o runtime usa primeiro o `expressionManager` com presets como
+`aa`, `ih`, `ou`, `ee`, `oh`, `blink`, `happy`, `angry`, `sad`, `surprised` e
+`relaxed`. Morph targets diretos seguem como fallback.
 
 ## Regras de Performance
 

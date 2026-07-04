@@ -13,6 +13,10 @@ A fonte autoritativa fica em `changelog/entries`.
   - Avatar procedural Three.js ganha proporcoes mais humanas, olhos com catchlight, materiais refinados e roupa futurista original.
   - Cerebro Cosmico adiciona planetas, espirais galacticas, estrelas e linhas neurais com reducao automatica em modo Performance.
   - Cache PWA sobe para orion-pwa-v45-cosmic-avatar e documentos registram que referencias externas sao apenas direcao artistica, nao copia.
+- Integra avatar real VRM do Orion
+  - Analisa o arquivo orion.vrm como VRM 1.0/GLB 2.0 com rig humanoide, materiais MToon, texturas embutidas e expressoes faciais.
+  - Habilita frontend/assets/models/orion-avatar.vrm como modelo principal no manifesto, preservando fallback procedural e HTML/CSS.
+  - Runtime VRM passa a usar expressionManager para lip sync, piscada e emocoes, mantendo animacoes procedurais quando o modelo nao possui clips.
 - Documenta Nucleo de Inteligencia OPS 2.0
   - Cria docs/COGNITIVE_CORE.md como contrato oficial para raciocinio, contexto, memoria, modos cognitivos e qualidade das respostas.
   - Cria contratos para Vision Engine, Document Engine e Memory System, preservando privacidade e limites de seguranca.

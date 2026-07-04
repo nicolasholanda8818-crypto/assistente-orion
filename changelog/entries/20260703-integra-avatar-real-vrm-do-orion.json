@@ -1,0 +1,12 @@
+{
+  "id": "20260703-integra-avatar-real-vrm-do-orion",
+  "type": "added",
+  "summary": "Integra avatar real VRM do Orion",
+  "details": [
+    "Analisa o arquivo orion.vrm como VRM 1.0/GLB 2.0 com rig humanoide, materiais MToon, texturas embutidas e expressoes faciais.",
+    "Habilita frontend/assets/models/orion-avatar.vrm como modelo principal no manifesto, preservando fallback procedural e HTML/CSS.",
+    "Runtime VRM passa a usar expressionManager para lip sync, piscada e emocoes, mantendo animacoes procedurais quando o modelo nao possui clips."
+  ],
+  "date": "2026-07-03",
+  "version": null
+}

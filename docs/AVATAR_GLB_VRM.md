@@ -106,3 +106,23 @@ procedural em Three.js. Essa ponte permite testar corpo inteiro, gestos, estados
 roupas e lip sync leve antes de empacotar um modelo real.
 
 O avatar HTML/CSS continua sendo o fallback final e nao e removido.
+
+## Avatar VRM Real
+
+A integracao Volume IV habilita `frontend/assets/models/orion-avatar.vrm` como
+modelo visual principal. A analise tecnica esta registrada em
+`docs/AVATAR_MODEL_ANALYSIS.md`.
+
+Caracteristicas detectadas:
+
+- VRM 1.0 / GLB 2.0;
+- 54 ossos humanoides;
+- 57 morph targets faciais;
+- presets de expressao `aa`, `blink`, `happy`, `angry`, `sad`, `surprised` e outros;
+- 16 materiais MToon/unlit;
+- 28 texturas PNG embutidas;
+- nenhuma animacao embutida.
+
+Como o modelo nao traz clips de animacao, o Orion usa movimentos procedurais
+leves para idle, pensamento, escuta e fala, combinados com o `expressionManager`
+do VRM para lip sync e emocoes.

@@ -127,18 +127,23 @@ olhos expressivos, materiais mais refinados e roupa futurista original. O Cerebr
 Cosmico ganha planetas, espirais galacticas e linhas neurais em Three.js/canvas,
 sem copiar personagens, logos ou assets externos.
 
+O Volume IV integra `orion-avatar.vrm` como avatar real principal. O arquivo foi
+analisado como VRM 1.0/GLB 2.0 com rig humanoide, materiais MToon, texturas
+embutidas e expressoes faciais. Como ele nao possui animacoes embutidas, o Orion
+mantem movimentos procedurais e usa expressoes VRM para fala e emocao.
+
 Modos visuais:
 
 - `Performance`: reduz efeitos para celular e dispositivos fracos.
 - `Equilibrado`: visual premium com boa fluidez.
 - `Ultra Visual`: efeitos mais fortes para PC.
 
-Consulte `docs/VISUAL_SYSTEM.md`, `docs/AVATAR_SYSTEM.md`,
+Consulte `docs/VISUAL_SYSTEM.md`, `docs/ART_DIRECTION.md`, `docs/AVATAR_SYSTEM.md`,
 `docs/AVATAR_GLB_VRM.md`, `docs/AVATAR_GLB_VRM_PLAN.md`,
 `docs/AVATAR_3D_PIPELINE.md`, `docs/COSMIC_BRAIN.md`,
 `docs/COSMIC_BRAIN_3D_PLAN.md`, `docs/SCENE_3D_SYSTEM.md`,
 `docs/PERFORMANCE_VISUAL.md`, `docs/GSAP_ANIMATION_SYSTEM.md` e
-`docs/PORTFOLIO_MODE.md`.
+`docs/PORTFOLIO_MODE.md`, `docs/AVATAR_MODEL_ANALYSIS.md`.
 
 ## Modo Cerebro 3D
 

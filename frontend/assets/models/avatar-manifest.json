@@ -1,6 +1,6 @@
 {
-  "enabled": false,
-  "defaultModelId": "orion-local-glb",
+  "enabled": true,
+  "defaultModelId": "orion-local-vrm",
   "models": [
     {
       "id": "orion-local-glb",
@@ -11,10 +11,19 @@
     },
     {
       "id": "orion-local-vrm",
-      "label": "Orion VRM local",
+      "label": "Orion VRM real",
       "type": "vrm",
       "url": "/assets/models/orion-avatar.vrm",
-      "enabled": false
+      "enabled": true,
+      "profile": {
+        "source": "VRoid Studio 2.14.0",
+        "format": "VRM 1.0",
+        "sizeBytes": 16143032,
+        "hasHumanoidRig": true,
+        "hasExpressions": true,
+        "hasEmbeddedAnimations": false,
+        "fallback": "procedural-three"
+      }
     }
   ]
 }

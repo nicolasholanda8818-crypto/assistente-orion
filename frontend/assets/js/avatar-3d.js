@@ -373,6 +373,7 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
     activeAction: undefined,
     vrm: undefined,
     morphTargets: [],
+    vrmExpressionNames: [],
     emissiveMaterials: [],
     outfit: "original",
     resizeObserver: undefined,
@@ -410,6 +411,7 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
   const gltf = await loader.loadAsync(modelConfig.url);
   const vrm = gltf.userData?.vrm;
   state.vrm = vrm;
+  state.vrmExpressionNames = collectVrmExpressionNames(vrm);
   const avatarScene = vrm?.scene || gltf.scene;
   normalizeModel(THREE, avatarScene);
   modelRoot.add(avatarScene);
@@ -437,6 +439,7 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
     const speechPulse = speechActive ? (Math.sin(elapsed * 18) + 1) / 2 : 0;
 
     state.mixer?.update(delta * config.speed);
+    applyVrmExpressions(state, state.current, speechPulse, elapsed);
     state.vrm?.update?.(delta);
 
     if (!state.activeAction) {
@@ -955,7 +958,7 @@ function applyBasicLipSync(state, intensity) {
   state.morphTargets.forEach((mesh) => {
     const dictionary = mesh.morphTargetDictionary || {};
     const influences = mesh.morphTargetInfluences || [];
-    const names = ["jawOpen", "mouthOpen", "aa", "A", "viseme_aa", "v_aa"];
+    const names = ["jawOpen", "mouthOpen", "aa", "A", "viseme_aa", "v_aa", "Fcl_MTH_A", "Fcl_MTH_Large"];
     names.forEach((name) => {
       const index = dictionary[name];
       if (typeof index === "number") {
@@ -963,6 +966,55 @@ function applyBasicLipSync(state, intensity) {
       }
     });
   });
+}
+
+function collectVrmExpressionNames(vrm) {
+  const manager = vrm?.expressionManager;
+  if (!manager) {
+    return [];
+  }
+  if (Array.isArray(manager.expressions)) {
+    return manager.expressions.map((expression) => expression.expressionName || expression.presetName || expression.name).filter(Boolean);
+  }
+  if (manager._expressionsMap instanceof Map) {
+    return [...manager._expressionsMap.keys()];
+  }
+  return ["neutral", "aa", "ih", "ou", "ee", "oh", "blink", "happy", "angry", "sad", "surprised", "relaxed"];
+}
+
+function applyVrmExpressions(state, currentState, speechPulse, elapsed) {
+  const manager = state.vrm?.expressionManager;
+  if (!manager?.setValue) {
+    return;
+  }
+
+  const speechActive = performance.now() < state.speechUntil || ["speaking", "responding"].includes(currentState);
+  const mouthValue = speechActive ? Math.max(0.12, speechPulse * 0.86 * Math.max(state.speechIntensity, 0.35)) : 0;
+  const blinkValue = Math.sin(elapsed * 2.4) > 0.985 ? 1 : 0;
+  const expressionValues = {
+    aa: mouthValue,
+    ih: speechActive ? mouthValue * 0.22 : 0,
+    ou: speechActive ? mouthValue * 0.16 : 0,
+    ee: speechActive ? mouthValue * 0.12 : 0,
+    oh: speechActive ? mouthValue * 0.18 : 0,
+    blink: blinkValue,
+    happy: ["happy", "animated", "confident"].includes(currentState) ? 0.58 : 0,
+    angry: currentState === "annoyed" ? 0.44 : 0,
+    sad: ["tired", "worried"].includes(currentState) ? 0.34 : 0,
+    surprised: currentState === "curious" ? 0.32 : 0,
+    relaxed: currentState === "online" ? 0.16 : 0,
+    neutral: currentState === "online" ? 0.18 : 0,
+  };
+
+  const names = state.vrmExpressionNames.length ? state.vrmExpressionNames : Object.keys(expressionValues);
+  names.forEach((name) => {
+    try {
+      manager.setValue(name, expressionValues[name] || 0);
+    } catch {
+      // Some aliases can be absent depending on the exported VRM profile.
+    }
+  });
+  manager.update?.();
 }
 
 function outfitTint(outfit) {

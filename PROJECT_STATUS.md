@@ -113,6 +113,8 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Modo Portfolio interativo adicionado na sidebar, nos Ajustes rapidos e por comando no chat, preservando avatar, PWA, WebSocket e Lord Dragons.
 - [x] Fase Visual Suprema adiciona avatar humanoide Three.js local quando nao ha GLB/VRM ativo, cenario 3D estilo jogo e cache `orion-pwa-v44-supreme-visual`.
 - [x] Evolucao Cosmic Avatar adiciona proporcoes humanas, olhos expressivos, roupa futurista original, planetas, galaxias e linhas neurais com cache `orion-pwa-v45-cosmic-avatar`.
+- [x] Direcao artistica oficial documentada para avatar premium, cenario futurista, Cerebro Cosmico e preservacao de identidade original sem copiar referencias externas.
+- [x] Volume IV integra `orion-avatar.vrm` como avatar real principal, com fallback procedural/HTML preservado e cache `orion-pwa-v46-real-vrm`.
 - [x] OPS 2.0 do Nucleo de Inteligencia documenta Cognitive Core, memoria, visao, documentos e pesquisa web como contratos oficiais para evolucoes futuras.
 
 ## Marcos Planejados
