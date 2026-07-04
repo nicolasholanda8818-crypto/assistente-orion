@@ -147,3 +147,11 @@ Caracteristicas detectadas:
 
 O `orion-avatar.vrm` permanece no manifesto como alternativa preservada. O
 fallback procedural e o avatar HTML/CSS continuam obrigatorios.
+
+## Idle FBX
+
+A animacao `frontend/assets/animations/orion-idle.fbx` e carregada por manifesto
+separado. Ela usa rig `mixamorig`, entao o runtime aplica retarget leve para os
+ossos VRoid do avatar real. O movimento procedural de respiracao, piscada VRM e
+fallback HTML/CSS continuam ativos para evitar que o Orion fique parado ou quebre
+em dispositivos sem suporte.

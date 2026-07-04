@@ -1,0 +1,24 @@
+{
+  "enabled": true,
+  "defaultIdleId": "orion-standing-idle-to-fight-idle",
+  "animations": [
+    {
+      "id": "orion-standing-idle-to-fight-idle",
+      "label": "Standing Idle To Fight Idle",
+      "kind": "idle",
+      "type": "fbx",
+      "url": "/assets/animations/orion-idle.fbx",
+      "enabled": true,
+      "profile": {
+        "sourceRig": "mixamorig",
+        "targetRig": "VRoid humanoid",
+        "format": "FBX 7700 binary",
+        "sizeBytes": 1849184,
+        "animationStacks": 2,
+        "animationCurves": 315,
+        "boneModels": 65,
+        "fallback": "breathing-procedural"
+      }
+    }
+  ]
+}

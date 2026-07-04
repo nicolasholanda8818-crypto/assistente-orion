@@ -47,6 +47,7 @@ Cada ticket possui objetivo unico e deve ser concluido, testado e documentado an
 | T0000-DOCS-PDF-20260623 | Implementar arquivos, documentos, PDF, apostilas, trabalhos e flashcards no Orion Files | T0000-AVATAR-BRAIN-20260623 |
 | T0000-INTEL-WEB-VOICE-20260624 | Fortalecer inteligencia conversacional, vendas, negociacao, consultor, busca web e voz masculina BR | T0000-DOCS-PDF-20260623 |
 | T0000-VISUAL-GLB-20260703 | Integrar avatar real GLB/VRM com manifesto, fallback procedural e cache PWA v47 | T0000-INTEL-WEB-VOICE-20260624 |
+| T0000-IDLE-FBX-20260704 | Integrar animacao Idle FBX ao avatar real com retarget leve e fallback Breathing procedural | T0000-VISUAL-GLB-20260703 |
 | T0001 | Criar estrutura canonica, arquivos de configuracao e baseline do repositorio | Gate G0 aprovado |
 | T0002 | Configurar FastAPI, health checks e ciclo de vida local | T0001 |
 | T0003 | Configurar PWA base, manifest, service worker e offline shell | T0001 |

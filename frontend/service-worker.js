@@ -1,4 +1,4 @@
-const CACHE_NAME = "orion-pwa-v47-real-glb";
+const CACHE_NAME = "orion-pwa-v48-idle-animation";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -25,6 +25,7 @@ const APP_SHELL = [
   "/assets/js/socket.js",
   "/assets/js/voice-engine.js",
   "/assets/models/avatar-manifest.json",
+  "/assets/animations/animation-manifest.json",
   "/assets/js/lord-dragons/content.js",
   "/assets/js/lord-dragons/audio.js",
   "/assets/js/lord-dragons/main.js",
@@ -48,7 +49,8 @@ function isAppShellPath(pathname) {
     pathname.startsWith("/assets/js/") ||
     pathname.startsWith("/assets/css/") ||
     pathname === "/manifest.webmanifest" ||
-    pathname === "/assets/models/avatar-manifest.json"
+    pathname === "/assets/models/avatar-manifest.json" ||
+    pathname === "/assets/animations/animation-manifest.json"
   );
 }
 

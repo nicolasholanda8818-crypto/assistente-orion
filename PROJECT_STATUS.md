@@ -116,6 +116,7 @@ Nenhum ticket de implementacao deve iniciar antes da aprovacao explicita do gate
 - [x] Direcao artistica oficial documentada para avatar premium, cenario futurista, Cerebro Cosmico e preservacao de identidade original sem copiar referencias externas.
 - [x] Volume IV integra `orion-avatar.vrm` como avatar real principal, com fallback procedural/HTML preservado e cache `orion-pwa-v46-real-vrm`.
 - [x] Volume IV atualiza o modelo principal para `orion-avatar.glb`, GLB 2.0 com extensao VRM interna, fallback VRM/procedural preservado e cache `orion-pwa-v47-real-glb`.
+- [x] Animacao Idle FBX adicionada como padrao do avatar real, com retarget `mixamorig` para VRoid, fallback de respiracao procedural e cache `orion-pwa-v48-idle-animation`.
 - [x] OPS 2.0 do Nucleo de Inteligencia documenta Cognitive Core, memoria, visao, documentos e pesquisa web como contratos oficiais para evolucoes futuras.
 
 ## Marcos Planejados

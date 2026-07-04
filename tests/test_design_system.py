@@ -95,7 +95,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v47-real-glb";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v48-idle-animation";' in service_worker
     assert "cache.addAll(APP_SHELL.map((path) => freshRequest(path)))" in service_worker
     assert 'event.data.type === "SKIP_WAITING"' in service_worker
     assert "self.clients.claim()" in service_worker
@@ -116,6 +116,7 @@ def test_service_worker_caches_design_system_assets():
     assert '"/assets/js/premium-visuals.js"' in service_worker
     assert '"/assets/js/voice-engine.js"' in service_worker
     assert '"/assets/models/avatar-manifest.json"' in service_worker
+    assert '"/assets/animations/animation-manifest.json"' in service_worker
 
 
 def test_shell_contains_accessible_first_run_onboarding():
@@ -271,6 +272,7 @@ def test_orion_visual_modes_and_search_contract_are_available():
     avatar_3d = read_frontend("assets/js/avatar-3d.js")
     assert "GLTFLoader" in avatar_3d
     assert "VRMLoaderPlugin" in avatar_3d
+    assert "FBXLoader" in avatar_3d
     assert "createProceduralAvatarEngine" in avatar_3d
     assert "buildProceduralRig" in avatar_3d
     assert "collectVrmExpressionNames" in avatar_3d
@@ -281,6 +283,9 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert "procedural-three" in avatar_3d
     assert "orion:avatar3d:modelUrl" in avatar_3d
     assert "avatar-manifest.json" in avatar_3d
+    assert "animation-manifest.json" in avatar_3d
+    assert "retargetMixamoClipToVrm" in avatar_3d
+    assert "MIXAMO_TO_VROID_BONES" in avatar_3d
     assert "data-avatar-3d-fallback" in avatar_3d
     assert "vrmCompatible" in avatar_3d
     manifest = read_frontend("assets/models/avatar-manifest.json")
@@ -288,6 +293,10 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert '"enabled": true' in manifest
     assert '"url": "/assets/models/orion-avatar.glb"' in manifest
     assert '"vrmCompatible": true' in manifest
+    animation_manifest = read_frontend("assets/animations/animation-manifest.json")
+    assert '"defaultIdleId": "orion-standing-idle-to-fight-idle"' in animation_manifest
+    assert '"url": "/assets/animations/orion-idle.fbx"' in animation_manifest
+    assert '"fallback": "breathing-procedural"' in animation_manifest
     assert "MEMORY_CATEGORIES" in brain_vault
     assert "Documentos" in brain_vault
     assert "Aprendizado" in brain_vault

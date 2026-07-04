@@ -134,6 +134,8 @@ mantem movimentos procedurais e usa expressoes VRM para fala e emocao.
 Em seguida, `orion-avatar.glb` passa a ser o modelo principal. Ele e um GLB 2.0
 com extensao interna VRM 1.0, carregado com `vrmCompatible` para manter o mesmo
 pipeline de expressoes.
+O Idle padrao agora pode carregar `orion-idle.fbx`, retargetado de `mixamorig`
+para ossos VRoid, com respiracao procedural como fallback.
 
 Modos visuais:
 
@@ -143,7 +145,7 @@ Modos visuais:
 
 Consulte `docs/VISUAL_SYSTEM.md`, `docs/ART_DIRECTION.md`, `docs/AVATAR_SYSTEM.md`,
 `docs/AVATAR_GLB_VRM.md`, `docs/AVATAR_GLB_VRM_PLAN.md`,
-`docs/AVATAR_3D_PIPELINE.md`, `docs/COSMIC_BRAIN.md`,
+`docs/AVATAR_3D_PIPELINE.md`, `docs/AVATAR_ANIMATIONS.md`, `docs/COSMIC_BRAIN.md`,
 `docs/COSMIC_BRAIN_3D_PLAN.md`, `docs/SCENE_3D_SYSTEM.md`,
 `docs/PERFORMANCE_VISUAL.md`, `docs/GSAP_ANIMATION_SYSTEM.md` e
 `docs/PORTFOLIO_MODE.md`, `docs/AVATAR_MODEL_ANALYSIS.md`.

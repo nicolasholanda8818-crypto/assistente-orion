@@ -25,7 +25,7 @@ def test_application_status(client):
     assert payload["database"]["status"] == "ready"
     assert payload["database"]["metadata_records"] == 5
     assert payload["pwa"]["static_dir"] == "frontend"
-    assert payload["pwa"]["cache_name"] == "orion-pwa-v47-real-glb"
+    assert payload["pwa"]["cache_name"] == "orion-pwa-v48-idle-animation"
     assert payload["brain"]["mode"] == "deterministic-fallback"
     assert payload["brain"]["components"]["memory"] == "volatile+user-sqlite+continuity"
     assert payload["brain"]["components"]["orion_memory"] == "profile-facts-summaries"

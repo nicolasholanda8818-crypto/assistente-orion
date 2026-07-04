@@ -1,0 +1,12 @@
+{
+  "id": "20260704-integra-animacao-idle-fbx-do-orion",
+  "type": "added",
+  "summary": "Integra animacao Idle FBX do Orion",
+  "details": [
+    "Adiciona frontend/assets/animations/orion-idle.fbx e manifesto de animacoes para carregar Idle automaticamente.",
+    "Runtime passa a usar FBXLoader e retarget leve de ossos mixamorig para VRoid J_Bip, preservando respiracao procedural como fallback.",
+    "Cache PWA sobe para orion-pwa-v48-idle-animation e a documentacao registra transicoes, piscada, postura e fallback Breathing Idle."
+  ],
+  "date": "2026-07-04",
+  "version": null
+}

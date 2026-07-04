@@ -97,6 +97,13 @@ No VRM real, o runtime usa primeiro o `expressionManager` com presets como
 Quando um GLB contem extensao interna `VRMC_vrm`, o manifesto usa
 `vrmCompatible: true` para carregar o plugin VRM mesmo com URL `.glb`.
 
+## Idle Externo
+
+`frontend/assets/animations/orion-idle.fbx` adiciona uma animacao Idle externa
+em FBX. O runtime carrega `animation-manifest.json`, usa `FBXLoader`, retargeta
+tracks `mixamorig` para ossos VRoid `J_Bip_*` e registra a acao como Idle
+padrao. Se a animacao falhar, a respiracao procedural permanece ativa.
+
 ## Regras de Performance
 
 - Modo Performance reduz pixel ratio e efeitos.

@@ -1,7 +1,9 @@
 const THREE_URL = "https://esm.sh/three@0.184.0";
 const GLTF_LOADER_URL = "https://esm.sh/three@0.184.0/examples/jsm/loaders/GLTFLoader.js";
+const FBX_LOADER_URL = "https://esm.sh/three@0.184.0/examples/jsm/loaders/FBXLoader.js";
 const VRM_URL = "https://esm.sh/@pixiv/three-vrm@3.5.4";
 const MANIFEST_URL = "/assets/models/avatar-manifest.json";
+const ANIMATION_MANIFEST_URL = "/assets/animations/animation-manifest.json";
 const MODEL_OVERRIDE_KEY = "orion:avatar3d:modelUrl";
 
 const AVATAR_STATES = {
@@ -375,6 +377,7 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
     vrm: undefined,
     morphTargets: [],
     vrmExpressionNames: [],
+    animationStatus: "breathing-procedural",
     emissiveMaterials: [],
     outfit: "original",
     resizeObserver: undefined,
@@ -418,6 +421,8 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
   modelRoot.add(avatarScene);
   collectMaterials(avatarScene, state);
   setupAnimations(THREE, gltf, avatarScene, state);
+  await setupExternalAnimations(THREE, avatarScene, state);
+  container.dataset.animationStatus = state.animationStatus;
   container.replaceChildren(renderer.domElement);
 
   function resize() {
@@ -928,6 +933,169 @@ function setupAnimations(THREE, gltf, avatarScene, state) {
     }
   });
 }
+
+async function setupExternalAnimations(THREE, avatarScene, state) {
+  try {
+    const animationConfig = await resolveIdleAnimationConfig();
+    if (!animationConfig) {
+      state.animationStatus = "breathing-procedural";
+      return;
+    }
+
+    const { FBXLoader } = await import(FBX_LOADER_URL);
+    const loader = new FBXLoader();
+    const fbx = await loader.loadAsync(animationConfig.url);
+    const sourceClip = fbx.animations?.[0];
+    if (!sourceClip) {
+      state.animationStatus = "breathing-procedural";
+      return;
+    }
+
+    const clip = retargetMixamoClipToVrm(THREE, sourceClip, avatarScene);
+    if (!clip) {
+      state.animationStatus = "breathing-procedural";
+      return;
+    }
+
+    state.mixer ||= new THREE.AnimationMixer(avatarScene);
+    const action = state.mixer.clipAction(clip);
+    action.enabled = true;
+    action.setLoop(THREE.LoopRepeat, Infinity);
+    action.clampWhenFinished = false;
+    state.actions.idle = action;
+    state.animationStatus = animationConfig.kind === "breathing" ? "breathing-idle-ready" : "idle-ready";
+  } catch {
+    state.animationStatus = "breathing-procedural";
+  }
+}
+
+async function resolveIdleAnimationConfig() {
+  const response = await fetch(ANIMATION_MANIFEST_URL, { cache: "no-store" });
+  if (!response.ok) {
+    return undefined;
+  }
+  const manifest = await response.json();
+  if (!manifest?.enabled || !Array.isArray(manifest.animations)) {
+    return undefined;
+  }
+
+  const enabled = manifest.animations.filter((animation) => animation.enabled && isAllowedAnimationUrl(animation.url));
+  const preferred = enabled.find((animation) => animation.id === manifest.defaultIdleId);
+  const idle = preferred || enabled.find((animation) => animation.kind === "idle");
+  const breathing = enabled.find((animation) => animation.kind === "breathing");
+  return idle || breathing;
+}
+
+function isAllowedAnimationUrl(url) {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    return parsed.origin === window.location.origin && parsed.pathname.toLowerCase().endsWith(".fbx");
+  } catch {
+    return false;
+  }
+}
+
+function retargetMixamoClipToVrm(THREE, clip, avatarScene) {
+  const targetNames = new Set();
+  avatarScene.traverse((node) => {
+    if (node.name) {
+      targetNames.add(node.name);
+    }
+  });
+
+  const tracks = [];
+  clip.tracks.forEach((track) => {
+    const nextName = retargetMixamoTrackName(track.name, targetNames);
+    if (!nextName) {
+      return;
+    }
+    const nextTrack = track.clone();
+    nextTrack.name = nextName;
+    tracks.push(nextTrack);
+  });
+
+  if (tracks.length < 8) {
+    return undefined;
+  }
+
+  const retargeted = new THREE.AnimationClip("Orion Idle FBX", clip.duration, tracks);
+  retargeted.optimize();
+  return retargeted;
+}
+
+function retargetMixamoTrackName(trackName, targetNames) {
+  const separatorIndex = trackName.indexOf(".");
+  if (separatorIndex < 1) {
+    return undefined;
+  }
+  const rawBoneName = trackName.slice(0, separatorIndex);
+  const propertyName = trackName.slice(separatorIndex + 1);
+  if (!["quaternion", "rotation"].includes(propertyName)) {
+    return undefined;
+  }
+
+  const mixamoName = rawBoneName.replace(/^mixamorig[:_]?/i, "").replace(/\u0000.*$/, "");
+  const targetName = MIXAMO_TO_VROID_BONES[mixamoName];
+  if (!targetName || !targetNames.has(targetName)) {
+    return undefined;
+  }
+  return `${targetName}.${propertyName}`;
+}
+
+const MIXAMO_TO_VROID_BONES = {
+  Hips: "J_Bip_C_Hips",
+  Spine: "J_Bip_C_Spine",
+  Spine1: "J_Bip_C_Chest",
+  Spine2: "J_Bip_C_UpperChest",
+  Neck: "J_Bip_C_Neck",
+  Head: "J_Bip_C_Head",
+  LeftShoulder: "J_Bip_L_Shoulder",
+  LeftArm: "J_Bip_L_UpperArm",
+  LeftForeArm: "J_Bip_L_LowerArm",
+  LeftHand: "J_Bip_L_Hand",
+  LeftHandThumb1: "J_Bip_L_Thumb1",
+  LeftHandThumb2: "J_Bip_L_Thumb2",
+  LeftHandThumb3: "J_Bip_L_Thumb3",
+  LeftHandIndex1: "J_Bip_L_Index1",
+  LeftHandIndex2: "J_Bip_L_Index2",
+  LeftHandIndex3: "J_Bip_L_Index3",
+  LeftHandMiddle1: "J_Bip_L_Middle1",
+  LeftHandMiddle2: "J_Bip_L_Middle2",
+  LeftHandMiddle3: "J_Bip_L_Middle3",
+  LeftHandRing1: "J_Bip_L_Ring1",
+  LeftHandRing2: "J_Bip_L_Ring2",
+  LeftHandRing3: "J_Bip_L_Ring3",
+  LeftHandPinky1: "J_Bip_L_Little1",
+  LeftHandPinky2: "J_Bip_L_Little2",
+  LeftHandPinky3: "J_Bip_L_Little3",
+  LeftUpLeg: "J_Bip_L_UpperLeg",
+  LeftLeg: "J_Bip_L_LowerLeg",
+  LeftFoot: "J_Bip_L_Foot",
+  LeftToeBase: "J_Bip_L_ToeBase",
+  RightShoulder: "J_Bip_R_Shoulder",
+  RightArm: "J_Bip_R_UpperArm",
+  RightForeArm: "J_Bip_R_LowerArm",
+  RightHand: "J_Bip_R_Hand",
+  RightHandThumb1: "J_Bip_R_Thumb1",
+  RightHandThumb2: "J_Bip_R_Thumb2",
+  RightHandThumb3: "J_Bip_R_Thumb3",
+  RightHandIndex1: "J_Bip_R_Index1",
+  RightHandIndex2: "J_Bip_R_Index2",
+  RightHandIndex3: "J_Bip_R_Index3",
+  RightHandMiddle1: "J_Bip_R_Middle1",
+  RightHandMiddle2: "J_Bip_R_Middle2",
+  RightHandMiddle3: "J_Bip_R_Middle3",
+  RightHandRing1: "J_Bip_R_Ring1",
+  RightHandRing2: "J_Bip_R_Ring2",
+  RightHandRing3: "J_Bip_R_Ring3",
+  RightHandPinky1: "J_Bip_R_Little1",
+  RightHandPinky2: "J_Bip_R_Little2",
+  RightHandPinky3: "J_Bip_R_Little3",
+  RightUpLeg: "J_Bip_R_UpperLeg",
+  RightLeg: "J_Bip_R_LowerLeg",
+  RightFoot: "J_Bip_R_Foot",
+  RightToeBase: "J_Bip_R_ToeBase",
+};
 
 function gesturePitch(gesture, elapsed) {
   if (gesture === "thinking") {

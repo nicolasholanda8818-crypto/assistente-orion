@@ -34,6 +34,7 @@
 - [x] Implementar Fase 3 com arquivos, documentos, PDF, apostilas, trabalhos e flashcards.
 - [x] Fortalecer inteligencia conversacional com vendas, negociacao, consultor, busca web forte e voz masculina BR.
 - [x] Integrar avatar real VRM/GLB com manifesto, fallback procedural e cache PWA atualizado.
+- [x] Integrar animacao Idle FBX como padrao do avatar real com fallback Breathing procedural.
 - [ ] Vendorizar Three.js localmente para PWA offline completo.
 - [ ] Endurecer WebSocket com autenticacao, origin check, rate limit e quotas.
 - [ ] Criar E2E automatizado para o fluxo visual do Orion.

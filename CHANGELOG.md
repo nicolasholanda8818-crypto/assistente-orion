@@ -9,6 +9,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Adicionado
 
+- Integra animacao Idle FBX do Orion
+  - Adiciona frontend/assets/animations/orion-idle.fbx e manifesto de animacoes para carregar Idle automaticamente.
+  - Runtime passa a usar FBXLoader e retarget leve de ossos mixamorig para VRoid J_Bip, preservando respiracao procedural como fallback.
+  - Cache PWA sobe para orion-pwa-v48-idle-animation e a documentacao registra transicoes, piscada, postura e fallback Breathing Idle.
 - Refina avatar e Cerebro Cosmico com referencias visuais
   - Avatar procedural Three.js ganha proporcoes mais humanas, olhos com catchlight, materiais refinados e roupa futurista original.
   - Cerebro Cosmico adiciona planetas, espirais galacticas, estrelas e linhas neurais com reducao automatica em modo Performance.
