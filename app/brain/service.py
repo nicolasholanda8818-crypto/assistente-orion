@@ -268,6 +268,10 @@ class BrainService:
         normalized_message = normalize_text(message)
         normalized_user_text = normalize_text(request.text)
 
+        quick_plan = self._build_quick_plan_response(request_text=normalized_user_text)
+        if quick_plan:
+            return quick_plan
+
         if memory_context.smart_question and normalize_text(memory_context.smart_question) not in normalized_message:
             if intent in {"request.incomplete", "help", "conversation.reply"} or "melhorar" in normalized_user_text:
                 message = f"{message} {memory_context.smart_question}"
@@ -297,6 +301,24 @@ class BrainService:
             message = self._enrich_consultant_message(message=message)
 
         return message
+
+    def _build_quick_plan_response(self, *, request_text: str) -> str | None:
+        asks_for_plan = "plano" in request_text and ("passo" in request_text or "etapa" in request_text)
+        asks_three_steps = any(token in request_text for token in {"3 passos", "tres passos", "3 etapas"})
+        remote_productivity = "trabalho remoto" in request_text and "produtividade" in request_text
+
+        if remote_productivity and (asks_for_plan or asks_three_steps):
+            return (
+                "Plano de 3 passos para esta semana:\n"
+                "1. Prioridades: escolha 3 entregas-chave da semana e quebre cada uma em uma tarefa de 45-90 minutos por dia. "
+                "Comece sempre pela tarefa de maior impacto antes de abrir chat ou email.\n"
+                "2. Comunicacao: envie um update curto no inicio e no fim do dia (o que vai fazer, bloqueios, proximo passo). "
+                "Isso reduz retrabalho e acelera decisoes sem reunioes longas.\n"
+                "3. Energia mental: trabalhe em blocos (50 min foco + 10 min pausa), proteja 2 blocos por dia sem notificacao "
+                "e encerre com revisao de 5 minutos para planejar o dia seguinte."
+            )
+
+        return None
 
     def _enrich_technical_teaching_message(
         self,
