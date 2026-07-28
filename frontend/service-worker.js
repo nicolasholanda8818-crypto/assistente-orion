@@ -19,6 +19,7 @@ const APP_SHELL = [
   "/assets/js/main.js",
   "/assets/js/living-avatar.js",
   "/assets/js/onboarding.js",
+  "/assets/js/portfolio-profile.js",
   "/assets/js/premium-visuals.js",
   "/assets/js/pwa.js",
   "/assets/js/scene.js",

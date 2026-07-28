@@ -6,6 +6,23 @@ Status: `PROTOTIPO JOGAVEL LORD DRAGONS ADICIONADO COM RC BLOQUEADO`
 
 Status operacional recente: `INTELIGENCIA CONVERSACIONAL, VENDAS, WEB E VOZ EM VALIDACAO`
 
+## Atualizacao Orion Next - Fase 2 (Developer, Portfolio, Voz e Matematica)
+
+Data: `2026-07-28`
+
+Resultado:
+
+- [x] Brain evoluiu com selecao adaptativa de contexto, validacao automatica de resposta e continuidade por referencia implicita.
+- [x] Modulo deterministico de matematica adicionado para contas, porcentagem, media e equacao linear com resposta precisa.
+- [x] Perfil de portfolio profissional consolidado com respostas grounded sobre nome, formacao, cursos, conhecimentos e resumo.
+- [x] Frontend recebeu painel inteligente de portfolio, evolucao visual de habilidades e apresentacao guiada por voz.
+- [x] Mudancas preservaram Render, dominio e link publico, sem alterar contratos externos sensiveis.
+
+Validacao local executada:
+
+- `python -m pytest tests/test_brain.py tests/test_math_engine.py`: `79 passed`.
+- `powershell -ExecutionPolicy Bypass -File .\\scripts\\run_ci.ps1 -SkipInstall -SkipBrowserInstall`: aprovado (`214 passed`, E2E `5 passed`, coverage `83.05%`).
+
 ## Atualizacao Orion Next - Sprint B (Hardening WebSocket)
 
 Data: `2026-07-28`

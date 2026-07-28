@@ -82,6 +82,9 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'id="portfolio-panel"' in index
     assert 'id="portfolio-close-button"' in index
     assert 'id="portfolio-chat-focus-button"' in index
+    assert 'id="portfolio-voice-button"' in index
+    assert "Conheca Nicolas" in index
+    assert "NICOLAS KEVEN LOPES DE HOLANDA" in index
     assert "Portfolio Orion" in index
     assert "Documentos" in index
     assert "Aprendizado" in index
@@ -113,6 +116,7 @@ def test_service_worker_caches_design_system_assets():
     assert '"/assets/js/gsap-orion.js"' in service_worker
     assert '"/assets/js/living-avatar.js"' in service_worker
     assert '"/assets/js/onboarding.js"' in service_worker
+    assert '"/assets/js/portfolio-profile.js"' in service_worker
     assert '"/assets/js/premium-visuals.js"' in service_worker
     assert '"/assets/js/voice-engine.js"' in service_worker
     assert '"/assets/models/avatar-manifest.json"' in service_worker
@@ -244,7 +248,8 @@ def test_orion_visual_modes_and_search_contract_are_available():
     assert ".premium-visuals-ready" in stylesheet
     assert ".portfolio-panel" in stylesheet
     assert ".portfolio-card" in stylesheet
-    assert ".portfolio-timeline" in stylesheet
+    assert ".portfolio-smart-grid" in stylesheet
+    assert ".portfolio-evolution-list" in stylesheet
     assert ".system-status-panel" in stylesheet
     assert ".quick-actions-panel" in stylesheet
     assert ".orion-neural-backdrop" in stylesheet

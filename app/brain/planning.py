@@ -1,3 +1,4 @@
+from app.brain.conversation_manager import select_context_budget
 from app.brain.models import BrainPlan, ContextSnapshot, PlanStep
 from app.brain.orion_intents import detect_intent
 from app.brain.text import normalize_text, tokenize
@@ -21,6 +22,7 @@ class PlanningService:
         tokens = tokenize(text)
         normalized_text = normalize_text(text)
         detected_intent = detect_intent(text)
+        context_budget = select_context_budget(user_text=text, intent=detected_intent)
 
         if any(phrase in normalized_text for phrase in CREATOR_PHRASES):
             intent = "identity.creator"
@@ -36,8 +38,25 @@ class PlanningService:
         return BrainPlan(
             intent=intent,
             steps=[
-                PlanStep(action="context.read", reason="Consultar memoria volatil da conversa."),
-                PlanStep(action="knowledge.search", reason="Consultar conhecimento local permitido."),
-                PlanStep(action="response.compose", reason="Compor resposta local sem efeitos colaterais."),
+                PlanStep(
+                    action="context.read",
+                    reason=(
+                        "Consultar conversa atual e contexto recente com foco no que e relevante."
+                        if context_budget.complexity == "complex"
+                        else "Consultar memoria volatil da conversa."
+                    ),
+                ),
+                PlanStep(
+                    action="knowledge.search",
+                    reason=(
+                        "Validar se existe conhecimento local para reduzir ambiguidade."
+                        if context_budget.complexity != "simple"
+                        else "Consultar conhecimento local permitido."
+                    ),
+                ),
+                PlanStep(
+                    action="response.compose",
+                    reason="Compor resposta local sem efeitos colaterais e com checagem de consistencia.",
+                ),
             ],
         )

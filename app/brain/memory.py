@@ -1,5 +1,6 @@
 from collections import deque
 
+from app.brain.conversation_manager import has_implicit_reference
 from app.brain.models import ContextSnapshot, KnowledgeEntry, MemoryEntry
 from app.brain.text import similarity_score
 
@@ -21,17 +22,33 @@ class MemoryService:
         query: str,
         conversation_id: str,
         knowledge_hits: list[KnowledgeEntry],
+        recent_limit: int = 6,
+        relevant_limit: int = 3,
+        knowledge_limit: int = 3,
     ) -> ContextSnapshot:
         conversation_entries = [entry for entry in self._entries if entry.conversation_id == conversation_id]
-        relevant = sorted(
+        relevant_scored = sorted(
             (entry for entry in conversation_entries if similarity_score(query, entry.content) > 0),
             key=lambda entry: similarity_score(query, entry.content),
             reverse=True,
         )
+
+        relevant = relevant_scored[:relevant_limit]
+        if has_implicit_reference(query) and not relevant:
+            # Referencias vagas como "isso" ou "aquele negocio" precisam puxar o fio recente.
+            recent_user_memory = [entry for entry in reversed(conversation_entries) if entry.role == "user"]
+            recent_assistant_memory = [entry for entry in reversed(conversation_entries) if entry.role == "assistant"]
+            fallback = []
+            if recent_user_memory:
+                fallback.append(recent_user_memory[0])
+            if recent_assistant_memory:
+                fallback.append(recent_assistant_memory[0])
+            relevant = fallback[:relevant_limit]
+
         return ContextSnapshot(
-            recent_messages=conversation_entries[-6:],
-            relevant_memories=relevant[:3],
-            knowledge_hits=knowledge_hits,
+            recent_messages=conversation_entries[-recent_limit:],
+            relevant_memories=relevant,
+            knowledge_hits=knowledge_hits[:knowledge_limit],
         )
 
     def count(self) -> int:

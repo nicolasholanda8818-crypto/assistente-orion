@@ -87,6 +87,26 @@ def analyze_dialogue(
             should_ask_clarifying_question=True,
             mode="mentor",
         )
+    if intent == "portfolio.profile":
+        return DialogueDecision(
+            understanding="pedido sobre perfil profissional cadastrado no portfolio",
+            strategy="portfolio-grounded-answer",
+            response_contract="responder apenas com dados cadastrados e confirmados",
+            should_search_web=False,
+            should_save_memory=False,
+            should_ask_clarifying_question=False,
+            mode="portfolio",
+        )
+    if intent == "math.calculate":
+        return DialogueDecision(
+            understanding="pedido matematico com necessidade de precisao numerica",
+            strategy="deterministic-math",
+            response_contract="calcular com mecanismo deterministico e explicar quando solicitado",
+            should_search_web=False,
+            should_save_memory=False,
+            should_ask_clarifying_question=False,
+            mode="math",
+        )
     if business:
         return DialogueDecision(
             understanding="contexto comercial com venda, proposta, atendimento ou objecao",

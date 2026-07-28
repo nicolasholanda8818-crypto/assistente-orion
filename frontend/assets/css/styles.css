@@ -3975,6 +3975,134 @@ html[data-visual-mode="ultra"] .chat-log {
   align-items: center;
 }
 
+.portfolio-contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.portfolio-smart-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.portfolio-smart-card {
+  border: 1px solid rgba(132, 228, 255, 0.22);
+  border-radius: 18px;
+  padding: var(--space-3);
+  background: rgba(6, 21, 40, 0.54);
+}
+
+.portfolio-smart-card h3 {
+  margin: 0 0 var(--space-2);
+  color: #f4fdff;
+  font-size: var(--font-size-md);
+}
+
+.portfolio-smart-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portfolio-smart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.portfolio-skill-name {
+  color: rgba(236, 252, 255, 0.9);
+  font-size: var(--font-size-sm);
+}
+
+.portfolio-skill-badge,
+.portfolio-evolution-level {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(139, 235, 255, 0.38);
+  padding: 0 10px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+
+.portfolio-skill-badge[data-level="knowledge"],
+.portfolio-evolution-level[data-level="knowledge"] {
+  background: rgba(110, 255, 184, 0.16);
+  color: #cbffe8;
+}
+
+.portfolio-skill-badge[data-level="developing"],
+.portfolio-evolution-level[data-level="developing"] {
+  background: rgba(255, 209, 102, 0.16);
+  color: #ffeab4;
+}
+
+.portfolio-skill-badge[data-level="studying"],
+.portfolio-evolution-level[data-level="studying"] {
+  background: rgba(181, 140, 255, 0.16);
+  color: #ead9ff;
+}
+
+.portfolio-skill-badge[data-level="familiar"],
+.portfolio-evolution-level[data-level="familiar"] {
+  background: rgba(102, 231, 255, 0.16);
+  color: #d7f8ff;
+}
+
+.portfolio-evolution-list {
+  display: grid;
+  gap: 10px;
+  margin-top: var(--space-3);
+}
+
+.portfolio-evolution-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  border: 1px solid rgba(128, 214, 255, 0.2);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(3, 14, 28, 0.46);
+}
+
+.portfolio-evolution-name,
+.portfolio-project-meta,
+.portfolio-project-links {
+  color: rgba(232, 251, 255, 0.76);
+}
+
+@media (max-width: 980px) {
+  .portfolio-smart-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .portfolio-smart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-contact-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .portfolio-contact-actions .control-chip {
+    width: 100%;
+  }
+}
+
 .is-portfolio-mode .orion-avatar {
   transform: translateY(-8px) rotateY(-5deg);
 }

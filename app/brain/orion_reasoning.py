@@ -236,6 +236,20 @@ RESPONSE_BANK = {
             "pratica semanal e criterio de progresso. Em qual etapa voce esta agora?"
         ),
     ],
+    "portfolio.profile": [
+        (
+            "Posso responder sobre o perfil de Nicolas, formacao, cursos, habilidades e tecnologias com base "
+            "nos dados cadastrados no portfolio."
+        ),
+        (
+            "Consigo apresentar o perfil profissional, conhecimentos e trajetoria academica de Nicolas com dados "
+            "reais do portfolio."
+        ),
+    ],
+    "math.calculate": [
+        "Entendi uma solicitacao matematica. Vou calcular com precisao e depois te devolver o resultado.",
+        "Pedido matematico recebido. Vou resolver de forma deterministica e te mostrar o resultado correto.",
+    ],
 }
 
 MOOD_BY_INTENT = {
@@ -273,6 +287,8 @@ MOOD_BY_INTENT = {
     "objection.price": ("confident", "direct-look", "talk"),
     "consultant.senior": ("confident", "teacher", "talk"),
     "career.mentor": ("teacher", "attention", "talk"),
+    "portfolio.profile": ("teacher", "direct-look", "talk"),
+    "math.calculate": ("focused", "hand-chin", "talk"),
 }
 
 HIGH_URGENCY_TERMS = {
@@ -302,6 +318,8 @@ MEDIUM_LENGTH_INTENTS = {
     "objection.price",
     "consultant.senior",
     "career.mentor",
+    "portfolio.profile",
+    "math.calculate",
 }
 
 
@@ -381,6 +399,10 @@ def choose_response_strategy(intent: str, emotion: str, keywords: list[str]) -> 
         return "senior-consultant"
     if intent == "career.mentor":
         return "technical-mentorship"
+    if intent == "portfolio.profile":
+        return "portfolio-grounded-answer"
+    if intent == "math.calculate":
+        return "deterministic-math"
     if keywords:
         return "contextual-rule-response"
     return "clarifying-question"
@@ -438,6 +460,8 @@ def choose_reasoning_state(*, intent: str, emotion: str, follow_up_needed: bool)
         "objection.price",
         "consultant.senior",
         "career.mentor",
+        "portfolio.profile",
+        "math.calculate",
     }:
         return "thinking"
     return "answering"

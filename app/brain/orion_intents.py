@@ -1,5 +1,8 @@
 import re
 import unicodedata
+from difflib import SequenceMatcher
+
+from app.brain.math_engine import looks_like_math_query
 
 WORD_PATTERN = re.compile(r"[a-z0-9]+")
 
@@ -176,6 +179,23 @@ def detect_intent(text: str) -> str:
     normalized = normalize_text(text)
     tokens = set(normalized.split())
 
+    if looks_like_math_query(text):
+        return "math.calculate"
+
+    if any(
+        phrase in normalized
+        for phrase in {
+            "quem e nicolas",
+            "conte mais sobre nicolas",
+            "qual e a formacao dele",
+            "quais linguagens ele conhece",
+            "quais sao os cursos dele",
+            "quais sao os conhecimentos dele",
+            "o que ele estuda",
+        }
+    ):
+        return "portfolio.profile"
+
     if "quem criou" in normalized or "seu criador" in normalized or "criador do orion" in normalized:
         return "identity.creator"
     if "quem e voce" in normalized or "quem voce e" in normalized or "quem e orion" in normalized:
@@ -184,6 +204,17 @@ def detect_intent(text: str) -> str:
         return "identity.user"
     if "lembra de mim" in normalized or "voce lembra de mim" in normalized:
         return "memory.recall"
+    if any(
+        phrase in normalized
+        for phrase in {
+            "aquele negocio",
+            "aquilo que falei",
+            "isso que falei",
+            "como falei antes",
+            "aquilo de antes",
+        }
+    ):
+        return "request.incomplete"
     if "cliente disse que esta caro" in normalized or "esta caro" in normalized or "ta caro" in normalized:
         return "objection.price"
     if "crie uma mensagem para cliente" in normalized or "mensagem para cliente" in normalized:
@@ -206,6 +237,10 @@ def detect_intent(text: str) -> str:
         }
     ):
         return "career.mentor"
+    if "portfolio" in normalized and not any(
+        term in normalized for term in {"melhorar", "evoluir", "carreira", "entrevista", "vaga", "mentor"}
+    ):
+        return "portfolio.profile"
     if "quero vender" in normalized or "vender um servico" in normalized:
         return "sales"
     if "me ajude a negociar" in normalized or "ajude a negociar" in normalized:
@@ -221,7 +256,11 @@ def detect_intent(text: str) -> str:
         if intent == "identity.self" and not is_question(text):
             continue
         normalized_keywords = {normalize_text(keyword) for keyword in keywords}
-        if tokens & normalized_keywords:
+        if has_keyword_match(
+            tokens=tokens,
+            normalized_keywords=normalized_keywords,
+            allow_fuzzy=intent not in {"identity.self", "identity.creator", "identity.user", "greeting", "farewell"},
+        ):
             return intent
 
     if is_question(text):
@@ -229,3 +268,27 @@ def detect_intent(text: str) -> str:
     if needs_follow_up(text):
         return "request.incomplete"
     return "conversation.reply"
+
+
+def has_keyword_match(*, tokens: set[str], normalized_keywords: set[str], allow_fuzzy: bool) -> bool:
+    if tokens & normalized_keywords:
+        return True
+
+    if not allow_fuzzy:
+        return False
+
+    for token in tokens:
+        if len(token) < 4:
+            continue
+        for keyword in normalized_keywords:
+            if len(keyword) < 4:
+                continue
+            if abs(len(token) - len(keyword)) > 2:
+                continue
+            if token[0] != keyword[0] or token[-1] != keyword[-1]:
+                continue
+            similarity = SequenceMatcher(None, token, keyword).ratio()
+            if similarity >= 0.84:
+                return True
+
+    return False

@@ -18,6 +18,13 @@ import { createAvatar3DSystem } from "./avatar-3d.js?v=44";
 import { setupDesignSystem } from "./design-system.js";
 import { setupOnboarding } from "./onboarding.js";
 import { createPremiumVisualSystem } from "./premium-visuals.js?v=43";
+import {
+  PORTFOLIO_PROFILE,
+  buildPortfolioPresentationScript,
+  renderPortfolioEvolution,
+  renderPortfolioProjects,
+  renderPortfolioSmartGrid,
+} from "./portfolio-profile.js";
 import { registerPwa, setupInstallPrompt } from "./pwa.js";
 import { startScene } from "./scene.js?v=44";
 import { createOrionSocket } from "./socket.js";
@@ -221,6 +228,11 @@ const elements = {
   portfolioPanel: document.querySelector("#portfolio-panel"),
   portfolioCloseButton: document.querySelector("#portfolio-close-button"),
   portfolioChatFocusButton: document.querySelector("#portfolio-chat-focus-button"),
+  portfolioVoiceButton: document.querySelector("#portfolio-voice-button"),
+  portfolioSmartGrid: document.querySelector("#portfolio-smart-grid"),
+  portfolioEvolutionList: document.querySelector("#portfolio-evolution-list"),
+  portfolioProjectGrid: document.querySelector("#portfolio-project-grid"),
+  portfolioSummaryText: document.querySelector("#portfolio-summary-text"),
   portfolioCards: document.querySelectorAll("[data-portfolio-card]"),
   portfolioSkills: document.querySelectorAll(".portfolio-skill"),
   automationPanelButton: document.querySelector("#automation-panel-button"),
@@ -485,6 +497,7 @@ export function initOrionVisual() {
   });
   premiumVisuals.start();
   voiceEngine = createOrionVoiceEngine({ getMode: () => voiceMode });
+  initializePortfolioPanel();
   loadVisualPreferences();
   if (!isOrbIdentityActive()) {
     avatar3D.start();
@@ -576,7 +589,10 @@ export function bindOrionControls() {
   elements.portfolioChatFocusButton?.addEventListener("click", () => {
     closePortfolioMode({ keepMessage: true });
     elements.messageInput?.focus();
-    showOrionBubble("Pode perguntar sobre arquitetura, tecnologias, roadmap ou resultados do Orion.");
+    showOrionBubble("Pode perguntar sobre Nicolas, formacao, cursos, conhecimentos ou projetos cadastrados.");
+  });
+  elements.portfolioVoiceButton?.addEventListener("click", () => {
+    presentPortfolioByVoice();
   });
   elements.automationPanelButton?.addEventListener("click", openAutomationPanel);
   elements.orionStateIndicator?.addEventListener("click", toggleSystemStatusPanel);
@@ -776,6 +792,7 @@ export function openPortfolioMode(options = {}) {
   }
 
   elements.portfolioPanel.hidden = false;
+  initializePortfolioPanel();
   elements.workspace?.classList.add("is-portfolio-mode");
   setSidebarActive("portfolio");
   setBrainVaultState("learning", "Projetos");
@@ -788,7 +805,7 @@ export function openPortfolioMode(options = {}) {
   });
   elements.portfolioPanel.scrollIntoView({ behavior: "smooth", block: "center" });
 
-  const line = "Ativando modo apresentacao. Vou mostrar o que foi construido ate aqui.";
+  const line = "Ativando modo apresentacao. Vou mostrar o perfil profissional e os conhecimentos cadastrados.";
   showOrionBubble(line);
   if (options.source !== "command-silent") {
     addChatMessage("orion", line);
@@ -2141,9 +2158,44 @@ export function handlePortfolioCommand(text) {
   openPortfolioMode({ source: "command-silent" });
   addChatMessage(
     "orion",
-    "Eu sou o Orion. Posso apresentar a arquitetura, as tecnologias, a evolucao e os resultados deste projeto como uma vitrine interativa."
+    "Eu sou o Orion. Posso apresentar NICOLAS KEVEN LOPES DE HOLANDA, sua formacao, cursos, conhecimentos e projetos cadastrados."
   );
   return true;
+}
+
+function initializePortfolioPanel() {
+  if (elements.portfolioSummaryText) {
+    elements.portfolioSummaryText.textContent = PORTFOLIO_PROFILE.summary;
+  }
+  renderPortfolioSmartGrid(elements.portfolioSmartGrid, PORTFOLIO_PROFILE);
+  renderPortfolioEvolution(elements.portfolioEvolutionList, PORTFOLIO_PROFILE);
+  renderPortfolioProjects(elements.portfolioProjectGrid, PORTFOLIO_PROFILE);
+}
+
+function presentPortfolioByVoice() {
+  const script = buildPortfolioPresentationScript();
+  showOrionBubble("Preparando apresentacao por voz...");
+  addChatMessage("orion", script);
+
+  const didSpeak = voiceEngine?.speak(script, {
+    mode: "assistant",
+    shouldSpeak: true,
+    onStart: () => {
+      setOrionVoiceState("responding");
+      setOrionState("speaking");
+    },
+    onEnd: () => {
+      setOrionVoiceState("waiting");
+      setOrionState("online");
+      showOrionBubble("Apresentacao concluida. Voce pode continuar conversando comigo.");
+    },
+  });
+
+  if (!didSpeak) {
+    setOrionVoiceState("waiting");
+    setOrionState("online");
+    showOrionBubble("Nao consegui reproduzir audio neste navegador. Mantive a apresentacao em texto.");
+  }
 }
 
 export async function handleOptionalWebSearch(text) {

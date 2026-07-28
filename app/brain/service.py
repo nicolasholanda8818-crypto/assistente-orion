@@ -1,16 +1,27 @@
 from uuid import uuid4
 
+from app.brain.conversation_manager import has_implicit_reference, select_context_budget
 from app.brain.execution import ExecutionService
 from app.brain.knowledge import KnowledgeService
 from app.brain.learning import LearningService
+from app.brain.math_engine import solve_math_query
 from app.brain.memory import MemoryService
-from app.brain.models import BrainMode, BrainRequest, BrainResponse, BrainStatus, ContextSummary, PlanStep
+from app.brain.models import (
+    BrainMode,
+    BrainRequest,
+    BrainResponse,
+    BrainStatus,
+    ContextSnapshot,
+    ContextSummary,
+    PlanStep,
+)
 from app.brain.orion_cognitive_pipeline import OrionCognitivePipeline, build_cognitive_pipeline
 from app.brain.orion_context import OrionConversationContext, build_orion_context, context_instruction
 from app.brain.orion_intents import normalize_text
 from app.brain.orion_memory import OrionMemoryContext, build_orion_memory_context
 from app.brain.orion_reasoning import reason_about_message
 from app.brain.planning import PlanningService
+from app.brain.portfolio_profile import PROFILE, answer_portfolio_question
 from app.brain.user_memory import UserMemoryService
 from app.tools.dependencies import get_tool_registry
 
@@ -92,17 +103,31 @@ class BrainService:
                 "turn_seed": f"{request.conversation_id}:{self.memory.count()}",
             },
         )
+        context_budget = select_context_budget(user_text=request.text, intent=reasoning.intent)
         knowledge_hits = self.knowledge.search(request.text)
         context = self.memory.build_context(
             query=request.text,
             conversation_id=request.conversation_id,
             knowledge_hits=knowledge_hits,
+            recent_limit=context_budget.recent_limit,
+            relevant_limit=context_budget.relevant_limit,
+            knowledge_limit=context_budget.knowledge_limit,
         )
         plan = self.planning.create_plan(text=request.text, context=context)
         execution = self.execution.execute(plan=plan, context=context)
         message = execution.message
         if plan.intent not in {"system.status", "knowledge.answer", "identity.creator", "identity.user"}:
             message = reasoning.response
+
+        if plan.intent == "portfolio.profile":
+            message = answer_portfolio_question(request.text) or (
+                f"Essa informacao ainda nao esta disponivel no portfolio. Dados confirmados: {PROFILE.name}, "
+                "Desenvolvedor Web, formacao em Gestao da Tecnologia da Informacao, cursos de Python e Informatica."
+            )
+
+        if plan.intent == "math.calculate":
+            math_result = solve_math_query(request.text)
+            message = math_result.message
         memory_context = build_orion_memory_context(
             snapshot=user_snapshot,
             user_text=request.text,
@@ -137,9 +162,18 @@ class BrainService:
             message=message,
             request=request,
             intent=plan.intent,
+            context=context,
             memory_context=memory_context,
             conversation_context=conversation_context,
             cognitive_pipeline=cognitive_pipeline,
+            context_complexity=context_budget.complexity,
+        )
+        message = self._auto_verify_response(
+            message=message,
+            request=request,
+            intent=plan.intent,
+            context=context,
+            should_search_web=reasoning.should_search_web,
         )
 
         self.memory.remember(conversation_id=request.conversation_id, role="user", content=request.text)
@@ -261,12 +295,22 @@ class BrainService:
         message: str,
         request: BrainRequest,
         intent: str,
+        context: ContextSnapshot,
         memory_context: OrionMemoryContext,
         conversation_context: OrionConversationContext,
         cognitive_pipeline: OrionCognitivePipeline,
+        context_complexity: str,
     ) -> str:
         normalized_message = normalize_text(message)
         normalized_user_text = normalize_text(request.text)
+
+        reference_ack = self._build_implicit_reference_ack(
+            request_text=request.text,
+            context=context,
+        )
+        if reference_ack and normalize_text(reference_ack) not in normalized_message:
+            message = f"{reference_ack} {message}"
+            normalized_message = normalize_text(message)
 
         quick_plan = self._build_quick_plan_response(request_text=normalized_user_text)
         if quick_plan:
@@ -304,6 +348,80 @@ class BrainService:
             message = self._enrich_mentor_message(message=message, request=request)
         if intent == "consultant.senior":
             message = self._enrich_consultant_message(message=message)
+
+        if context_complexity == "complex":
+            message = self._append_plan_summary(message=message)
+
+        return message
+
+    def _build_implicit_reference_ack(self, *, request_text: str, context: ContextSnapshot) -> str | None:
+        if not has_implicit_reference(request_text):
+            return None
+        previous_user_messages = [entry.content for entry in context.recent_messages if entry.role == "user"]
+        if not previous_user_messages:
+            return None
+
+        previous_topic = previous_user_messages[-1]
+        summarized_topic = previous_topic.strip().replace("\n", " ")[:120]
+        if not summarized_topic:
+            return None
+        return (
+            "Entendi. Voce esta se referindo ao contexto anterior da conversa "
+            f"({summarized_topic}). Vou considerar isso para te responder com precisao."
+        )
+
+    def _append_plan_summary(self, *, message: str) -> str:
+        normalized_message = normalize_text(message)
+        if "plano" in normalized_message and "1" in normalized_message:
+            return message
+        plan_summary = (
+            " Plano objetivo: 1) confirmar objetivo e restricoes, "
+            "2) dividir em etapas pequenas e seguras, "
+            "3) validar resultado antes de concluir."
+        )
+        return f"{message}{plan_summary}"
+
+    def _auto_verify_response(
+        self,
+        *,
+        message: str,
+        request: BrainRequest,
+        intent: str,
+        context: ContextSnapshot,
+        should_search_web: bool,
+    ) -> str:
+        normalized_message = normalize_text(message)
+        unverifiable_claims = {
+            "eu executei",
+            "ja executei",
+            "eu rodei",
+            "ja rodei",
+            "eu testei",
+            "ja testei",
+            "corrigi",
+            "fiz deploy",
+            "publiquei",
+        }
+        if any(claim in normalized_message for claim in unverifiable_claims):
+            return (
+                "Nao consigo confirmar execucao real sem validar por ferramentas. "
+                "Posso executar o fluxo seguro de verificacao e te reportar o resultado."
+            )
+
+        if should_search_web and any(term in normalized_message for term in {"pesquisei", "acabei de pesquisar"}):
+            return (
+                "Posso pesquisar fontes externas com sua confirmacao antes de afirmar resultados online. "
+                "Enquanto isso, sigo com a melhor resposta local disponivel."
+            )
+
+        if intent == "request.incomplete" and not context.recent_messages:
+            return (
+                "Entendi seu pedido, mas ainda nao tenho contexto suficiente para inferir 'isso'. "
+                "Me diga em uma frase qual parte voce quer alterar que eu continuo dali."
+            )
+
+        if normalize_text(request.text) == normalize_text(message):
+            return "Entendi. Vou te responder de forma mais objetiva e util com base no contexto atual."
 
         return message
 
@@ -479,6 +597,10 @@ class BrainService:
                 "orion_context": "style-focus-adaptation",
                 "orion_intent": "deterministic-parser",
                 "orion_dialogue_manager": "triple-layer-strategy",
+                "conversation_manager": "adaptive-context-budget",
+                "response_validation": "preflight-self-check",
+                "portfolio_profile": "verified-profile-answers",
+                "math_engine": "deterministic-calculation",
             },
             capabilities=[
                 "conversation.reply",
@@ -495,6 +617,10 @@ class BrainService:
                 "senior.consultant.mode",
                 "web.search.recommendation",
                 "triple.layer.reasoning",
+                "adaptive.context.selection",
+                "response.self.validation",
+                "portfolio.grounded.answers",
+                "math.deterministic.execution",
             ],
             restrictions=[
                 "localhost-only",

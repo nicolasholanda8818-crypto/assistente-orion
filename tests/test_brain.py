@@ -1,5 +1,6 @@
 import pytest
 
+from app.brain.conversation_manager import has_implicit_reference, select_context_budget
 from app.brain.execution import ExecutionService, UnsafePlanError
 from app.brain.knowledge import KnowledgeService
 from app.brain.learning import LearningService
@@ -32,6 +33,10 @@ def test_brain_status_exposes_separated_components():
         "orion_context": "style-focus-adaptation",
         "orion_intent": "deterministic-parser",
         "orion_dialogue_manager": "triple-layer-strategy",
+        "conversation_manager": "adaptive-context-budget",
+        "response_validation": "preflight-self-check",
+        "portfolio_profile": "verified-profile-answers",
+        "math_engine": "deterministic-calculation",
     }
     assert "no-host-actions" in status.restrictions
     assert "user.context.continuity" in status.capabilities
@@ -174,6 +179,92 @@ def test_orion_dev_copilot_complements_technical_response_instead_of_overriding_
     assert "copiloto de desenvolvimento" in response.message
     assert "Nao afirmo teste, deploy ou correcao sem executar e validar" in response.message
     assert "objetivo, stack e erro atual" in response.message
+
+
+def test_orion_handles_implicit_reference_using_recent_context():
+    brain = BrainService()
+
+    brain.process(BrainRequest(text="Precisamos melhorar o backend de autenticacao", conversation_id="ctx-ref"))
+    response = brain.process(BrainRequest(text="Quero mudar aquele negocio que falei antes", conversation_id="ctx-ref"))
+
+    assert response.intent == "request.incomplete"
+    assert "contexto anterior da conversa" in response.message
+    assert "autenticacao" in response.message
+
+
+def test_orion_detects_typos_in_help_request():
+    response = BrainService().process(BrainRequest(text="presciso de ajdua no codgo"))
+
+    assert response.intent in {"help", "technical", "conversation.reply"}
+    assert response.message
+
+
+def test_context_budget_scales_with_request_complexity():
+    simple_budget = select_context_budget(user_text="oi", intent="greeting")
+    complex_budget = select_context_budget(
+        user_text="preciso planejar a arquitetura, validar e corrigir a integracao do backend",
+        intent="technical",
+    )
+
+    assert simple_budget.complexity == "simple"
+    assert simple_budget.recent_limit < complex_budget.recent_limit
+    assert complex_budget.complexity == "complex"
+
+
+def test_orion_detects_implicit_reference_terms():
+    assert has_implicit_reference("aquele negocio que falei antes") is True
+    assert has_implicit_reference("pode me explicar websocket") is False
+
+
+def test_orion_answers_portfolio_profile_with_verified_name():
+    response = BrainService().process(BrainRequest(text="Quem e Nicolas?"))
+
+    assert response.intent == "portfolio.profile"
+    assert "NICOLAS KEVEN LOPES DE HOLANDA" in response.message
+    assert "Desenvolvedor Web" in response.message
+
+
+def test_orion_answers_portfolio_courses_and_education():
+    education = BrainService().process(BrainRequest(text="Qual e a formacao dele?"))
+    courses = BrainService().process(BrainRequest(text="Quais sao os cursos dele?"))
+
+    assert education.intent == "portfolio.profile"
+    assert "Gestao da Tecnologia da Informacao" in education.message
+    assert courses.intent == "portfolio.profile"
+    assert "Curso tecnico de linguagem de programacao Python" in courses.message
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Quanto e 125 x 48?", "6000"),
+        ("Quanto e 15% de 850?", "127,5"),
+        ("Quanto e (25 + 15) / 2?", "20"),
+        ("Quanto e 1000 - 375?", "625"),
+        ("Quanto e 2 elevado a 10?", "1024"),
+        ("Calcule a media de 8, 9, 7 e 10", "8,5"),
+    ],
+)
+def test_orion_math_module_returns_precise_results(text, expected):
+    response = BrainService().process(BrainRequest(text=text))
+
+    assert response.intent == "math.calculate"
+    assert expected in response.message
+
+
+def test_orion_math_module_solves_linear_equation():
+    response = BrainService().process(BrainRequest(text="Resolva x + 15 = 40"))
+
+    assert response.intent == "math.calculate"
+    assert "x = 25" in response.message
+
+
+def test_orion_math_module_explains_when_requested():
+    response = BrainService().process(BrainRequest(text="Explique quanto e 15% de 850"))
+
+    assert response.intent == "math.calculate"
+    assert "Formula:" in response.message
+    assert "Resultado:" in response.message
 
 
 def test_orion_cognitive_pipeline_has_ten_ordered_stages():
