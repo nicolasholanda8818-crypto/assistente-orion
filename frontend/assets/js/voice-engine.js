@@ -12,14 +12,14 @@ const MODE_ALIASES = {
 };
 
 const MODE_PROFILES = {
-  conversation: { rate: 0.98, pitch: 1.01, volume: 1, pause: 150 },
-  teacher: { rate: 0.91, pitch: 1, volume: 1, pause: 210 },
-  assistant: { rate: 0.95, pitch: 0.98, volume: 0.97, pause: 170 },
-  consultant: { rate: 0.93, pitch: 0.92, volume: 1, pause: 200 },
-  calm: { rate: 0.87, pitch: 0.96, volume: 0.92, pause: 240 },
-  animated: { rate: 1.05, pitch: 1.07, volume: 1, pause: 120 },
-  grandma: { rate: 0.82, pitch: 0.98, volume: 0.94, pause: 280 },
-  narrator: { rate: 0.86, pitch: 0.92, volume: 1, pause: 260 },
+  conversation: { rate: 0.94, pitch: 1, volume: 0.98, pause: 175 },
+  teacher: { rate: 0.9, pitch: 0.99, volume: 0.98, pause: 220 },
+  assistant: { rate: 0.92, pitch: 0.97, volume: 0.97, pause: 190 },
+  consultant: { rate: 0.9, pitch: 0.92, volume: 0.98, pause: 210 },
+  calm: { rate: 0.84, pitch: 0.95, volume: 0.91, pause: 255 },
+  animated: { rate: 1.0, pitch: 1.05, volume: 1, pause: 145 },
+  grandma: { rate: 0.8, pitch: 0.97, volume: 0.93, pause: 300 },
+  narrator: { rate: 0.84, pitch: 0.91, volume: 0.99, pause: 280 },
 };
 
 const ADVANCED_PROVIDER_ORDER = ["azure-speech", "elevenlabs", "openai-tts", "coqui-local"];
@@ -225,7 +225,8 @@ function speakWithSpeechSynthesis(text, { token, currentToken, profile, mode, on
 }
 
 function splitSpeechSegments(text) {
-  return text
+  const normalized = humanizeSpeechText(text);
+  return normalized
     .replace(/\s+/g, " ")
     .split(/(?<=[.!?;:])\s+/)
     .flatMap((segment) => splitLongSegment(segment.trim()))
@@ -234,6 +235,15 @@ function splitSpeechSegments(text) {
       text: segment,
       pause: pauseFor(segment),
     }));
+}
+
+function humanizeSpeechText(text) {
+  return String(text || "")
+    .replace(/\s*[-–—]\s*/g, ", ")
+    .replace(/\s*;\s*/g, "; ")
+    .replace(/\s*:\s*/g, ": ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function splitLongSegment(segment) {
@@ -256,16 +266,18 @@ function splitLongSegment(segment) {
 }
 
 function pauseFor(segment) {
+  const words = segment.split(/\s+/).filter(Boolean).length;
+  const pacingBoost = Math.min(70, Math.max(0, (words - 9) * 3));
   if (/[!?]$/.test(segment)) {
-    return 220;
+    return 240 + pacingBoost;
   }
   if (/[.:;]$/.test(segment)) {
-    return 170;
+    return 190 + pacingBoost;
   }
   if (/,$/.test(segment)) {
-    return 110;
+    return 130 + Math.floor(pacingBoost * 0.5);
   }
-  return 70;
+  return 85 + Math.floor(pacingBoost * 0.35);
 }
 
 function selectBestVoice(voices) {
@@ -318,18 +330,18 @@ function emitVoiceLog(event, detail = {}) {
 }
 
 function naturalRate(baseRate, index, mode) {
-  const wave = Math.sin(index * 1.7) * 0.025;
-  const narratorDrop = mode === "narrator" ? -0.015 : 0;
-  const animatedLift = mode === "animated" ? 0.02 : 0;
-  return clamp(baseRate + wave + narratorDrop + animatedLift, 0.78, 1.2);
+  const wave = Math.sin(index * 1.55) * 0.014;
+  const narratorDrop = mode === "narrator" ? -0.01 : 0;
+  const animatedLift = mode === "animated" ? 0.014 : 0;
+  return clamp(baseRate + wave + narratorDrop + animatedLift, 0.76, 1.14);
 }
 
 function naturalPitch(basePitch, index, mode) {
-  const wave = Math.cos(index * 1.3) * 0.035;
-  const teacherLift = mode === "teacher" ? 0.02 : 0;
-  const animatedLift = mode === "animated" ? 0.03 : 0;
+  const wave = Math.cos(index * 1.2) * 0.02;
+  const teacherLift = mode === "teacher" ? 0.014 : 0;
+  const animatedLift = mode === "animated" ? 0.02 : 0;
   const calmDrop = mode === "calm" || mode === "grandma" ? -0.02 : 0;
-  return clamp(basePitch + wave + teacherLift + animatedLift + calmDrop, 0.82, 1.22);
+  return clamp(basePitch + wave + teacherLift + animatedLift + calmDrop, 0.8, 1.16);
 }
 
 function normalizeMode(value) {
