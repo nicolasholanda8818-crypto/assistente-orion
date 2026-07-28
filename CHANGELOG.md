@@ -129,6 +129,10 @@ A fonte autoritativa fica em `changelog/entries`.
 
 ### Alterado
 
+- Orion Next Fase 2 concluida com portfolio profissional, voz e modulo matematico deterministico
+  - Brain recebeu contexto adaptativo, referencia implicita e autoverificacao de resposta.
+  - Portfolio profissional foi consolidado no backend/frontend com respostas grounded e apresentacao por voz.
+  - Novo motor matematico deterministico cobre operacoes, porcentagem, media, potencia e equacao linear.
 - Habilita avatar real GLB do Orion
   - Analisa o arquivo orion.glb como GLB 2.0 com extensao interna VRM 1.0, rig humanoide, materiais MToon e texturas embutidas.
   - Habilita frontend/assets/models/orion-avatar.glb como modelo principal no manifesto com vrmCompatible, preservando o VRM anterior e fallback procedural.

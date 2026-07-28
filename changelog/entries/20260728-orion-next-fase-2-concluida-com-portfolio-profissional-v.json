@@ -1,0 +1,12 @@
+{
+  "id": "20260728-orion-next-fase-2-concluida-com-portfolio-profissional-v",
+  "type": "changed",
+  "summary": "Orion Next Fase 2 concluida com portfolio profissional, voz e modulo matematico deterministico",
+  "details": [
+    "Brain recebeu contexto adaptativo, referencia implicita e autoverificacao de resposta.",
+    "Portfolio profissional foi consolidado no backend/frontend com respostas grounded e apresentacao por voz.",
+    "Novo motor matematico deterministico cobre operacoes, porcentagem, media, potencia e equacao linear."
+  ],
+  "date": "2026-07-28",
+  "version": null
+}
