@@ -129,10 +129,7 @@ RESPONSE_BANK = {
             "Entendi uma duvida tecnica. Vou separar em diagnostico, causa provavel, teste seguro e correcao. "
             "Qual erro ou comportamento voce quer analisar?"
         ),
-        (
-            "Vamos por partes tecnicas: contexto, sintoma, hipoteses e proximo teste. "
-            "Me diga onde o problema aparece."
-        ),
+        ("Vamos por partes tecnicas: contexto, sintoma, hipoteses e proximo teste. Me diga onde o problema aparece."),
     ],
     "memory.recall": [
         "Se estivermos no mesmo navegador, eu consulto sua memoria local e continuo pelo que voce ja me contou.",

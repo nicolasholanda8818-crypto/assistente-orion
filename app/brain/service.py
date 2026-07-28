@@ -221,9 +221,7 @@ class BrainService:
             return f"Ola, {name}. E bom ver voce novamente. {suffix}"
         if intent == "returning":
             suffix = (
-                memory_context.continuity_hint
-                or memory_context.initiative_prompt
-                or "Continuamos de onde paramos?"
+                memory_context.continuity_hint or memory_context.initiative_prompt or "Continuamos de onde paramos?"
             )
             return f"Bem-vindo de volta, {name}. {suffix}"
         if intent == "memory.recall":

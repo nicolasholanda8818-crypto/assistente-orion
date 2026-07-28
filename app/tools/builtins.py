@@ -38,13 +38,11 @@ def compose_response(context: ToolExecutionContext, _arguments: BaseModel) -> di
         message = "Estou acompanhando o fio da conversa, Mestre. Pode continuar, eu mantenho o contexto recente comigo."
     elif snapshot.recent_messages:
         message = (
-            "Estou aqui com voce. Ainda estou no modo local, "
-            "mas consigo continuar respondendo sem travar a conversa."
+            "Estou aqui com voce. Ainda estou no modo local, mas consigo continuar respondendo sem travar a conversa."
         )
     else:
         message = (
-            "Oi, Mestre. Eu sou o Orion. Ainda estou em fallback local, "
-            "mas vou responder sempre que voce falar comigo."
+            "Oi, Mestre. Eu sou o Orion. Ainda estou em fallback local, mas vou responder sempre que voce falar comigo."
         )
 
     return {"message": message}

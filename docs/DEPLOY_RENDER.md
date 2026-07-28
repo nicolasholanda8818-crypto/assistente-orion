@@ -49,7 +49,7 @@ Configure no painel do Render:
 
 ```text
 ORION_ENV=production
-ORION_PUBLIC_URL=https://seu-app.onrender.com
+ORION_PUBLIC_URL=https://assistente-orion.onrender.com
 ORION_ADMIN_PASSWORD=<defina-no-painel>
 ORION_MASTER_KEY=<defina-no-painel>
 APP_HOST=0.0.0.0

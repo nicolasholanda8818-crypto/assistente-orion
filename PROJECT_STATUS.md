@@ -6,6 +6,24 @@ Status: `PROTOTIPO JOGAVEL LORD DRAGONS ADICIONADO COM RC BLOQUEADO`
 
 Status operacional recente: `INTELIGENCIA CONVERSACIONAL, VENDAS, WEB E VOZ EM VALIDACAO`
 
+## Atualizacao Visual Orb Premium
+
+Data: `2026-07-28`
+
+Resultado:
+
+- [x] Avatar humano e Cerebro Cosmico foram desativados apenas na interface quando `orionVisualIdentity=orb`, sem apagar arquivos.
+- [x] Esfera Orion recebeu refinamento visual por estado (`listening`, `thinking`, `responding`, `waiting`, `searching`, `error`).
+- [x] Fundo vivo configuravel adicionado com suporte a `aurora`, `particulas`, `video loop` e `GIF` por URL persistida no `localStorage` por usuario.
+- [x] Sistema de voz do frontend ajustado para resposta mais rapida e pausas mais naturais.
+
+Validacao local executada:
+
+- `node --check frontend\\assets\\js\\main.js`: aprovado.
+- `node --check frontend\\assets\\js\\voice-engine.js`: aprovado.
+- `python scripts\\validate_pwa.py`: aprovado.
+- `python scripts\\run_brain_smoke.py`: aprovado.
+
 O workspace contem um prototipo exploratorio nao versionado. Ele nao representa uma versao aprovada do ORION e deve ser auditado antes de qualquer aproveitamento. Nesta etapa, nenhum modulo funcional deve ser expandido.
 
 ## Gate Atual

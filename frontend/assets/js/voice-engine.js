@@ -12,14 +12,14 @@ const MODE_ALIASES = {
 };
 
 const MODE_PROFILES = {
-  conversation: { rate: 0.94, pitch: 1.01, volume: 1, pause: 190 },
-  teacher: { rate: 0.88, pitch: 1, volume: 1, pause: 280 },
-  assistant: { rate: 0.91, pitch: 0.98, volume: 0.96, pause: 230 },
-  consultant: { rate: 0.89, pitch: 0.9, volume: 1, pause: 260 },
-  calm: { rate: 0.82, pitch: 0.96, volume: 0.92, pause: 320 },
-  animated: { rate: 1.01, pitch: 1.07, volume: 1, pause: 150 },
-  grandma: { rate: 0.78, pitch: 0.98, volume: 0.94, pause: 380 },
-  narrator: { rate: 0.82, pitch: 0.92, volume: 1, pause: 360 },
+  conversation: { rate: 0.98, pitch: 1.01, volume: 1, pause: 150 },
+  teacher: { rate: 0.91, pitch: 1, volume: 1, pause: 210 },
+  assistant: { rate: 0.95, pitch: 0.98, volume: 0.97, pause: 170 },
+  consultant: { rate: 0.93, pitch: 0.92, volume: 1, pause: 200 },
+  calm: { rate: 0.87, pitch: 0.96, volume: 0.92, pause: 240 },
+  animated: { rate: 1.05, pitch: 1.07, volume: 1, pause: 120 },
+  grandma: { rate: 0.82, pitch: 0.98, volume: 0.94, pause: 280 },
+  narrator: { rate: 0.86, pitch: 0.92, volume: 1, pause: 260 },
 };
 
 const ADVANCED_PROVIDER_ORDER = ["azure-speech", "elevenlabs", "openai-tts", "coqui-local"];
@@ -28,6 +28,9 @@ export function createOrionVoiceEngine({ getMode } = {}) {
   let mode = normalizeMode(typeof getMode === "function" ? getMode() : "conversation");
   let speechToken = 0;
   let activeProvider = "speech-synthesis";
+  let cachedVoice = null;
+
+  warmupVoiceCatalog();
 
   function setMode(nextMode) {
     mode = normalizeMode(nextMode);
@@ -104,6 +107,18 @@ export function createOrionVoiceEngine({ getMode } = {}) {
         available: Boolean(provider.available),
       })),
     };
+  }
+
+  function warmupVoiceCatalog() {
+    if (!("speechSynthesis" in window)) {
+      return;
+    }
+    const refresh = () => {
+      const voices = window.speechSynthesis.getVoices();
+      cachedVoice = selectBestVoice(voices);
+    };
+    refresh();
+    window.speechSynthesis.addEventListener("voiceschanged", refresh);
   }
 
   return { speak, stop, setMode, status };
@@ -222,15 +237,15 @@ function splitSpeechSegments(text) {
 }
 
 function splitLongSegment(segment) {
-  if (segment.length <= 190) {
+  if (segment.length <= 170) {
     return [segment];
   }
   const parts = [];
   let remaining = segment;
-  while (remaining.length > 190) {
-    const slice = remaining.slice(0, 190);
+  while (remaining.length > 170) {
+    const slice = remaining.slice(0, 170);
     const splitAt = Math.max(slice.lastIndexOf(","), slice.lastIndexOf(" "));
-    const index = splitAt > 80 ? splitAt : 190;
+    const index = splitAt > 72 ? splitAt : 170;
     parts.push(remaining.slice(0, index).trim());
     remaining = remaining.slice(index).trim();
   }
@@ -242,15 +257,15 @@ function splitLongSegment(segment) {
 
 function pauseFor(segment) {
   if (/[!?]$/.test(segment)) {
-    return 320;
+    return 220;
   }
   if (/[.:;]$/.test(segment)) {
-    return 260;
+    return 170;
   }
   if (/,$/.test(segment)) {
-    return 160;
+    return 110;
   }
-  return 100;
+  return 70;
 }
 
 function selectBestVoice(voices) {
@@ -304,9 +319,9 @@ function emitVoiceLog(event, detail = {}) {
 
 function naturalRate(baseRate, index, mode) {
   const wave = Math.sin(index * 1.7) * 0.025;
-  const narratorDrop = mode === "narrator" ? -0.02 : 0;
+  const narratorDrop = mode === "narrator" ? -0.015 : 0;
   const animatedLift = mode === "animated" ? 0.02 : 0;
-  return clamp(baseRate + wave + narratorDrop + animatedLift, 0.72, 1.16);
+  return clamp(baseRate + wave + narratorDrop + animatedLift, 0.78, 1.2);
 }
 
 function naturalPitch(basePitch, index, mode) {
@@ -314,7 +329,7 @@ function naturalPitch(basePitch, index, mode) {
   const teacherLift = mode === "teacher" ? 0.02 : 0;
   const animatedLift = mode === "animated" ? 0.03 : 0;
   const calmDrop = mode === "calm" || mode === "grandma" ? -0.02 : 0;
-  return clamp(basePitch + wave + teacherLift + animatedLift + calmDrop, 0.78, 1.22);
+  return clamp(basePitch + wave + teacherLift + animatedLift + calmDrop, 0.82, 1.22);
 }
 
 function normalizeMode(value) {

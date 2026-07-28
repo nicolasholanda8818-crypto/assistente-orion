@@ -26,6 +26,7 @@ import { createBrainVault } from "./brain-vault.js?v=43";
 import { createOrionVoiceEngine } from "./voice-engine.js?v=38";
 
 const MAX_VISIBLE_MESSAGES = 42;
+const ORION_VISUAL_IDENTITY = "orb";
 const USER_ID_KEY = "orion:userId";
 const USER_NAME_KEY = "orion:userName";
 const WAKE_WORD_KEY = "orion:voice:wakeWord";
@@ -162,6 +163,14 @@ const VOICE_MODE_LINES = {
   grandma: "Modo avo configurado. Mais paciencia, carinho e pausas.",
   narrator: "Voz de narrador configurada. Mais pausada e cinematografica.",
 };
+const BACKGROUND_PROFILE_LINES = {
+  default: "Fundo padrao restaurado.",
+  aurora: "Fundo Aurora ativado com luz ambiente suave.",
+  particles: "Fundo com particulas ativado.",
+  video: "Fundo de video configurado em loop.",
+  gif: "Fundo GIF configurado.",
+};
+const BACKGROUND_MEDIA_MAX_LENGTH = 1024;
 const TOUCH_REACTIONS = [
   "Ei, cuidado com o cabelo, Mestre.",
   "Isso fez cÃ³cegas.",
@@ -247,6 +256,12 @@ const elements = {
   wardrobeSelect: document.querySelector("#wardrobe-select"),
   voiceModeSelect: document.querySelector("#voice-mode-select"),
   visualModeSelect: document.querySelector("#visual-mode-select"),
+  backgroundStyleSelect: document.querySelector("#background-style-select"),
+  backgroundMediaUrl: document.querySelector("#background-media-url"),
+  backgroundApplyButton: document.querySelector("#background-apply-button"),
+  dynamicBackground: document.querySelector("#orion-dynamic-background"),
+  backgroundVideo: document.querySelector("#orion-background-video"),
+  backgroundImage: document.querySelector("#orion-background-image"),
   webSearchPanel: document.querySelector("#web-search-panel"),
   webSearchLink: document.querySelector("#web-search-link"),
   fileVisionPanel: document.querySelector("#file-vision-panel"),
@@ -295,34 +310,183 @@ let capturedPhotoDataUrl = "";
 let currentAvatarSkin = { ...DEFAULT_AVATAR_SKIN };
 let lastAvatarImageAnalysis;
 
+function isOrbIdentityActive() {
+  return (document.documentElement.dataset.orionVisualIdentity || ORION_VISUAL_IDENTITY) === "orb";
+}
+
+function applyOrbIdentityMode() {
+  document.documentElement.dataset.orionVisualIdentity = ORION_VISUAL_IDENTITY;
+  document.documentElement.classList.toggle("orion-orb-identity", isOrbIdentityActive());
+  elements.workspace?.classList.toggle("is-orb-identity", isOrbIdentityActive());
+  elements.orionAvatar?.setAttribute("aria-label", "Interagir com a esfera Orion");
+
+  if (!isOrbIdentityActive()) {
+    return;
+  }
+
+  elements.orionAvatar.dataset.visualIdentity = "orb";
+  elements.orionAvatar.removeAttribute("data-avatar-3d-fallback");
+  if (elements.avatar3DShell) {
+    elements.avatar3DShell.hidden = true;
+    elements.avatar3DShell.dataset.status = "disabled";
+    elements.avatar3DShell.dataset.modelStatus = "disabled";
+    elements.avatar3DShell.replaceChildren();
+  }
+  if (elements.brainMode) {
+    elements.brainMode.hidden = true;
+  }
+  if (elements.brainModeButton) {
+    elements.brainModeButton.hidden = true;
+  }
+  if (elements.bodyModeButton) {
+    elements.bodyModeButton.hidden = true;
+  }
+  if (elements.avatarStudioButton) {
+    elements.avatarStudioButton.hidden = true;
+  }
+  if (elements.avatarStudioPanel) {
+    elements.avatarStudioPanel.hidden = true;
+  }
+  document.querySelectorAll('[data-sidebar-action="brain"], [data-sidebar-action="avatar"]').forEach((button) => {
+    button.hidden = true;
+  });
+}
+
+function createOrbIdentityController({ setOrionState, showOrionBubble, addChatMessage } = {}) {
+  let touchCount = 0;
+  let lastActivity = Date.now();
+  const touchLines = [
+    "Senti o toque. Minha superficie neural respondeu.",
+    "Cuidado com a esfera, Mestre. Ela esta calibrada.",
+    "Toque registrado. Continuo estavel.",
+    "Isso fez minha luz oscilar um pouco.",
+  ];
+  const greetingLines = [
+    "Estou online, Mestre. A esfera neural esta pronta.",
+    "Nucleo Orion ativo. Pode falar comigo.",
+    "Sistema consciente em modo esfera. Estou ouvindo.",
+  ];
+
+  function choose(lines) {
+    return lines[Math.floor(Math.random() * lines.length)];
+  }
+
+  function noteActivity() {
+    lastActivity = Date.now();
+    elements.orionAvatar.dataset.lastActivity = String(lastActivity);
+  }
+
+  function say(category = "greeting", options = {}) {
+    const line = category === "touch" ? choose(touchLines) : choose(greetingLines);
+    if (options.state) {
+      setOrionState?.(options.state);
+    }
+    showOrionBubble?.(line);
+    if (options.chat !== false) {
+      addChatMessage?.("orion", line);
+    }
+    noteActivity();
+    return line;
+  }
+
+  return {
+    start() {
+      noteActivity();
+      elements.orionAvatar.dataset.orbMode = "active";
+    },
+    whileTyping() {
+      noteActivity();
+      setOrionState?.("listening");
+    },
+    microphoneAttention() {
+      noteActivity();
+      setOrionState?.("listening");
+      showOrionBubble?.("Estou ouvindo.");
+    },
+    cameraAttention() {
+      noteActivity();
+      setOrionState?.("searching");
+      showOrionBubble?.("Visao em preparacao.");
+    },
+    reactToLordDragons() {
+      noteActivity();
+      setOrionState?.("curious");
+      showOrionBubble?.("Portal Lord Dragons detectado.");
+    },
+    playReaction(reaction) {
+      noteActivity();
+      elements.orionAvatar.dataset.orbReaction = reaction || "pulse";
+    },
+    setMood(mood) {
+      elements.orionAvatar.dataset.expression = mood || "online";
+    },
+    whileSpeaking(text = "") {
+      noteActivity();
+      setOrionState?.("speaking");
+      if (text) {
+        showOrionBubble?.(text.slice(0, 120));
+      }
+    },
+    beforeThinking() {
+      noteActivity();
+      setOrionState?.("thinking");
+      showOrionBubble?.("Processando...");
+    },
+    reactToTouch() {
+      touchCount += 1;
+      noteActivity();
+      setOrionState?.(touchCount > 5 ? "annoyed" : "happy");
+      say("touch", { chat: true });
+      window.setTimeout(() => setOrionState?.("online"), 1400);
+    },
+    reactToUserMessage() {
+      noteActivity();
+      setOrionState?.("thinking");
+    },
+    noteActivity,
+    say,
+  };
+}
+
 export function initOrionVisual() {
+  applyOrbIdentityMode();
   setOrionState("online");
   showOrionBubble("Estou online, Mestre. Pode falar comigo.");
-  livingAvatar = createLivingAvatar({
-    elements,
-    setOrionState,
-    showOrionBubble,
-    addChatMessage,
-    blinkOrionEyes,
-  });
+  if (isOrbIdentityActive()) {
+    livingAvatar = createOrbIdentityController({
+      setOrionState,
+      showOrionBubble,
+      addChatMessage,
+    });
+  } else {
+    livingAvatar = createLivingAvatar({
+      elements,
+      setOrionState,
+      showOrionBubble,
+      addChatMessage,
+      blinkOrionEyes,
+    });
+    brainVault = createBrainVault({
+      container: elements.brainVaultViewport,
+      getVisualMode: () => document.documentElement.dataset.visualMode || "performance",
+    });
+    avatar3D = createAvatar3DSystem({
+      container: elements.avatar3DShell,
+      fallbackAvatar: elements.orionAvatar,
+      getVisualMode: () => document.documentElement.dataset.visualMode || "performance",
+    });
+  }
   livingAvatar.start();
-  brainVault = createBrainVault({
-    container: elements.brainVaultViewport,
-    getVisualMode: () => document.documentElement.dataset.visualMode || "performance",
-  });
   premiumVisuals = createPremiumVisualSystem({
     elements,
     getVisualMode: () => document.documentElement.dataset.visualMode || "performance",
   });
   premiumVisuals.start();
   voiceEngine = createOrionVoiceEngine({ getMode: () => voiceMode });
-  avatar3D = createAvatar3DSystem({
-    container: elements.avatar3DShell,
-    fallbackAvatar: elements.orionAvatar,
-    getVisualMode: () => document.documentElement.dataset.visualMode || "performance",
-  });
   loadVisualPreferences();
-  avatar3D.start();
+  if (!isOrbIdentityActive()) {
+    avatar3D.start();
+  }
   bindOrionControls();
   bindAvatarStudioControls();
   bindSidebarControls();
@@ -423,6 +587,18 @@ export function bindOrionControls() {
   elements.visualModeSelect?.addEventListener("change", () => {
     applyVisualMode(elements.visualModeSelect.value, { react: true });
   });
+  elements.backgroundStyleSelect?.addEventListener("change", () => {
+    applyBackgroundProfile(elements.backgroundStyleSelect.value, {
+      react: true,
+      mediaUrl: elements.backgroundMediaUrl?.value,
+    });
+  });
+  elements.backgroundApplyButton?.addEventListener("click", () => {
+    applyBackgroundProfile(elements.backgroundStyleSelect?.value || "default", {
+      react: true,
+      mediaUrl: elements.backgroundMediaUrl?.value,
+    });
+  });
 }
 
 function toggleSystemStatusPanel() {
@@ -521,6 +697,18 @@ function setSidebarActive(action) {
 
 function handleSidebarAction(action) {
   setSidebarActive(action);
+  if (isOrbIdentityActive() && (action === "brain" || action === "memory")) {
+    setOrionState("thinking");
+    pulseOrionAura("#61d8ff");
+    showOrionBubble("Meu nucleo cognitivo agora esta concentrado nesta esfera.");
+    return;
+  }
+  if (isOrbIdentityActive() && action === "avatar") {
+    setOrionState("online");
+    pulseOrionAura("#65ffb6");
+    showOrionBubble("A identidade visual atual do Orion e a esfera neural.");
+    return;
+  }
   if (action === "assistant") {
     if (!elements.brainMode?.hidden) {
       exitBrainMode();
@@ -1317,6 +1505,11 @@ export function loadVisualPreferences() {
   applyCustomSkin(savedSkin, { persist: false, react: false, source: "load" });
   applyVoiceMode(preferences.voiceMode || "balanced", { persist: false, react: false });
   applyVisualMode(preferences.visualMode || defaultVisualMode(), { persist: false, react: false });
+  applyBackgroundProfile(preferences.backgroundProfile || "default", {
+    persist: false,
+    react: false,
+    mediaUrl: preferences.backgroundMediaUrl || "",
+  });
 }
 
 export function applyWardrobe(outfit, options = {}) {
@@ -1348,6 +1541,12 @@ export function applyWardrobe(outfit, options = {}) {
 
 export function openAvatarStudio() {
   if (!elements.avatarStudioPanel) {
+    return;
+  }
+  if (isOrbIdentityActive()) {
+    setOrionState("online");
+    pulseOrionAura("#65ffb6");
+    showOrionBubble("Avatar Studio preservado para uso futuro. Agora estou em modo esfera.");
     return;
   }
   if (!elements.brainMode?.hidden) {
@@ -1800,7 +1999,99 @@ export function applyVisualMode(mode, options = {}) {
   }
 }
 
+export function applyBackgroundProfile(profile, options = {}) {
+  const selected = normalizeBackgroundProfile(profile);
+  const mediaUrl = normalizeBackgroundMediaUrl(options.mediaUrl || elements.backgroundMediaUrl?.value || "");
+  document.documentElement.dataset.backgroundProfile = selected;
+  elements.dynamicBackground?.setAttribute("data-background-profile", selected);
+
+  if (elements.backgroundStyleSelect) {
+    elements.backgroundStyleSelect.value = selected;
+  }
+  if (elements.backgroundMediaUrl && mediaUrl) {
+    elements.backgroundMediaUrl.value = mediaUrl;
+  }
+
+  if (selected === "video") {
+    applyBackgroundMedia({ kind: "video", url: mediaUrl });
+  } else if (selected === "gif") {
+    applyBackgroundMedia({ kind: "image", url: mediaUrl });
+  } else {
+    applyBackgroundMedia({ kind: "none", url: "" });
+  }
+
+  if (options.persist !== false) {
+    writeUserVisualPreferences({
+      backgroundProfile: selected,
+      backgroundMediaUrl: mediaUrl,
+    });
+  }
+
+  if (options.react) {
+    const mediaNeeded = (selected === "video" || selected === "gif") && !mediaUrl;
+    const line = mediaNeeded
+      ? "Selecione uma URL para ativar esse tipo de fundo."
+      : (BACKGROUND_PROFILE_LINES[selected] || BACKGROUND_PROFILE_LINES.default);
+    showOrionBubble(line);
+    addChatMessage("orion", line);
+  }
+}
+
+function applyBackgroundMedia({ kind, url }) {
+  const safeUrl = normalizeBackgroundMediaUrl(url);
+
+  if (kind === "video" && safeUrl && elements.backgroundVideo) {
+    elements.backgroundVideo.src = safeUrl;
+    elements.backgroundVideo.hidden = false;
+    elements.backgroundVideo.load();
+    elements.backgroundVideo.play().catch(() => {
+      // Autoplay can be blocked; keep configuration for manual browser playback.
+    });
+  } else if (elements.backgroundVideo) {
+    elements.backgroundVideo.pause();
+    elements.backgroundVideo.removeAttribute("src");
+    elements.backgroundVideo.load();
+    elements.backgroundVideo.hidden = true;
+  }
+
+  if (kind === "image" && safeUrl && elements.backgroundImage) {
+    elements.backgroundImage.src = safeUrl;
+    elements.backgroundImage.hidden = false;
+  } else if (elements.backgroundImage) {
+    elements.backgroundImage.removeAttribute("src");
+    elements.backgroundImage.hidden = true;
+  }
+}
+
+function normalizeBackgroundProfile(profile) {
+  return ["default", "aurora", "particles", "video", "gif"].includes(profile) ? profile : "default";
+}
+
+function normalizeBackgroundMediaUrl(value) {
+  const trimmed = (value || "").trim().slice(0, BACKGROUND_MEDIA_MAX_LENGTH);
+  if (!trimmed) {
+    return "";
+  }
+  try {
+    const parsed = new URL(trimmed, window.location.origin);
+    const allowedProtocol = ["http:", "https:", "data:", "blob:"].includes(parsed.protocol);
+    return allowedProtocol ? parsed.href : "";
+  } catch {
+    return "";
+  }
+}
+
 export function enterBrainMode() {
+  if (isOrbIdentityActive()) {
+    if (elements.brainMode) {
+      elements.brainMode.hidden = true;
+    }
+    elements.workspace?.classList.remove("is-brain-mode");
+    setOrionState("thinking");
+    pulseOrionAura("#61d8ff");
+    showOrionBubble("Meu nucleo cognitivo esta representado pela esfera neural.");
+    return;
+  }
   if (!elements.brainMode || !elements.workspace) {
     return;
   }
@@ -1917,9 +2208,21 @@ export async function performWebSearch(query, options = {}) {
 }
 
 function setOrionVoiceState(state) {
-  elements.orionAvatar.dataset.voiceState = state;
-  currentReasoningState = state;
-  avatar3D?.setVoiceState(state);
+  const normalized = typeof state === "string" ? state.trim().toLowerCase() : "waiting";
+  const mapped = {
+    processing: "thinking",
+    waiting: "waiting",
+    responding: "responding",
+    searching: "searching",
+    listening: "listening",
+    thinking: "thinking",
+    encerrado: "waiting",
+    "microphone-error": "microphone-error",
+  };
+  const voiceState = mapped[normalized] || normalized || "waiting";
+  elements.orionAvatar.dataset.voiceState = voiceState;
+  currentReasoningState = voiceState;
+  avatar3D?.setVoiceState(voiceState);
 }
 
 function applyReasoningVisual(reasoningState, payload = {}) {
@@ -2053,7 +2356,7 @@ export function animateOrionThinking() {
 }
 
 export function handleOrionTouch() {
-  livingAvatar.reactToTouch();
+  livingAvatar?.reactToTouch();
   return;
 
   touchCount += 1;

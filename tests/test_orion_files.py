@@ -201,16 +201,20 @@ def build_docx_bytes(text: str) -> bytes:
 def build_xlsx_bytes(*values: str) -> bytes:
     stream = BytesIO()
     with ZipFile(stream, "w") as archive:
-        archive.writestr("[Content_Types].xml", "<Types xmlns='http://schemas.openxmlformats.org/package/2006/content-types'/>")
-        archive.writestr("xl/sharedStrings.xml", "".join([
-            "<sst xmlns='http://schemas.openxmlformats.org/spreadsheetml/2006/main'>",
-            *[f"<si><t>{value}</t></si>" for value in values],
-            "</sst>",
-        ]))
-        cells = "".join(
-            f"<c r='A{index}' t='s'><v>{index - 1}</v></c>"
-            for index, _value in enumerate(values, start=1)
+        archive.writestr(
+            "[Content_Types].xml", "<Types xmlns='http://schemas.openxmlformats.org/package/2006/content-types'/>"
         )
+        archive.writestr(
+            "xl/sharedStrings.xml",
+            "".join(
+                [
+                    "<sst xmlns='http://schemas.openxmlformats.org/spreadsheetml/2006/main'>",
+                    *[f"<si><t>{value}</t></si>" for value in values],
+                    "</sst>",
+                ]
+            ),
+        )
+        cells = "".join(f"<c r='A{index}' t='s'><v>{index - 1}</v></c>" for index, _value in enumerate(values, start=1))
         archive.writestr(
             "xl/worksheets/sheet1.xml",
             "<worksheet xmlns='http://schemas.openxmlformats.org/spreadsheetml/2006/main'>"
@@ -222,7 +226,9 @@ def build_xlsx_bytes(*values: str) -> bytes:
 def build_pptx_bytes(*texts: str) -> bytes:
     stream = BytesIO()
     with ZipFile(stream, "w") as archive:
-        archive.writestr("[Content_Types].xml", "<Types xmlns='http://schemas.openxmlformats.org/package/2006/content-types'/>")
+        archive.writestr(
+            "[Content_Types].xml", "<Types xmlns='http://schemas.openxmlformats.org/package/2006/content-types'/>"
+        )
         text_nodes = "".join(f"<a:t>{text}</a:t>" for text in texts)
         archive.writestr(
             "ppt/slides/slide1.xml",

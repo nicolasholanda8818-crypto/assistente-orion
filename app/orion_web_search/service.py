@@ -53,6 +53,19 @@ SENSITIVE_PATTERNS = [
     re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"),
     re.compile(r"\b(senha|token|segredo|cpf|cartao|cartão|api key|chave privada)\b", re.IGNORECASE),
 ]
+ALLOWED_SEARCH_HOSTS = {"duckduckgo.com", "www.mojeek.com"}
+
+
+def fetch_search_html(request: urllib.request.Request) -> str:
+    parsed = urllib.parse.urlparse(request.full_url)
+    if parsed.scheme != "https":
+        raise ValueError("Only HTTPS search endpoints are allowed.")
+    if parsed.netloc not in ALLOWED_SEARCH_HOSTS:
+        raise ValueError("Search host is not allowed.")
+
+    # Bandit B310 is safe here because scheme and host are explicitly allowlisted.
+    with urllib.request.urlopen(request, timeout=settings.web_search_timeout_seconds) as response:  # nosec B310
+        return response.read().decode("utf-8", errors="replace")
 
 
 @dataclass(frozen=True)
@@ -97,8 +110,7 @@ class DuckDuckGoHtmlClient(SearchClient):
                 "Accept": "text/html,application/xhtml+xml",
             },
         )
-        with urllib.request.urlopen(request, timeout=settings.web_search_timeout_seconds) as response:
-            html = response.read().decode("utf-8", errors="replace")
+        html = fetch_search_html(request)
         parser = DuckDuckGoHtmlParser()
         parser.feed(html)
         return parser.results[:max_results]
@@ -115,8 +127,7 @@ class MojeekHtmlClient(SearchClient):
                 "Accept": "text/html,application/xhtml+xml",
             },
         )
-        with urllib.request.urlopen(request, timeout=settings.web_search_timeout_seconds) as response:
-            html = response.read().decode("utf-8", errors="replace")
+        html = fetch_search_html(request)
         parser = MojeekHtmlParser()
         parser.feed(html)
         return parser.results[:max_results]
@@ -292,8 +303,7 @@ class WebSearchService:
                 search_type=detected_type,
                 searched_online=False,
                 summary=(
-                    "Nao consegui concluir a pesquisa online agora, "
-                    "mas posso responder com o conhecimento disponivel."
+                    "Nao consegui concluir a pesquisa online agora, mas posso responder com o conhecimento disponivel."
                 ),
                 results=[],
             )
@@ -353,9 +363,7 @@ class WebSearchService:
             else "Pesquisa online nao executada."
         )
         sources_notice = (
-            "Informacao obtida pela internet."
-            if searched_online
-            else "Informacao local ou sem acesso online."
+            "Informacao obtida pela internet." if searched_online else "Informacao local ou sem acesso online."
         )
         return WebSearchResponse(
             status=status,

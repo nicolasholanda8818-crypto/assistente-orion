@@ -79,8 +79,7 @@ class HostingService:
 
     def _horizontal_status(self) -> HorizontalScalingStatus:
         stateless_http_ready = (
-            settings.file_storage_backend == "object-storage"
-            and settings.session_backend != "memory"
+            settings.file_storage_backend == "object-storage" and settings.session_backend != "memory"
         )
         websocket_ready = settings.websocket_broker != "memory"
         notes = []

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR" data-theme="dark" data-orion-visual-identity="orb">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -17,6 +17,12 @@
   <body>
     <a class="skip-link" href="#message-input">Ir para o chat</a>
     <main class="orion-site" id="app">
+      <div class="orion-dynamic-background" id="orion-dynamic-background" aria-hidden="true">
+        <video class="orion-dynamic-background__video" id="orion-background-video" autoplay muted loop playsinline preload="metadata"></video>
+        <img class="orion-dynamic-background__image" id="orion-background-image" alt="" />
+        <span class="orion-dynamic-background__gradient"></span>
+        <span class="orion-dynamic-background__particles"></span>
+      </div>
       <div class="galaxy-field" aria-hidden="true">
         <span></span>
         <span></span>
@@ -208,6 +214,21 @@
                 <option value="ultra">Ultra Visual</option>
               </select>
             </label>
+            <label class="control-field" for="background-style-select">
+              <span>Fundo</span>
+              <select id="background-style-select">
+                <option value="default">Padrao</option>
+                <option value="aurora">Aurora</option>
+                <option value="particles">Particulas</option>
+                <option value="video">Video loop</option>
+                <option value="gif">GIF animado</option>
+              </select>
+            </label>
+            <label class="control-field control-field--wide" for="background-media-url">
+              <span>URL Midia</span>
+              <input id="background-media-url" type="url" placeholder="https://exemplo.com/fundo.mp4 ou .gif" />
+            </label>
+            <button class="control-chip" id="background-apply-button" type="button">Aplicar fundo</button>
           </div>
         </details>
 
@@ -341,6 +362,17 @@
             aria-hidden="true"
             hidden
           ></span>
+          <span class="orion-orb" aria-hidden="true">
+            <span class="orion-orb__halo"></span>
+            <span class="orion-orb__field"></span>
+            <span class="orion-orb__core"></span>
+            <span class="orion-orb__ring orion-orb__ring--outer"></span>
+            <span class="orion-orb__ring orion-orb__ring--inner"></span>
+            <span class="orion-orb__spark spark-a"></span>
+            <span class="orion-orb__spark spark-b"></span>
+            <span class="orion-orb__spark spark-c"></span>
+            <span class="orion-orb__spark spark-d"></span>
+          </span>
           <span class="orion-aura"></span>
           <span class="orion-neural-backdrop"></span>
           <span class="orion-shadow"></span>

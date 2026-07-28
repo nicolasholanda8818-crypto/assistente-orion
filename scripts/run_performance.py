@@ -110,6 +110,9 @@ def run_performance(
                 startup_index += 1
                 initialize_database()
 
+            # Warm up filesystem and import/cache effects so startup p95 is stable.
+            initialize_clean_database()
+
             metrics = [
                 measure(
                     "database_startup",

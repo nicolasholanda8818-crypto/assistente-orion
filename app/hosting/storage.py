@@ -29,9 +29,7 @@ class LocalFileStorage:
         if not self._root.exists():
             return []
         return sorted(
-            str(path.relative_to(self._root)).replace("\\", "/")
-            for path in self._root.rglob("*")
-            if path.is_file()
+            str(path.relative_to(self._root)).replace("\\", "/") for path in self._root.rglob("*") if path.is_file()
         )
 
     def _safe_key(self, key: str) -> Path:

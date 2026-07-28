@@ -72,11 +72,11 @@ Use segredos do provedor para senhas e chaves. Nao coloque segredos no GitHub.
 
 Depois de enviar o commit para o GitHub e executar `Manual Deploy > Deploy latest commit` no Render:
 
-1. Abra `https://seu-app.onrender.com/healthz`.
+1. Abra `https://assistente-orion.onrender.com/healthz`.
 2. Confirme a resposta `{"status":"ok"}`.
-3. Abra `https://seu-app.onrender.com/api/health`.
-4. Abra `https://seu-app.onrender.com/assets/js/main.js` e confirme que o arquivo JavaScript carrega.
-5. Abra `https://seu-app.onrender.com/assets/css/styles.css` e confirme que o CSS carrega.
+3. Abra `https://assistente-orion.onrender.com/api/health`.
+4. Abra `https://assistente-orion.onrender.com/assets/js/main.js` e confirme que o arquivo JavaScript carrega.
+5. Abra `https://assistente-orion.onrender.com/assets/css/styles.css` e confirme que o CSS carrega.
 6. Abra a pagina principal.
 7. Abra o console do navegador e confirme que nao existem erros criticos de `404`, `MIME type`, `Failed to fetch` ou `WebSocket connection failed`.
 8. Envie `oi` no chat.
@@ -109,10 +109,10 @@ Passos recomendados:
 O cache atual esperado do Orion para esta correcao e:
 
 ```text
-orion-pwa-v30-visual-brain
+orion-pwa-v50-orb-identity
 ```
 
-Na Fase 2, o frontend tambem envia um `userId` anonimo pelo WebSocket para permitir memoria local por navegador. Em producao HTTPS, a conexao esperada continua sendo `wss://seu-app.onrender.com/ws`.
+Na Fase 2, o frontend tambem envia um `userId` anonimo pelo WebSocket para permitir memoria local por navegador. Em producao HTTPS, a conexao esperada continua sendo `wss://assistente-orion.onrender.com/ws`.
 
 A mesma fase envia metadados leves de conversa no payload do WebSocket, como `reasoningState`, `responseLength`, `urgency` e `shouldSpeak`. Esses campos controlam apenas estados visuais e voz no navegador; eles nao mudam a URL publica nem exigem configuracao extra no Render.
 

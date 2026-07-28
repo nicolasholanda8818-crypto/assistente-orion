@@ -13,7 +13,8 @@ from io import BytesIO
 from pathlib import Path
 from typing import Literal
 from uuid import uuid4
-from xml.etree import ElementTree
+
+from defusedxml import ElementTree
 
 from app.core.config import settings
 from app.db import repositories
@@ -617,9 +618,7 @@ def extract_xlsx_text(content: bytes) -> str:
         with zipfile.ZipFile(BytesIO(content)) as archive:
             shared_strings = read_xlsx_shared_strings(archive)
             sheet_names = sorted(
-                name
-                for name in archive.namelist()
-                if name.startswith("xl/worksheets/") and name.endswith(".xml")
+                name for name in archive.namelist() if name.startswith("xl/worksheets/") and name.endswith(".xml")
             )[:12]
             parts: list[str] = []
             for sheet_index, sheet_name in enumerate(sheet_names, start=1):
@@ -676,9 +675,7 @@ def read_xlsx_cell(cell: ElementTree.Element, shared_strings: list[str]) -> str:
     cell_type = cell.attrib.get("t", "")
     if cell_type == "inlineStr":
         values = [
-            text_node.text or ""
-            for text_node in cell.iter()
-            if text_node.tag.endswith("}t") or text_node.tag == "t"
+            text_node.text or "" for text_node in cell.iter() if text_node.tag.endswith("}t") or text_node.tag == "t"
         ]
         return "".join(values).strip()
 
@@ -701,9 +698,7 @@ def extract_pptx_text(content: bytes) -> str:
     try:
         with zipfile.ZipFile(BytesIO(content)) as archive:
             slide_names = sorted(
-                name
-                for name in archive.namelist()
-                if name.startswith("ppt/slides/slide") and name.endswith(".xml")
+                name for name in archive.namelist() if name.startswith("ppt/slides/slide") and name.endswith(".xml")
             )[:80]
             parts: list[str] = []
             for slide_index, slide_name in enumerate(slide_names, start=1):
@@ -814,8 +809,7 @@ def build_study_handout(*, filename: str, summary: str, keywords: list[str], sen
 def build_school_work(*, filename: str, summary: str, keywords: list[str], sentences: list[str]) -> str:
     development = "\n".join(f"Paragrafo {index}: {sentence}" for index, sentence in enumerate(sentences[:6], start=1))
     references = (
-        "\n".join(f"- Topico derivado do arquivo: {keyword}" for keyword in keywords[:6])
-        or "- Arquivo enviado"
+        "\n".join(f"- Topico derivado do arquivo: {keyword}" for keyword in keywords[:6]) or "- Arquivo enviado"
     )
     return (
         f"Trabalho Orion - {filename}\n\n"
@@ -922,12 +916,7 @@ def split_pdf_blocks(content: str) -> list[str]:
 
 
 def escape_pdf_text(value: str) -> str:
-    return (
-        value.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace("\n", "<br/>")
-    )
+    return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br/>")
 
 
 def split_sentences(text: str) -> list[str]:

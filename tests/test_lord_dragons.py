@@ -31,8 +31,8 @@ def test_lord_dragons_entrypoint_uses_phaser_and_game_modules():
     assert 'id="character-class"' in game
     assert 'id="btn-confirm-character"' in game
     assert 'class="title-cast"' in game
-    assert 'sprite-ryden' in game
-    assert 'sprite-altheron' in game
+    assert "sprite-ryden" in game
+    assert "sprite-altheron" in game
     assert 'id="btn-equipment"' in game
     assert 'id="btn-map"' in game
     assert 'id="btn-heavy-attack"' in game
@@ -323,7 +323,7 @@ def test_lord_dragons_demo_starts_in_dragon_valley_with_playable_systems():
         "maxMana: 100",
         "stamina: 100",
         "maxStamina: 100",
-        "classId: \"guerreiro\"",
+        'classId: "guerreiro"',
     ]:
         assert required in state
 
@@ -445,7 +445,7 @@ def test_lord_dragons_dynamic_soundtrack_declares_context_tracks():
         "detectedThreat",
         "isNearTavern",
         "getCurrentRegion",
-        "playCue(\"victory\"",
+        'playCue("victory"',
         "playDefeat()",
     ]:
         assert required in world
@@ -528,8 +528,8 @@ def test_lord_dragons_clean_interface_prioritizes_world_visibility():
         "body.game-panel-open .game-panel",
         "translateX(calc(100% + 16px))",
         "pointer-events: none",
-        ".mobile-actions [data-mobile-action=\"inventory\"]",
-        ".mobile-actions [data-mobile-action=\"map\"]",
+        '.mobile-actions [data-mobile-action="inventory"]',
+        '.mobile-actions [data-mobile-action="map"]',
         "display: none",
         "grid-template-columns: repeat(3, 58px)",
         "calc(50% - min(18vw, 190px))",

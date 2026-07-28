@@ -86,9 +86,7 @@ class VoiceRuntimeService:
         ]
         configured = [provider for provider in providers if provider.configured]
         active = (
-            max(configured, key=lambda provider: provider.priority).provider_id
-            if configured
-            else "speech-synthesis"
+            max(configured, key=lambda provider: provider.priority).provider_id if configured else "speech-synthesis"
         )
         return VoiceCatalog(
             status="ready",

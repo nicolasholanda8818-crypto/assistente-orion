@@ -52,7 +52,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
     assert 'id="camera-button"' in index
     assert 'id="brain-mode-button"' in index
     assert 'id="portfolio-mode-button"' in index
-    assert 'Avatar &lt;-&gt; Cerebro' in index
+    assert "Avatar &lt;-&gt; Cerebro" in index
     assert 'id="avatar-studio-button"' in index
     assert 'id="avatar-studio-panel"' in index
     assert 'id="avatar-studio-preview"' in index
@@ -95,7 +95,7 @@ def test_shell_exposes_accessible_navigation_and_event_feed():
 def test_service_worker_caches_design_system_assets():
     service_worker = read_frontend("service-worker.js")
 
-    assert 'const CACHE_NAME = "orion-pwa-v49-avatar-framing";' in service_worker
+    assert 'const CACHE_NAME = "orion-pwa-v50-orb-identity";' in service_worker
     assert "cache.addAll(APP_SHELL.map((path) => freshRequest(path)))" in service_worker
     assert 'event.data.type === "SKIP_WAITING"' in service_worker
     assert "self.clients.claim()" in service_worker
