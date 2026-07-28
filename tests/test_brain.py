@@ -167,6 +167,15 @@ def test_orion_technical_mentor_guides_career_and_portfolio():
     assert "GitHub" in response.message
 
 
+def test_orion_dev_copilot_complements_technical_response_instead_of_overriding_it():
+    response = BrainService().process(BrainRequest(text="me ajuda a corrigir erro no backend e validar testes"))
+
+    assert response.intent in {"help", "technical", "conversation.reply", "question.general"}
+    assert "copiloto de desenvolvimento" in response.message
+    assert "Nao afirmo teste, deploy ou correcao sem executar e validar" in response.message
+    assert "objetivo, stack e erro atual" in response.message
+
+
 def test_orion_cognitive_pipeline_has_ten_ordered_stages():
     snapshot = UserMemorySnapshot(
         user_id="cognitive-pipeline-test",

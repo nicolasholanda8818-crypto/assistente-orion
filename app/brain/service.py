@@ -274,7 +274,8 @@ class BrainService:
 
         dev_copilot_response = self._build_dev_copilot_response(request_text=normalized_user_text)
         if dev_copilot_response:
-            return dev_copilot_response
+            if normalize_text(dev_copilot_response) not in normalize_text(message):
+                message = f"{message} {dev_copilot_response}"
 
         if memory_context.smart_question and normalize_text(memory_context.smart_question) not in normalized_message:
             if intent in {"request.incomplete", "help", "conversation.reply"} or "melhorar" in normalized_user_text:
@@ -354,12 +355,13 @@ class BrainService:
 
         if asks_for_build or asks_for_fix or asks_for_tests or asks_for_docs:
             return (
-                "Posso atuar como copiloto de desenvolvimento com este fluxo: "
+                "Posso atuar como copiloto de desenvolvimento com este fluxo profissional: "
                 "1) analiso o contexto do projeto e dependencias, "
                 "2) proponho implementacao minima segura, "
                 "3) aplico alteracoes objetivas, "
                 "4) executo testes automatizados e corrijo regressao, "
                 "5) entrego resumo tecnico com decisoes e proximo passo. "
+                "Nao afirmo teste, deploy ou correcao sem executar e validar. "
                 "Se voce quiser, eu comeco agora pelo primeiro bloco: objetivo, stack e erro atual."
             )
 

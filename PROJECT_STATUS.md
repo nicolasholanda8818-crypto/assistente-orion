@@ -6,6 +6,21 @@ Status: `PROTOTIPO JOGAVEL LORD DRAGONS ADICIONADO COM RC BLOQUEADO`
 
 Status operacional recente: `INTELIGENCIA CONVERSACIONAL, VENDAS, WEB E VOZ EM VALIDACAO`
 
+## Atualizacao Orion Next - Sprint A (Qualidade de Copiloto)
+
+Data: `2026-07-28`
+
+Resultado:
+
+- [x] Modo copiloto de desenvolvimento no Brain foi refinado para complementar respostas existentes, evitando sobrescrita de contexto util.
+- [x] Contrato de transparencia foi reforcado: o assistente declara que nao afirma teste, deploy ou correcao sem executar e validar.
+- [x] Cobertura de testes do Brain foi ampliada para garantir o comportamento novo sem regressao funcional.
+
+Validacao local executada:
+
+- `python -m pytest tests/test_brain.py tests/test_api.py -q`: `75 passed`.
+- `powershell -ExecutionPolicy Bypass -File .\\scripts\\run_ci.ps1 -SkipInstall -SkipBrowserInstall`: aprovado.
+
 ## Atualizacao Orion Next - Copiloto e Boot Progressivo
 
 Data: `2026-07-28`
