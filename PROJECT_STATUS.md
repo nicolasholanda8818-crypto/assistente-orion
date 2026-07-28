@@ -6,6 +6,22 @@ Status: `PROTOTIPO JOGAVEL LORD DRAGONS ADICIONADO COM RC BLOQUEADO`
 
 Status operacional recente: `INTELIGENCIA CONVERSACIONAL, VENDAS, WEB E VOZ EM VALIDACAO`
 
+## Atualizacao Render + Vercel (Frontend Runtime Bridge)
+
+Data: `2026-07-28`
+
+Resultado:
+
+- [x] Frontend recebeu configuracao de runtime para API/WebSocket sem quebrar o comportamento atual no Render.
+- [x] Integracao incremental de deploy frontend no Vercel documentada sem alterar backend, banco, auth ou contratos de API.
+- [x] Guia `docs/DEPLOY_VERCEL.md` criado com estrategia segura de coexistencia Render (backend) + Vercel (frontend).
+
+Validacao local executada:
+
+- `node --check frontend\\assets\\js\\api.js`: aprovado.
+- `node --check frontend\\assets\\js\\socket.js`: aprovado.
+- `powershell -ExecutionPolicy Bypass -File .\\scripts\\run_ci.ps1 -SkipInstall -SkipBrowserInstall`: aprovado.
+
 ## Atualizacao Visual Orb Premium
 
 Data: `2026-07-28`

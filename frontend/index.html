@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0b1118" />
     <meta name="description" content="Orion PWA local." />
+    <meta name="orion-api-base" content="" />
+    <meta name="orion-ws-base" content="" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Orion" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -795,9 +797,9 @@
               <span>Voz</span>
               <select class="field" id="onboarding-voice" name="voice">
                 <option value="calm">Calma</option>
-              <option value="balanced" selected>Equilibrada</option>
-              <option value="consultant">Consultor</option>
-              <option value="energetic">Energetica</option>
+                <option value="balanced" selected>Equilibrada</option>
+                <option value="consultant">Consultor</option>
+                <option value="energetic">Energetica</option>
               </select>
             </label>
 
@@ -833,6 +835,15 @@
       </div>
     </section>
 
+    <script>
+      (function () {
+        const read = (name) => document.querySelector(`meta[name="${name}"]`)?.content?.trim() || "";
+        window.__ORION_RUNTIME__ = {
+          apiBase: read("orion-api-base"),
+          wsBase: read("orion-ws-base"),
+        };
+      })();
+    </script>
     <script type="module" src="/assets/js/main.js"></script>
   </body>
 </html>

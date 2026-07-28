@@ -310,11 +310,14 @@ class BrainService:
         if remote_productivity and (asks_for_plan or asks_three_steps):
             return (
                 "Plano de 3 passos para esta semana:\n"
-                "1. Prioridades: escolha 3 entregas-chave da semana e quebre cada uma em uma tarefa de 45-90 minutos por dia. "
+                "1. Prioridades: escolha 3 entregas-chave da semana e quebre cada uma "
+                "em uma tarefa de 45-90 minutos por dia. "
                 "Comece sempre pela tarefa de maior impacto antes de abrir chat ou email.\n"
-                "2. Comunicacao: envie um update curto no inicio e no fim do dia (o que vai fazer, bloqueios, proximo passo). "
+                "2. Comunicacao: envie um update curto no inicio e no fim do dia "
+                "(o que vai fazer, bloqueios, proximo passo). "
                 "Isso reduz retrabalho e acelera decisoes sem reunioes longas.\n"
-                "3. Energia mental: trabalhe em blocos (50 min foco + 10 min pausa), proteja 2 blocos por dia sem notificacao "
+                "3. Energia mental: trabalhe em blocos (50 min foco + 10 min pausa), "
+                "proteja 2 blocos por dia sem notificacao "
                 "e encerre com revisao de 5 minutos para planejar o dia seguinte."
             )
 

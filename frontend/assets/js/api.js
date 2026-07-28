@@ -1,4 +1,5 @@
-const API_BASE = window.location.origin;
+const runtimeConfig = window.__ORION_RUNTIME__ || {};
+const API_BASE = normalizeHttpOrigin(runtimeConfig.apiBase) || window.location.origin;
 
 async function request(path, options = {}) {
   const url = new URL(path, API_BASE);
@@ -97,7 +98,8 @@ export function transformOrionFile(fileId, payload) {
 
 export function orionFileDownloadUrl(fileId, userId) {
   const query = new URLSearchParams({ user_id: userId });
-  return `/api/files/${fileId}/download?${query.toString()}`;
+  const path = `/api/files/${fileId}/download?${query.toString()}`;
+  return new URL(path, API_BASE).toString();
 }
 
 export function uploadCameraPhoto(payload) {
@@ -145,4 +147,19 @@ export function updateOnboardingProfile(payload) {
     method: "PUT",
     body: JSON.stringify(payload),
   });
+}
+
+function normalizeHttpOrigin(value) {
+  if (!value) {
+    return "";
+  }
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return "";
+    }
+    return parsed.origin;
+  } catch {
+    return "";
+  }
 }

@@ -1,6 +1,8 @@
+const runtimeConfig = window.__ORION_RUNTIME__ || {};
+
 export function getSocketUrl({ userId } = {}) {
-  const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  const url = new URL(`${protocol}://${window.location.host}/ws`);
+  const socketBase = resolveSocketBase();
+  const url = new URL("/ws", socketBase);
   if (userId) {
     url.searchParams.set("userId", userId);
   }
@@ -26,4 +28,51 @@ export function createOrionSocket({ userId, onOpen, onMessage, onClose, onError 
   socket.addEventListener("error", (event) => onError?.(event));
 
   return socket;
+}
+
+function resolveSocketBase() {
+  const explicitWsBase = normalizeWsBase(runtimeConfig.wsBase);
+  if (explicitWsBase) {
+    return explicitWsBase;
+  }
+
+  const apiBase = normalizeHttpOrigin(runtimeConfig.apiBase);
+  if (apiBase) {
+    const httpBase = new URL(apiBase);
+    httpBase.protocol = httpBase.protocol === "https:" ? "wss:" : "ws:";
+    return httpBase.toString();
+  }
+
+  const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+  return `${protocol}://${window.location.host}`;
+}
+
+function normalizeHttpOrigin(value) {
+  if (!value) {
+    return "";
+  }
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return "";
+    }
+    return parsed.origin;
+  } catch {
+    return "";
+  }
+}
+
+function normalizeWsBase(value) {
+  if (!value) {
+    return "";
+  }
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== "ws:" && parsed.protocol !== "wss:") {
+      return "";
+    }
+    return parsed.origin;
+  } catch {
+    return "";
+  }
 }
