@@ -19,6 +19,26 @@ body {
   overflow: hidden;
 }
 
+html.orion-ui-booting .orion-site {
+  opacity: 0;
+  transform: translateY(6px) scale(0.998);
+}
+
+html.orion-ui-ready .orion-site {
+  opacity: 1;
+  transform: none;
+  transition: opacity 320ms ease, transform 320ms ease;
+}
+
+html[data-device-tier="compact"] .orion-dynamic-background__particles,
+html[data-device-tier="compact"] .galaxy-field {
+  animation-duration: 40s;
+}
+
+html[data-device-tier="compact"] .orion-dynamic-background__gradient {
+  animation-duration: 30s;
+}
+
 .orion-dynamic-background,
 .orion-dynamic-background__video,
 .orion-dynamic-background__image,

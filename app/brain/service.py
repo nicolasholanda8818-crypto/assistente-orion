@@ -272,6 +272,10 @@ class BrainService:
         if quick_plan:
             return quick_plan
 
+        dev_copilot_response = self._build_dev_copilot_response(request_text=normalized_user_text)
+        if dev_copilot_response:
+            return dev_copilot_response
+
         if memory_context.smart_question and normalize_text(memory_context.smart_question) not in normalized_message:
             if intent in {"request.incomplete", "help", "conversation.reply"} or "melhorar" in normalized_user_text:
                 message = f"{message} {memory_context.smart_question}"
@@ -319,6 +323,44 @@ class BrainService:
                 "3. Energia mental: trabalhe em blocos (50 min foco + 10 min pausa), "
                 "proteja 2 blocos por dia sem notificacao "
                 "e encerre com revisao de 5 minutos para planejar o dia seguinte."
+            )
+
+        return None
+
+    def _build_dev_copilot_response(self, *, request_text: str) -> str | None:
+        dev_terms = {
+            "projeto",
+            "sistema",
+            "codigo",
+            "api",
+            "backend",
+            "frontend",
+            "bug",
+            "teste",
+            "documentacao",
+            "performance",
+            "otimizar",
+            "refatorar",
+            "deploy",
+        }
+        asks_for_build = any(term in request_text for term in {"criar", "gerar", "montar", "planejar"})
+        asks_for_fix = any(term in request_text for term in {"corrigir", "consertar", "ajustar", "erro", "bug"})
+        asks_for_tests = any(term in request_text for term in {"teste", "testes", "validar", "qa"})
+        asks_for_docs = any(term in request_text for term in {"documentacao", "docs", "explicar", "arquitetura"})
+        has_dev_context = any(term in request_text for term in dev_terms)
+
+        if not has_dev_context:
+            return None
+
+        if asks_for_build or asks_for_fix or asks_for_tests or asks_for_docs:
+            return (
+                "Posso atuar como copiloto de desenvolvimento com este fluxo: "
+                "1) analiso o contexto do projeto e dependencias, "
+                "2) proponho implementacao minima segura, "
+                "3) aplico alteracoes objetivas, "
+                "4) executo testes automatizados e corrijo regressao, "
+                "5) entrego resumo tecnico com decisoes e proximo passo. "
+                "Se voce quiser, eu comeco agora pelo primeiro bloco: objetivo, stack e erro atual."
             )
 
         return None

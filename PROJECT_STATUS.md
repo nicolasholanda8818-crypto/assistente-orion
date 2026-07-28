@@ -6,6 +6,25 @@ Status: `PROTOTIPO JOGAVEL LORD DRAGONS ADICIONADO COM RC BLOQUEADO`
 
 Status operacional recente: `INTELIGENCIA CONVERSACIONAL, VENDAS, WEB E VOZ EM VALIDACAO`
 
+## Atualizacao Orion Next - Copiloto e Boot Progressivo
+
+Data: `2026-07-28`
+
+Resultado:
+
+- [x] Brain recebeu resposta dedicada para contexto de copiloto de desenvolvimento, com foco em analise, implementacao minima segura, testes e resumo tecnico.
+- [x] Frontend recebeu boot progressivo com classes de transicao para reduzir impacto visual no carregamento inicial.
+- [x] Frontend recebeu ajuste por tier `compact` para reduzir custo de animacao em dispositivos mais limitados.
+
+Validacao local executada:
+
+- `node --check frontend\\assets\\js\\main.js`: aprovado.
+- `node --check frontend\\assets\\js\\api.js`: aprovado.
+- `node --check frontend\\assets\\js\\socket.js`: aprovado.
+- `node --check frontend\\assets\\js\\voice-engine.js`: aprovado.
+- `python -m pytest tests/test_brain.py tests/test_design_system.py -q`: `65 passed`.
+- `powershell -ExecutionPolicy Bypass -File .\\scripts\\run_ci.ps1 -SkipInstall -SkipBrowserInstall`: aprovado.
+
 ## Atualizacao Render + Vercel (Frontend Runtime Bridge)
 
 Data: `2026-07-28`

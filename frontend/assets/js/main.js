@@ -171,6 +171,7 @@ const BACKGROUND_PROFILE_LINES = {
   gif: "Fundo GIF configurado.",
 };
 const BACKGROUND_MEDIA_MAX_LENGTH = 1024;
+const UI_BOOT_MIN_MS = 320;
 const TOUCH_REACTIONS = [
   "Ei, cuidado com o cabelo, Mestre.",
   "Isso fez cÃ³cegas.",
@@ -450,6 +451,7 @@ function createOrbIdentityController({ setOrionState, showOrionBubble, addChatMe
 
 export function initOrionVisual() {
   applyOrbIdentityMode();
+  applyDeviceTier();
   setOrionState("online");
   showOrionBubble("Estou online, Mestre. Pode falar comigo.");
   if (isOrbIdentityActive()) {
@@ -2922,12 +2924,31 @@ function userVisualPreferenceKey() {
 }
 
 function defaultVisualMode() {
+  const saveData = Boolean(navigator.connection?.saveData);
+  const networkType = String(navigator.connection?.effectiveType || "").toLowerCase();
+  const lowBandwidth = ["slow-2g", "2g"].includes(networkType);
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const lowMemory = (window.navigator.deviceMemory || 4) <= 2;
   const lowCores = (window.navigator.hardwareConcurrency || 4) <= 2;
-  if (lowMemory || lowCores || window.innerWidth < 420) {
+  if (reducedMotion || saveData || lowBandwidth || lowMemory || lowCores || window.innerWidth < 420) {
     return "performance";
   }
   return window.innerWidth > 1100 ? "ultra" : "balanced";
+}
+
+function detectDeviceTier() {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const saveData = Boolean(navigator.connection?.saveData);
+  const lowMemory = (window.navigator.deviceMemory || 4) <= 2;
+  const lowCores = (window.navigator.hardwareConcurrency || 4) <= 2;
+  if (reducedMotion || saveData || lowMemory || lowCores || window.innerWidth < 420) {
+    return "compact";
+  }
+  return window.innerWidth > 1180 ? "desktop" : "standard";
+}
+
+function applyDeviceTier() {
+  document.documentElement.dataset.deviceTier = detectDeviceTier();
 }
 
 function normalizeVoiceMode(mode) {
@@ -3032,6 +3053,8 @@ function wait(ms) {
 }
 
 async function boot() {
+  const bootStartedAt = performance.now();
+  document.documentElement.classList.add("orion-ui-booting");
   setupDesignSystem();
   initOrionVisual();
   await setupOnboarding({
@@ -3063,6 +3086,13 @@ async function boot() {
   elements.pwaStatus.textContent = swResult.ok ? "registrado" : "indisponivel";
 
   setupInstallPrompt([elements.installButton, elements.sidebarInstallButton]);
+
+  const elapsed = performance.now() - bootStartedAt;
+  if (elapsed < UI_BOOT_MIN_MS) {
+    await wait(UI_BOOT_MIN_MS - elapsed);
+  }
+  document.documentElement.classList.remove("orion-ui-booting");
+  document.documentElement.classList.add("orion-ui-ready");
 }
 
 boot();

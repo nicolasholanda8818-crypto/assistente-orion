@@ -50,6 +50,7 @@ Cada ticket possui objetivo unico e deve ser concluido, testado e documentado an
 | T0000-IDLE-FBX-20260704 | Integrar animacao Idle FBX ao avatar real com retarget leve e fallback Breathing procedural | T0000-VISUAL-GLB-20260703 |
 | T0000-ORB-PREMIUM-20260728 | Desativar visualmente avatar humano e cerebro, fortalecer esfera 3D e fundo vivo configuravel sem alterar backend/API/banco | T0000-IDLE-FBX-20260704 |
 | T0000-RENDER-VERCEL-20260728 | Preparar runtime bridge para frontend Vercel mantendo backend Render e compatibilidade total do projeto atual | T0000-ORB-PREMIUM-20260728 |
+| T0000-ORION-NEXT-20260728 | Iniciar fase Orion Next com copiloto dev no Brain e boot progressivo por tier de dispositivo, preservando contratos existentes | T0000-RENDER-VERCEL-20260728 |
 | T0001 | Criar estrutura canonica, arquivos de configuracao e baseline do repositorio | Gate G0 aprovado |
 | T0002 | Configurar FastAPI, health checks e ciclo de vida local | T0001 |
 | T0003 | Configurar PWA base, manifest, service worker e offline shell | T0001 |
