@@ -6,6 +6,21 @@ Status: `PROTOTIPO JOGAVEL LORD DRAGONS ADICIONADO COM RC BLOQUEADO`
 
 Status operacional recente: `INTELIGENCIA CONVERSACIONAL, VENDAS, WEB E VOZ EM VALIDACAO`
 
+## Atualizacao Orion Next - Sprint B (Hardening WebSocket)
+
+Data: `2026-07-28`
+
+Resultado:
+
+- [x] WebSocket recebeu hardening opcional por configuracao: validacao de origin, token de sessao e rate limit por janela.
+- [x] Todos os controles foram implementados com feature flags desligadas por padrao para preservar compatibilidade da producao atual.
+- [x] Limite de tamanho de mensagem foi adicionado para reduzir risco de abuso sem quebrar o fluxo principal.
+
+Validacao local executada:
+
+- `python -m pytest tests/test_websocket.py tests/test_api.py -q`: `25 passed`.
+- `powershell -ExecutionPolicy Bypass -File .\\scripts\\run_ci.ps1 -SkipInstall -SkipBrowserInstall`: aprovado.
+
 ## Atualizacao Orion Next - Sprint A (Qualidade de Copiloto)
 
 Data: `2026-07-28`

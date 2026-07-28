@@ -39,6 +39,7 @@
 - [x] Preparar bridge de runtime para frontend no Vercel com backend no Render sem quebrar link e funcionalidades atuais.
 - [x] Iniciar Orion Next incremental com resposta de copiloto dev no Brain e boot progressivo de interface por tier de dispositivo.
 - [x] Refinar Orion Next Sprint A: copiloto dev complementar (sem sobrescrever resposta util) com contrato de transparencia e testes dedicados.
+- [x] Implementar Orion Next Sprint B: hardening opcional de WebSocket (origin, token, rate limit e tamanho maximo de mensagem) com compatibilidade preservada.
 - [ ] Vendorizar Three.js localmente para PWA offline completo.
 - [ ] Endurecer WebSocket com autenticacao, origin check, rate limit e quotas.
 - [ ] Criar E2E automatizado para o fluxo visual do Orion.

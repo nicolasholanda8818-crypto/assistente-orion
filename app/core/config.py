@@ -65,6 +65,14 @@ class Settings(BaseSettings):
     horizontal_replicas_enabled: bool = False
     session_backend: str = "memory"
     websocket_broker: str = "memory"
+    websocket_require_origin_check: bool = False
+    websocket_allowed_origins: list[str] = []
+    websocket_require_session_token: bool = False
+    websocket_session_token_min_length: int = 12
+    websocket_rate_limit_enabled: bool = False
+    websocket_rate_limit_messages_per_window: int = 120
+    websocket_rate_limit_window_seconds: int = 60
+    websocket_max_message_chars: int = 4000
     monitoring_enabled: bool = True
     cors_origins: list[str] = ["http://127.0.0.1:8000", "http://localhost:8000"]
     model_selection_mode: str = "explicit-only"

@@ -1,6 +1,8 @@
 import time
+from types import SimpleNamespace
 
 from app.db import repositories
+from app.websockets.routes import ConnectionRateLimiter, is_ws_origin_allowed, is_ws_session_token_valid
 
 
 def wait_for_event(event_type: str, timeout: float = 1.0) -> list[dict]:
@@ -118,3 +120,33 @@ def test_websocket_preserves_user_continuity(client):
         return_response = websocket.receive_json()
         assert return_response["payload"]["intent"] == "returning"
         assert "Conseguiu descansar" in return_response["payload"]["message"]
+
+
+def test_websocket_origin_check_is_optional_and_allows_known_origin(monkeypatch):
+    fake_socket = SimpleNamespace(headers={"origin": "http://localhost:8000"}, query_params={})
+
+    monkeypatch.setattr("app.websockets.routes.settings.websocket_require_origin_check", True)
+    monkeypatch.setattr("app.websockets.routes.settings.websocket_allowed_origins", ["http://localhost:8000"])
+
+    assert is_ws_origin_allowed(fake_socket) is True
+
+
+def test_websocket_token_check_rejects_missing_or_short_tokens(monkeypatch):
+    missing_token_socket = SimpleNamespace(headers={}, query_params={})
+    short_token_socket = SimpleNamespace(headers={}, query_params={"sessionToken": "abc123"})
+    valid_token_socket = SimpleNamespace(headers={}, query_params={"sessionToken": "token_123456789"})
+
+    monkeypatch.setattr("app.websockets.routes.settings.websocket_require_session_token", True)
+    monkeypatch.setattr("app.websockets.routes.settings.websocket_session_token_min_length", 12)
+
+    assert is_ws_session_token_valid(missing_token_socket) is False
+    assert is_ws_session_token_valid(short_token_socket) is False
+    assert is_ws_session_token_valid(valid_token_socket) is True
+
+
+def test_websocket_rate_limiter_blocks_after_limit():
+    limiter = ConnectionRateLimiter()
+
+    assert limiter.allow(key="conn-a", limit=2, window_seconds=60) is True
+    assert limiter.allow(key="conn-a", limit=2, window_seconds=60) is True
+    assert limiter.allow(key="conn-a", limit=2, window_seconds=60) is False
