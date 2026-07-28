@@ -56,13 +56,28 @@ def test_application_status(client):
 
 
 def test_frontend_pwa_files_are_served(client):
-    assert client.get("/").status_code == 200
-    assert client.get("/index.html").status_code == 200
-    assert client.get("/assets/css/styles.css").headers["content-type"].startswith("text/css")
-    assert client.get("/assets/js/main.js").headers["content-type"].startswith("text/javascript")
-    assert client.get("/manifest.webmanifest").headers["content-type"].startswith("application/manifest+json")
-    assert client.get("/service-worker.js").headers["content-type"].startswith("text/javascript")
-    assert client.get("/offline.html").status_code == 200
+    root = client.get("/")
+    index = client.get("/index.html")
+    stylesheet = client.get("/assets/css/styles.css")
+    main_js = client.get("/assets/js/main.js")
+    manifest = client.get("/manifest.webmanifest")
+    service_worker = client.get("/service-worker.js")
+    offline = client.get("/offline.html")
+
+    assert root.status_code == 200
+    assert index.status_code == 200
+    assert stylesheet.headers["content-type"].startswith("text/css")
+    assert main_js.headers["content-type"].startswith("text/javascript")
+    assert manifest.headers["content-type"].startswith("application/manifest+json")
+    assert service_worker.headers["content-type"].startswith("text/javascript")
+    assert offline.status_code == 200
+
+    assert root.headers["cache-control"] == "no-store, no-cache, must-revalidate, max-age=0"
+    assert index.headers["cache-control"] == "no-store, no-cache, must-revalidate, max-age=0"
+    assert manifest.headers["cache-control"] == "no-store, no-cache, must-revalidate, max-age=0"
+    assert service_worker.headers["cache-control"] == "no-store, no-cache, must-revalidate, max-age=0"
+    assert stylesheet.headers["cache-control"] == "no-cache, must-revalidate, max-age=0"
+    assert main_js.headers["cache-control"] == "no-cache, must-revalidate, max-age=0"
 
 
 def test_brain_status(client):

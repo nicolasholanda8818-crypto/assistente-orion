@@ -4,11 +4,11 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import api_router
 from app.core.config import settings
 from app.core.logging import configure_logging
+from app.core.static_files import OrionStaticFiles
 from app.db.init_db import initialize_database
 from app.monitoring.metrics import MetricsMiddleware
 from app.websockets.routes import websocket_router
@@ -46,8 +46,8 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     static_root = Path(settings.static_dir)
-    app.mount("/assets", StaticFiles(directory=static_root / "assets"), name="assets")
-    app.mount("/", StaticFiles(directory=settings.static_dir, html=True), name="frontend")
+    app.mount("/assets", OrionStaticFiles(directory=static_root / "assets"), name="assets")
+    app.mount("/", OrionStaticFiles(directory=settings.static_dir, html=True), name="frontend")
 
     return app
 
