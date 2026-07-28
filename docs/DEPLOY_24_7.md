@@ -70,6 +70,12 @@ Use segredos do provedor para senhas e chaves. Nao coloque segredos no GitHub.
 
 ## Checklist Render apos deploy
 
+Verificacao automatica em 1 comando:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_public_deploy.ps1
+```
+
 Depois de enviar o commit para o GitHub e executar `Manual Deploy > Deploy latest commit` no Render:
 
 1. Abra `https://assistente-orion.onrender.com/healthz`.

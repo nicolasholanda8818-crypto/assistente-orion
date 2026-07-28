@@ -18,6 +18,12 @@ As jornadas E2E em navegador podem ser executadas separadamente:
 powershell -ExecutionPolicy Bypass -File .\scripts\run_e2e.ps1
 ```
 
+Checklist automatico de verificacao publica pos-deploy (Render/producao):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_public_deploy.ps1
+```
+
 ## Brain Baseline
 
 O nucleo local deterministico do Brain separa memoria, planejamento, execucao,
