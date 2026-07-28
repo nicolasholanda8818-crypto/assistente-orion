@@ -64,3 +64,22 @@ Um candidato so pode mudar para `ready-for-promotion-review` quando:
 `0.1.0-rc.1` permanece bloqueado porque a fundacao ainda tem lacunas conhecidas de
 WebSocket, identidade, backup, rollback assinado e dependencias vulneraveis instaladas
 no ambiente local de validacao.
+
+## Aditivo Orion Next - Fase 2 (2026-07-28)
+
+Entrega registrada sem promover RC:
+
+- evolucao do Brain para contexto adaptativo, referencia implicita e autoverificacao de resposta;
+- portfolio profissional grounded no backend/frontend com apresentacao por voz;
+- modulo matematico deterministico com testes dedicados.
+
+Evidencias da validacao local desta fase:
+
+- `python -m pytest tests/test_brain.py tests/test_math_engine.py`: `79 passed`.
+- `powershell -ExecutionPolicy Bypass -File .\\scripts\\run_ci.ps1 -SkipInstall -SkipBrowserInstall`: `214 passed`, E2E `5 passed`, coverage `83.05%`.
+
+Decisao de promocao:
+
+- o status do candidato continua `blocked-for-promotion`;
+- nao houve alteracao de Render, dominio ou link publico;
+- controles de hardening WebSocket existem por feature flag, mas o baseline de compatibilidade permanece sem endurecimento obrigatorio por padrao.
