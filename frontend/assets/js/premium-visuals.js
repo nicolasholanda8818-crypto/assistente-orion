@@ -52,6 +52,11 @@ export function createPremiumVisualSystem({ elements, getVisualMode } = {}) {
     reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.documentElement.classList.add("premium-visuals-ready");
     applyMode(visualMode());
+
+    if (isPerformanceMode()) {
+      return;
+    }
+
     await loadGsap();
     startIdleLoops();
     animateEntrance();

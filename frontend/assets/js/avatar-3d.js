@@ -7,25 +7,25 @@ const ANIMATION_MANIFEST_URL = "/assets/animations/animation-manifest.json";
 const MODEL_OVERRIDE_KEY = "orion:avatar3d:modelUrl";
 
 const AVATAR_STATES = {
-  online: { color: 0x66e7ff, speed: 0.65, gesture: "idle" },
-  listening: { color: 0x50f6ff, speed: 0.88, gesture: "listening" },
-  thinking: { color: 0x4da3ff, speed: 0.72, gesture: "thinking" },
-  walking: { color: 0x66e7ff, speed: 1.1, gesture: "walking" },
-  explaining: { color: 0xb58cff, speed: 1, gesture: "explaining" },
-  professor: { color: 0x6effb8, speed: 0.92, gesture: "explaining" },
-  speaking: { color: 0xb58cff, speed: 1.08, gesture: "speaking" },
-  responding: { color: 0xb58cff, speed: 1.08, gesture: "speaking" },
-  searching: { color: 0xff5f72, speed: 1.15, gesture: "searching" },
-  files: { color: 0x6effb8, speed: 0.9, gesture: "thinking" },
-  learning: { color: 0xffd166, speed: 0.96, gesture: "thinking" },
-  happy: { color: 0x72ffbf, speed: 1, gesture: "idle" },
-  curious: { color: 0xffd166, speed: 0.82, gesture: "thinking" },
-  confident: { color: 0x72ffbf, speed: 0.92, gesture: "explaining" },
-  tired: { color: 0x80a8ff, speed: 0.52, gesture: "tired" },
-  animated: { color: 0xffd166, speed: 1.18, gesture: "explaining" },
-  worried: { color: 0xff9f43, speed: 0.68, gesture: "thinking" },
-  annoyed: { color: 0xff7a90, speed: 0.8, gesture: "idle" },
-  error: { color: 0xff9f43, speed: 0.78, gesture: "thinking" },
+  online: { color: 0x66e7ff, speed: 0.86, gesture: "idle" },
+  listening: { color: 0x50f6ff, speed: 1.04, gesture: "listening" },
+  thinking: { color: 0x4da3ff, speed: 0.95, gesture: "thinking" },
+  walking: { color: 0x66e7ff, speed: 1.35, gesture: "walking" },
+  explaining: { color: 0xb58cff, speed: 1.18, gesture: "explaining" },
+  professor: { color: 0x6effb8, speed: 1.08, gesture: "explaining" },
+  speaking: { color: 0xb58cff, speed: 1.26, gesture: "speaking" },
+  responding: { color: 0xb58cff, speed: 1.24, gesture: "speaking" },
+  searching: { color: 0xff5f72, speed: 1.34, gesture: "searching" },
+  files: { color: 0x6effb8, speed: 1.02, gesture: "thinking" },
+  learning: { color: 0xffd166, speed: 1.08, gesture: "thinking" },
+  happy: { color: 0x72ffbf, speed: 1.06, gesture: "idle" },
+  curious: { color: 0xffd166, speed: 0.95, gesture: "thinking" },
+  confident: { color: 0x72ffbf, speed: 1.08, gesture: "explaining" },
+  tired: { color: 0x80a8ff, speed: 0.62, gesture: "tired" },
+  animated: { color: 0xffd166, speed: 1.3, gesture: "explaining" },
+  worried: { color: 0xff9f43, speed: 0.8, gesture: "thinking" },
+  annoyed: { color: 0xff7a90, speed: 0.92, gesture: "idle" },
+  error: { color: 0xff9f43, speed: 0.9, gesture: "thinking" },
 };
 
 const ANIMATION_ALIASES = {
@@ -255,8 +255,9 @@ async function createProceduralAvatarEngine(container, { getVisualMode }) {
     aura.intensity = 9 + speechPulse * 6;
     rig.aura.material.color.setHex(config.color);
     rig.aura.material.opacity = 0.12 + speechPulse * 0.08;
-    rig.group.rotation.y += (Math.sin(elapsed * 0.34) * 0.08 - rig.group.rotation.y) * 0.035;
-    rig.group.position.y = Math.sin(elapsed * 1.35 * config.speed) * 0.022;
+    rig.group.rotation.y += (Math.sin(elapsed * 0.42) * 0.14 - rig.group.rotation.y) * 0.04;
+    rig.group.position.y = Math.sin(elapsed * 1.65 * config.speed) * 0.032;
+    rig.group.position.x = Math.sin(elapsed * 0.95 * config.speed) * 0.028;
 
     renderer.render(scene, camera);
     if (!document.hidden) {
@@ -448,15 +449,15 @@ async function createThreeAvatarEngine(container, { modelConfig, getVisualMode }
     const speechActive = performance.now() < state.speechUntil || ["speaking", "responding"].includes(state.current);
     const speechPulse = speechActive ? (Math.sin(elapsed * 18) + 1) / 2 : 0;
 
-    state.mixer?.update(delta * config.speed);
+    state.mixer?.update(delta * (config.speed + 0.14));
     applyVrmExpressions(state, state.current, speechPulse, elapsed);
     state.vrm?.update?.(delta);
     applyAvatarPoseCorrection(state, elapsed, config.gesture);
 
     if (!state.activeAction) {
-      modelRoot.position.y = Math.sin(elapsed * 1.45 * config.speed) * 0.018;
-      modelRoot.rotation.y = Math.sin(elapsed * 0.55) * 0.035;
-      modelRoot.rotation.x = gesturePitch(config.gesture, elapsed);
+      modelRoot.position.y = Math.sin(elapsed * 1.75 * config.speed) * 0.028;
+      modelRoot.rotation.y = Math.sin(elapsed * 0.78) * 0.06;
+      modelRoot.rotation.x = gesturePitch(config.gesture, elapsed) + Math.sin(elapsed * 0.48) * 0.02;
     }
 
     rim.color.setHex(config.color);
@@ -796,9 +797,9 @@ function createLeg(THREE, materials, side) {
 }
 
 function applyProceduralPose(rig, gesture, elapsed, speed, speechPulse) {
-  const breath = Math.sin(elapsed * 1.6 * speed);
-  const walk = Math.sin(elapsed * 5.2 * speed);
-  const talk = Math.sin(elapsed * 6.6) * (0.16 + speechPulse * 0.08);
+  const breath = Math.sin(elapsed * 2.1 * speed);
+  const walk = Math.sin(elapsed * 6.4 * speed);
+  const talk = Math.sin(elapsed * 8.2) * (0.24 + speechPulse * 0.1);
   const isWalking = gesture === "walking";
   const isSpeaking = gesture === "speaking" || gesture === "explaining";
   const isThinking = gesture === "thinking";
@@ -806,24 +807,24 @@ function applyProceduralPose(rig, gesture, elapsed, speed, speechPulse) {
   const isSearching = gesture === "searching";
   const isTired = gesture === "tired";
 
-  rig.chest.scale.y = 1 + breath * 0.014;
-  setRotation(rig.chest, isTired ? 0.14 : isSearching ? -0.08 : 0.02 + breath * 0.018, 0, isSpeaking ? talk * 0.22 : breath * 0.01);
-  setRotation(rig.hips, 0, isWalking ? walk * 0.08 : 0, isWalking ? -walk * 0.04 : 0);
-  setRotation(rig.headPivot, isThinking ? -0.2 : isListening ? 0.1 : isTired ? -0.16 : breath * 0.016, isSearching ? Math.sin(elapsed * 1.8) * 0.22 : Math.sin(elapsed * 0.7) * 0.055, isListening ? -0.12 : 0);
+  rig.chest.scale.y = 1 + breath * 0.018;
+  setRotation(rig.chest, isTired ? 0.16 : isSearching ? -0.1 : 0.03 + breath * 0.028, 0, isSpeaking ? talk * 0.3 : breath * 0.014);
+  setRotation(rig.hips, 0, isWalking ? walk * 0.11 : 0, isWalking ? -walk * 0.05 : 0);
+  setRotation(rig.headPivot, isThinking ? -0.24 : isListening ? 0.14 : isTired ? -0.18 : breath * 0.022, isSearching ? Math.sin(elapsed * 2.0) * 0.3 : Math.sin(elapsed * 0.9) * 0.08, isListening ? -0.16 : 0);
 
-  const armSwing = isWalking ? walk * 0.44 : 0;
-  const legSwing = isWalking ? walk * 0.5 : 0;
-  setRotation(rig.leftArm.shoulder, isThinking ? -0.6 : isSpeaking ? -0.48 + talk : -0.1 - armSwing, 0.02, isThinking ? -0.42 : -0.16);
-  setRotation(rig.rightArm.shoulder, isThinking ? -1.02 : isSpeaking ? -0.5 - talk : -0.1 + armSwing, 0.02, isThinking ? 0.34 : 0.16);
-  setRotation(rig.leftArm.elbow, isThinking ? -0.24 : isSpeaking ? -0.7 : -0.18, 0, isSpeaking ? -0.22 : 0);
-  setRotation(rig.rightArm.elbow, isThinking ? -1.22 : isSpeaking ? -0.74 : -0.18, 0, isThinking ? 0.45 : 0.18);
-  setRotation(rig.leftArm.wrist, 0, 0, isSpeaking ? -0.2 + talk : 0);
-  setRotation(rig.rightArm.wrist, 0, 0, isSpeaking ? 0.2 - talk : 0);
+  const armSwing = isWalking ? walk * 0.58 : 0;
+  const legSwing = isWalking ? walk * 0.66 : 0;
+  setRotation(rig.leftArm.shoulder, isThinking ? -0.72 : isSpeaking ? -0.58 + talk : -0.12 - armSwing, 0.04, isThinking ? -0.5 : -0.22);
+  setRotation(rig.rightArm.shoulder, isThinking ? -1.16 : isSpeaking ? -0.62 - talk : -0.12 + armSwing, 0.04, isThinking ? 0.42 : 0.22);
+  setRotation(rig.leftArm.elbow, isThinking ? -0.26 : isSpeaking ? -0.74 : -0.2, 0, isSpeaking ? -0.24 : 0);
+  setRotation(rig.rightArm.elbow, isThinking ? -1.3 : isSpeaking ? -0.78 : -0.2, 0, isThinking ? 0.5 : 0.2);
+  setRotation(rig.leftArm.wrist, 0, 0, isSpeaking ? -0.24 + talk : 0);
+  setRotation(rig.rightArm.wrist, 0, 0, isSpeaking ? 0.24 - talk : 0);
 
-  setRotation(rig.leftLeg.hip, legSwing, 0, 0.03);
-  setRotation(rig.rightLeg.hip, -legSwing, 0, -0.03);
-  setRotation(rig.leftLeg.knee, isWalking ? Math.max(0, -walk) * 0.7 : 0.08, 0, 0);
-  setRotation(rig.rightLeg.knee, isWalking ? Math.max(0, walk) * 0.7 : 0.08, 0, 0);
+  setRotation(rig.leftLeg.hip, legSwing, 0, 0.04);
+  setRotation(rig.rightLeg.hip, -legSwing, 0, -0.04);
+  setRotation(rig.leftLeg.knee, isWalking ? Math.max(0, -walk) * 0.78 : 0.1, 0, 0);
+  setRotation(rig.rightLeg.knee, isWalking ? Math.max(0, walk) * 0.78 : 0.1, 0, 0);
 }
 
 function applyProceduralExpression(rig, state, color, speechPulse) {
@@ -953,22 +954,23 @@ function collectAvatarBones(model) {
 }
 
 function applyAvatarPoseCorrection(state, elapsed, gesture) {
-  const breathe = Math.sin(elapsed * 1.28);
-  setBoneRotation(state, state.bones.chest, -0.02 + breathe * 0.012, 0, 0, 0.08);
-  setBoneRotation(state, state.bones.upperChest, -0.035 + breathe * 0.014, 0, 0, 0.08);
-  setBoneRotation(state, state.bones.neck, 0.025 + gesturePitch(gesture, elapsed) * 0.45, 0, 0, 0.08);
-  setBoneRotation(state, state.bones.head, -0.018 + gesturePitch(gesture, elapsed) * 0.65, Math.sin(elapsed * 0.52) * 0.045, 0, 0.08);
+  const breathe = Math.sin(elapsed * 1.58) * 0.9;
+  const sway = Math.sin(elapsed * 0.82) * 0.06;
+  setBoneRotation(state, state.bones.chest, -0.03 + breathe * 0.026, sway * 0.5, 0, 0.1);
+  setBoneRotation(state, state.bones.upperChest, -0.045 + breathe * 0.03, sway * 0.4, 0, 0.1);
+  setBoneRotation(state, state.bones.neck, 0.035 + gesturePitch(gesture, elapsed) * 0.5 + sway * 0.18, 0, 0, 0.1);
+  setBoneRotation(state, state.bones.head, -0.025 + gesturePitch(gesture, elapsed) * 0.72 + sway * 0.16, Math.sin(elapsed * 0.6) * 0.07, 0, 0.1);
 
-  setBoneRotation(state, state.bones.leftShoulder, 0, 0, -0.42, 0.14);
-  setBoneRotation(state, state.bones.rightShoulder, 0, 0, 0.42, 0.14);
-  setBoneRotation(state, state.bones.leftUpperArm, 0.1, 0.12, -2.25 + breathe * 0.024, 0.2);
-  setBoneRotation(state, state.bones.rightUpperArm, 0.1, -0.12, 2.25 - breathe * 0.024, 0.2);
-  setBoneRotation(state, state.bones.leftLowerArm, 0.02, 0.06, -0.42, 0.15);
-  setBoneRotation(state, state.bones.rightLowerArm, 0.02, -0.06, 0.42, 0.15);
-  setBoneRotation(state, state.bones.leftHand, 0, 0, -0.14, 0.12);
-  setBoneRotation(state, state.bones.rightHand, 0, 0, 0.14, 0.12);
-  setBoneRotation(state, state.bones.leftUpperLeg, -0.015, 0, 0.025, 0.08);
-  setBoneRotation(state, state.bones.rightUpperLeg, -0.015, 0, -0.025, 0.08);
+  setBoneRotation(state, state.bones.leftShoulder, 0.02, 0.01, -0.5 + sway * 0.18, 0.18);
+  setBoneRotation(state, state.bones.rightShoulder, 0.02, -0.01, 0.5 - sway * 0.18, 0.18);
+  setBoneRotation(state, state.bones.leftUpperArm, 0.2, 0.16, -2.35 + breathe * 0.04, 0.24);
+  setBoneRotation(state, state.bones.rightUpperArm, 0.2, -0.16, 2.35 - breathe * 0.04, 0.24);
+  setBoneRotation(state, state.bones.leftLowerArm, 0.04, 0.08, -0.46, 0.18);
+  setBoneRotation(state, state.bones.rightLowerArm, 0.04, -0.08, 0.46, 0.18);
+  setBoneRotation(state, state.bones.leftHand, 0, 0, -0.18, 0.14);
+  setBoneRotation(state, state.bones.rightHand, 0, 0, 0.18, 0.14);
+  setBoneRotation(state, state.bones.leftUpperLeg, -0.02 + sway * 0.04, 0, 0.04, 0.1);
+  setBoneRotation(state, state.bones.rightUpperLeg, -0.02 - sway * 0.04, 0, -0.04, 0.1);
 }
 
 function setBoneRotation(state, bone, x, y, z, alpha) {

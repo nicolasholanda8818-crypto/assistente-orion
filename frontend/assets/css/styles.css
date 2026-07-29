@@ -4290,7 +4290,7 @@ html[data-orion-visual-identity="orb"].premium-visuals-ready .orion-avatar {
   filter:
     drop-shadow(0 28px 42px rgba(0, 0, 0, 0.38))
     drop-shadow(0 0 38px color-mix(in srgb, var(--orion-aura-color) 32%, transparent));
-  animation: orion-orb-float 5.8s ease-in-out infinite;
+  animation: orion-orb-float 4.4s ease-in-out infinite;
 }
 
 html[data-orion-visual-identity="orb"] .orion-avatar > :not(.orion-orb) {
@@ -4341,7 +4341,7 @@ html[data-orion-visual-identity="orb"] .orion-orb {
     0 0 112px color-mix(in srgb, var(--orion-primary-color) 26%, transparent);
   overflow: hidden;
   transform: translateZ(34px);
-  animation: orion-orb-idle 4.2s ease-in-out infinite;
+  animation: orion-orb-idle 3.2s ease-in-out infinite;
 }
 
 html[data-orion-visual-identity="orb"] .orion-orb__halo,
@@ -4491,33 +4491,33 @@ html[data-orion-visual-identity="orb"] .orion-avatar.pulse-aura-now .orion-orb {
 }
 
 @keyframes orion-orb-float {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-8px) scale(1.012); }
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  50% { transform: translateY(-10px) scale(1.018) rotate(1.5deg); }
 }
 
 @keyframes orion-orb-idle {
-  0%, 100% { filter: brightness(1) saturate(1); border-radius: 50%; }
-  50% { filter: brightness(1.12) saturate(1.08); border-radius: 48% 52% 51% 49%; }
+  0%, 100% { filter: brightness(1) saturate(1); border-radius: 50%; transform: translateZ(34px) scale(1); }
+  50% { filter: brightness(1.14) saturate(1.1); border-radius: 47% 53% 50% 50%; transform: translateZ(34px) scale(1.022); }
 }
 
 @keyframes orion-orb-listening {
   0%, 100% { transform: translateZ(34px) scale(1); }
-  50% { transform: translateZ(34px) scale(1.05); }
+  50% { transform: translateZ(34px) scale(1.06); }
 }
 
 @keyframes orion-orb-processing {
   0%, 100% { transform: translateZ(34px) scale(1) rotate(0deg); }
-  50% { transform: translateZ(34px) scale(1.025) rotate(1.4deg); }
+  50% { transform: translateZ(34px) scale(1.03) rotate(1.7deg); }
 }
 
 @keyframes orion-orb-speaking {
   0%, 100% { transform: translateZ(34px) scale(1); border-radius: 50%; }
-  50% { transform: translateZ(34px) scale(1.045); border-radius: 51% 49% 47% 53%; }
+  50% { transform: translateZ(34px) scale(1.055); border-radius: 51% 49% 47% 53%; }
 }
 
 @keyframes orion-orb-waiting {
   0%, 100% { transform: translateZ(34px) scale(0.992); filter: saturate(0.95); }
-  50% { transform: translateZ(34px) scale(1.01); filter: saturate(1.02); }
+  50% { transform: translateZ(34px) scale(1.016); filter: saturate(1.04); }
 }
 
 @keyframes orion-orb-orbit {

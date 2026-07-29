@@ -1,4 +1,4 @@
-const CACHE_NAME = "orion-pwa-v50-orb-identity";
+const CACHE_NAME = "orion-pwa-v51-orb-identity";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -37,7 +37,8 @@ const APP_SHELL = [
   "/assets/images/lord-dragons/official-title-reference.jpeg",
   "/assets/vendor/phaser.min.js",
   "/assets/icons/orion-icon.svg",
-  "/assets/icons/orion-maskable.svg"
+  "/assets/icons/orion-maskable.svg",
+  "/assets/videos/293297_medium.mp4"
 ];
 
 function freshRequest(input) {

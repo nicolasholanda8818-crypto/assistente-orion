@@ -1521,13 +1521,14 @@ export function loadVisualPreferences() {
     ...DEFAULT_AVATAR_SKIN,
     outfit: preferences.outfit || DEFAULT_AVATAR_SKIN.outfit,
   };
+  const hasStoredBackground = Boolean(preferences.backgroundProfile || preferences.backgroundMediaUrl);
   applyCustomSkin(savedSkin, { persist: false, react: false, source: "load" });
   applyVoiceMode(preferences.voiceMode || "balanced", { persist: false, react: false });
   applyVisualMode(preferences.visualMode || defaultVisualMode(), { persist: false, react: false });
-  applyBackgroundProfile(preferences.backgroundProfile || "default", {
+  applyBackgroundProfile(hasStoredBackground ? (preferences.backgroundProfile || "default") : "video", {
     persist: false,
     react: false,
-    mediaUrl: preferences.backgroundMediaUrl || "",
+    mediaUrl: preferences.backgroundMediaUrl || "/assets/videos/293297_medium.mp4",
   });
 }
 
@@ -2982,10 +2983,11 @@ function defaultVisualMode() {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const lowMemory = (window.navigator.deviceMemory || 4) <= 2;
   const lowCores = (window.navigator.hardwareConcurrency || 4) <= 2;
-  if (reducedMotion || saveData || lowBandwidth || lowMemory || lowCores || window.innerWidth < 420) {
+  const lowPowerDevice = reducedMotion || saveData || lowBandwidth || lowMemory || lowCores || window.innerWidth < 960;
+  if (lowPowerDevice) {
     return "performance";
   }
-  return window.innerWidth > 1100 ? "ultra" : "balanced";
+  return window.innerWidth > 1400 ? "balanced" : "performance";
 }
 
 function detectDeviceTier() {

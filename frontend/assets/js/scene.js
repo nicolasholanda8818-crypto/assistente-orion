@@ -172,11 +172,12 @@ function createSceneManager(THREE, container, options) {
       return;
     }
     const elapsed = clock.getElapsedTime();
-    const visualBoost = state.visualMode === "ultra" ? 1.3 : state.visualMode === "balanced" ? 1 : 0.7;
-    platformGroup.rotation.y = elapsed * 0.16;
-    panelGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.12;
-    particleGroup.rotation.y = elapsed * 0.035;
-    particleGroup.rotation.x = Math.sin(elapsed * 0.12) * 0.04;
+    const visualBoost = state.visualMode === "ultra" ? 1.3 : state.visualMode === "balanced" ? 1 : 0.6;
+    const motionScale = state.visualMode === "performance" ? 0.55 : 1;
+    platformGroup.rotation.y = elapsed * 0.1 * motionScale;
+    panelGroup.rotation.y = Math.sin(elapsed * 0.12) * 0.08 * motionScale;
+    particleGroup.rotation.y = elapsed * 0.025 * motionScale;
+    particleGroup.rotation.x = Math.sin(elapsed * 0.08) * 0.024 * motionScale;
     state.panels.forEach((panel, index) => {
       panel.position.y = panel.userData.baseY + Math.sin(elapsed * (0.7 + index * 0.08)) * 0.08;
       panel.material.opacity = 0.34 + Math.sin(elapsed * 1.4 + index) * 0.08;
@@ -351,10 +352,10 @@ function pixelRatioFor(mode) {
 
 function particleCountFor(mode) {
   if (mode === "ultra") {
-    return 260;
+    return 190;
   }
   if (mode === "balanced") {
-    return 150;
+    return 110;
   }
-  return 72;
+  return 48;
 }
