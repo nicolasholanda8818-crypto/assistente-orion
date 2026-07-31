@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orion AI</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <!-- Ícones Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Menu Lateral Organizado -->
+  <aside class="sidebar">
+    <div class="logo">
+      <i data-lucide="orbit"></i>
+      <h2>Orion</h2>
+    </div>
+    
+    <nav class="nav-menu">
+      <button class="nav-btn active"><i data-lucide="message-square"></i> Chat</button>
+      <button class="nav-btn"><i data-lucide="folder"></i> Arquivos & PDFs</button>
+      <button class="nav-btn"><i data-lucide="database"></i> Memória</button>
+      <button class="nav-btn"><i data-lucide="settings"></i> Configurações</button>
+    </nav>
+
+    <div class="status-indicator">
+      <span class="dot"></span> WS Conectado
+    </div>
+  </aside>
+
+  <!-- Área Principal -->
+  <main class="main-content">
+    
+    <!-- Núcleo / Sphere Visualizer -->
+    <div class="core-container">
+      <div class="orion-core"></div>
+      <p id="status-text">Orion Online</p>
+    </div>
+
+    <!-- Histórico do Chat -->
+    <div class="chat-container" id="chat-box">
+      <div class="message assistant">
+        Olá! Sou o Orion. Como posso te ajudar hoje?
+      </div>
+    </div>
+
+    <!-- Ações Rápidas -->
+    <div class="quick-actions">
+      <button onclick="sendQuickAction('Pesquisar na web')" class="btn-action">
+        <i data-lucide="search"></i> Pesquisa Web
+      </button>
+      <button onclick="sendQuickAction('Limpar conversa')" class="btn-action">
+        <i data-lucide="trash-2"></i> Limpar Chat
+      </button>
+    </div>
+
+    <!-- Campo de Entrada / Comando -->
+    <div class="input-container">
+      <button id="mic-btn" class="icon-btn"><i data-lucide="mic"></i></button>
+      <input type="text" id="user-input" placeholder="Digite ou fale um comando..." onkeydown="handleKeyPress(event)">
+      <button onclick="sendMessage()" class="send-btn"><i data-lucide="send"></i></button>
+    </div>
+
+  </main>
+
+  <script src="/static/js/app.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
