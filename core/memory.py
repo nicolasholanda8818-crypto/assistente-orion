@@ -1,47 +1,64 @@
+import sqlite3
+import json
 import os
 
 
 class MemoryManager:
     """
-    Gerencia o histórico de conversas por sessão do usuário
-    para garantir que o Orion mantenha o contexto do diálogo.
+    Gerenciador de Memória Persistente do Orion usando SQLite.
     """
 
-    def __init__(self, system_prompt_path="prompts/system_prompt.txt", max_history=15):
-        self.system_prompt_path = system_prompt_path
-        self.max_history = max_history
-        self.sessions = {}
-        self.system_prompt = self._load_system_prompt()
+    def __init__(self, db_path="orion_memory.db"):
+        self.db_path = db_path
+        self._init_db()
 
-    def _load_system_prompt(self):
-        """Carrega o prompt de sistema do arquivo de configuração."""
-        if os.path.exists(self.system_prompt_path):
-            with open(self.system_prompt_path, "r", encoding="utf-8") as f:
-                return f.read().strip()
-        return "Você é o Orion, um assistente virtual inteligente."
-
-    def get_history(self, session_id: str):
-        """Retorna o histórico da sessão ou inicializa com o System Prompt."""
-        if session_id not in self.sessions:
-            self.sessions[session_id] = [
-                {"role": "system", "content": self.system_prompt}
-            ]
-        return self.sessions[session_id]
+    def _init_db(self):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT,
+                    role TEXT,
+                    content TEXT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            conn.commit()
 
     def add_message(self, session_id: str, role: str, content: str):
-        """
-        Adiciona uma nova mensagem (user ou assistant) e limita
-        o tamanho do histórico para não estourar a memória.
-        """
-        history = self.get_history(session_id)
-        history.append({"role": role, "content": content})
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO history (session_id, role, content) VALUES (?, ?, ?)",
+                (session_id, role, content)
+            )
+            conn.commit()
 
-        # Mantém apenas o system prompt [0] + as últimas N mensagens
-        if len(history) > (self.max_history + 1):
-            self.sessions[session_id] = [history[0]] + history[-self.max_history:]
+    def get_history(self, session_id: str, limit: int = 15) -> list:
+        # Puxa o System Prompt
+        prompt_file = os.path.join("prompts", "system_prompt.txt")
+        system_prompt = "Você é o Orion, uma IA avançada estilo Saturno Vivo."
+        if os.path.exists(prompt_file):
+            with open(prompt_file, "r", encoding="utf-8") as f:
+                system_prompt = f.read()
 
-    def clear_history(self, session_id: str):
-        """Reseta a memória do Orion para essa sessão."""
-        self.sessions[session_id] = [
-            {"role": "system", "content": self.system_prompt}
-        ]
+        messages = [{"role": "system", "content": system_prompt}]
+
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT role, content FROM history WHERE session_id = ? ORDER BY id DESC LIMIT ?",
+                (session_id, limit)
+            )
+            rows = cursor.fetchall()
+            for role, content in reversed(rows):
+                messages.append({"role": role, "content": content})
+
+        return messages
+
+    def clear_memory(self, session_id: str):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM history WHERE session_id = ?", (session_id,))
+            conn.commit()
