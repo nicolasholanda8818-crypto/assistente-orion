@@ -101,8 +101,14 @@ if (SpeechRecognition) {
 
 // --- MENSAGENS E WEBSOCKET ---
 socket.onmessage = function(event) {
-  addMessage(event.data, "assistant");
-  speak(event.data); // Orion responde e fala em áudio
+  const data = JSON.parse(event.data);
+
+  if (data.thought) {
+    statusText.innerText = data.thought; // Exibe a ação do agente ativo
+  }
+
+  addMessage(data.reply, "assistant");
+  speak(data.reply);
 };
 
 function sendMessage() {

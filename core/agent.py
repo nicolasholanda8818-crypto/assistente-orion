@@ -1,10 +1,9 @@
 import os
-import base64
 import sys
 import io
 from openai import OpenAI
 from core.memory import MemoryManager
-from core.tools import OrionTools
+from core.router import MultiAgentRouter
 
 class OrionAgent:
     def __init__(self, api_key=None, model="gpt-4o-mini"):
@@ -12,7 +11,7 @@ class OrionAgent:
         self.client = None
         self.model = model
         self.memory = MemoryManager()
-        self.tools = OrionTools()
+        self.router = MultiAgentRouter()
 
         if self.api_key:
             try:
@@ -20,38 +19,42 @@ class OrionAgent:
             except Exception as e:
                 print(f"⚠️ Erro ao inicializar cliente OpenAI: {e}")
 
-    def process_message(self, session_id: str, user_message: str, image_b64: str = None) -> str:
+    def process_message(self, session_id: str, user_message: str, image_b64: str = None) -> dict:
         if not user_message.strip() and not image_b64:
-            return "Por favor, envie um comando para eu ajudar."
+            return {"reply": "Por favor, envie um comando para eu ajudar.", "thought": "Entrada vazia."}
 
         if not self.client:
-            return "⚠️ **Orion Offline**: Defina a variável `OPENAI_API_KEY` para ativar a IA."
+            return {
+                "reply": "⚠️ **Orion Offline**: Defina a variável `OPENAI_API_KEY` nas variáveis de ambiente.",
+                "thought": "Falha de credencial."
+            }
 
-        # Execução de Código Python em Tempo Real
-        if user_message.lower().startswith("executar:") or user_message.lower().startswith("calcular:"):
-            code = user_message.split(":", 1)[1].strip()
-            return self._execute_python_code(code)
+        # 1. Orquestração e Roteamento
+        route_info = self.router.route_and_execute(user_message, self)
+        agent_name = route_info["agent"]
+        thought_process = route_info["thought"]
+        additional_context = route_info["context"]
 
-        # Pesquisa Web
-        if user_message.lower().startswith("pesquisar:") or "pesquise na web" in user_message.lower():
-            query = user_message.replace("pesquisar:", "").replace("pesquise na web", "").strip()
-            search_context = self.tools.search_web(query)
-            user_message = f"[RESULTADOS DA WEB PARA: '{query}']\n{search_context}\n\n[INSTRUÇÃO]: Responda com base nestes dados."
+        # Se for execução direta de código, já retorna o resultado
+        if agent_name == "Code & Math Specialist":
+            return {"reply": additional_context, "thought": thought_process}
 
-        # Suporte a Visão Computacional
+        # 2. Injeção de Contexto Multimodal/Agentes
+        final_prompt = user_message
+        if additional_context:
+            final_prompt = f"{additional_context}\n\n[PERGUNTA DO USUÁRIO]: {user_message}"
+
         if image_b64:
             content = [
-                {"type": "text", "text": user_message or "Analise esta imagem detalhadamente."},
+                {"type": "text", "text": final_prompt or "Analise esta imagem detalhadamente."},
                 {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}}
             ]
             self.memory.add_message(session_id, "user", "[ENVIOU UMA IMAGEM DO MUNDO REAL]")
         else:
-            content = user_message
+            content = final_prompt
             self.memory.add_message(session_id, "user", user_message)
 
         messages_history = self.memory.get_history(session_id)
-
-        # Atualiza a última mensagem do usuário se for multimodal
         if image_b64:
             messages_history[-1] = {"role": "user", "content": content}
 
@@ -59,18 +62,21 @@ class OrionAgent:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages_history,
-                max_tokens=800
+                temperature=0.7
             )
 
             bot_reply = response.choices[0].message.content
             self.memory.add_message(session_id, "assistant", bot_reply)
-            return bot_reply
+
+            return {
+                "reply": bot_reply,
+                "thought": f"[{agent_name}] {thought_process}"
+            }
 
         except Exception as e:
-            return f"Erro no cérebro do Orion: {str(e)}"
+            return {"reply": f"Erro no cérebro do Orion: {str(e)}", "thought": "Erro de execução."}
 
     def _execute_python_code(self, code: str) -> str:
-        """Executa scripts Python em ambiente isolado para dados e matemática."""
         old_stdout = sys.stdout
         redirected_output = sys.stdout = io.StringIO()
         try:
@@ -83,6 +89,10 @@ class OrionAgent:
         finally:
             sys.stdout = old_stdout
 
-    def process_pdf_context(self, session_id: str, pdf_text: str, filename: str) -> str:
-        context_msg = f"[DOCUMENTO CARREGADO: {filename}]\nConteúdo:\n{pdf_text[:3000]}...\n\nConfirme a leitura."
-        return self.process_message(session_id, context_msg)
+    def process_pdf_context(self, session_id: str, pdf_text: str, filename: str) -> dict:
+        # Armazena o PDF no Banco Vetorial RAG
+        self.router.vector_db.add_document(doc_id=filename, text=pdf_text)
+        
+        confirm_msg = f"Documento `{filename}` indexado com sucesso no Banco Vetorial RAG! Você já pode fazer perguntas sobre o arquivo."
+        self.memory.add_message(session_id, "assistant", confirm_msg)
+        return {"reply": confirm_msg, "thought": "Documento vetorizado e indexado no ChromaDB."}

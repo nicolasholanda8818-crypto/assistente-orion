@@ -7,4 +7,5 @@ python-multipart
 pypdf
 duckduckgo-search
 pillow
-pydantic-settings
+chromadb
+tiktoken
