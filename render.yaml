@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: orion-backend
+    env: docker
+    repo: nicolasholanda8818-crypto/assistente-orion
+    branch: master
+    autoDeploy: true
+    healthCheckPath: /healthz
+    envVars:
+      - key: APP_HOST
+        value: "0.0.0.0"
+      - key: APP_PORT
+        value: "8000"
+      - key: ORION_ENV
+        value: production
+      - key: DATABASE_URL
+        value: sqlite:///./database/orion.db
+      - key: STATIC_DIR
+        value: frontend
+      - key: WEB_SEARCH_ENABLED
+        value: "true"
+      - key: WEB_SEARCH_PROVIDER
+        value: duckduckgo-html+mojeek
+      - key: OPENAI_COMPATIBLE_BASE_URL
+        value: ""
+      - key: OPENAI_COMPATIBLE_API_KEY_REF
+        value: ""
+      - key: AZURE_SPEECH_KEY_REF
+        value: ""
+      - key: AZURE_SPEECH_REGION
+        value: ""
+      - key: ELEVENLABS_API_KEY_REF
+        value: ""
+      - key: OPENAI_TTS_API_KEY_REF
+        value: ""
+      - key: COQUI_TTS_MODEL_PATH
+        value: ""
+      - key: ORION_PUBLIC_URL
+        value: "https://<your-render-url>.onrender.com"
+      - key: ORION_ADMIN_PASSWORD
+        value: ""
+      - key: ORION_MASTER_KEY
+        value: ""
