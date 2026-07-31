@@ -26,6 +26,23 @@ class MemoryManager:
             """)
             conn.commit()
 
+    def _load_full_system_prompt(self) -> str:
+        """Carrega e une os prompts modulares da pasta prompts/."""
+        prompts_dir = "prompts"
+        files = ["system_prompt.txt", "tools_prompt.txt", "coder_prompt.txt"]
+        combined_prompt = []
+
+        for filename in files:
+            filepath = os.path.join(prompts_dir, filename)
+            if os.path.exists(filepath):
+                with open(filepath, "r", encoding="utf-8") as f:
+                    combined_prompt.append(f.read().strip())
+
+        if not combined_prompt:
+            return "Você é o Orion, uma IA avançada estilo Saturno Vivo."
+
+        return "\n\n".join(combined_prompt)
+
     def add_message(self, session_id: str, role: str, content: str):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
@@ -36,13 +53,8 @@ class MemoryManager:
             conn.commit()
 
     def get_history(self, session_id: str, limit: int = 15) -> list:
-        # Puxa o System Prompt
-        prompt_file = os.path.join("prompts", "system_prompt.txt")
-        system_prompt = "Você é o Orion, uma IA avançada estilo Saturno Vivo."
-        if os.path.exists(prompt_file):
-            with open(prompt_file, "r", encoding="utf-8") as f:
-                system_prompt = f.read()
-
+        # Carrega a estrutura de prompts completa
+        system_prompt = self._load_full_system_prompt()
         messages = [{"role": "system", "content": system_prompt}]
 
         with sqlite3.connect(self.db_path) as conn:

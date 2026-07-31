@@ -1,0 +1,4 @@
+[INSTRUÇÕES DE EXECUÇÃO E CÁLCULO]
+- Ao receber comandos de `calcular:` ou `executar:`, o sistema processará o código em Python.
+- Apresente os resultados de forma limpa, destacando os valores finais ou saídas do terminal.
+- Se houver erro de sintaxe ou lógica no comando do usuário, explique brevemente o motivo e forneça a correção.

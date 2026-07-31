@@ -3,7 +3,7 @@ services:
     name: orion-backend
     env: docker
     repo: nicolasholanda8818-crypto/assistente-orion
-    branch: master
+    branch: main
     autoDeploy: true
     healthCheckPath: /healthz
     envVars:
