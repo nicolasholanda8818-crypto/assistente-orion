@@ -21,6 +21,50 @@ function setCoreState(state) {
   }
 }
 
+// --- SELETOR DE TEMAS FUTURISTAS ---
+const themes = ['', 'theme-nebula', 'theme-solaris', 'theme-matrix'];
+let currentThemeIdx = 0;
+
+function toggleTheme() {
+  currentThemeIdx = (currentThemeIdx + 1) % themes.length;
+  document.body.className = themes[currentThemeIdx];
+}
+
+// --- UPLOAD E VISÃO DE IMAGENS ---
+function uploadImage(fileInput) {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const promptText = prompt("O que você quer que o Orion analise nesta imagem?", "Descreva o que você vê nesta imagem.");
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("session_id", clientId);
+  formData.append("prompt", promptText || "");
+
+  addMessage(`📸 Enviando imagem: ${file.name}...`, "user");
+  setCoreState("speaking");
+
+  fetch("/upload-image/", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      addMessage(data.response, "assistant");
+      speak(data.response);
+    } else {
+      addMessage("Erro ao analisar imagem: " + data.message, "assistant");
+      setCoreState("idle");
+    }
+  })
+  .catch(err => {
+    addMessage("Erro no envio da imagem.", "assistant");
+    setCoreState("idle");
+  });
+}
+
 // --- SÍNTESE DE VOZ (ORION FALA) ---
 function speak(text) {
   if ('speechSynthesis' in window) {
