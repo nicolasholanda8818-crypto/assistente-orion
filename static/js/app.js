@@ -5,6 +5,21 @@ const socket = new WebSocket(`${wsProtocol}//${window.location.host}/ws/${client
 const chatBox = document.getElementById("chat-box");
 const userInput = document.getElementById("user-input");
 const micBtn = document.getElementById("mic-btn");
+const saturnSystem = document.querySelector(".saturn-system");
+const statusText = document.getElementById("status-text");
+
+function setCoreState(state) {
+  saturnSystem.classList.remove("listening", "speaking");
+  if (state === "listening") {
+    saturnSystem.classList.add("listening");
+    statusText.innerText = "Ouvindo você...";
+  } else if (state === "speaking") {
+    saturnSystem.classList.add("speaking");
+    statusText.innerText = "Orion Respondendo...";
+  } else {
+    statusText.innerText = "Orion Online";
+  }
+}
 
 // --- SÍNTESE DE VOZ (ORION FALA) ---
 function speak(text) {
