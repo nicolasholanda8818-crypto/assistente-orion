@@ -5,78 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orion AI</title>
   <link rel="stylesheet" href="/static/css/style.css">
-  <!-- Ícones Lucide -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-  <!-- Menu Lateral Organizado -->
   <aside class="sidebar">
     <div class="logo">
-      <i data-lucide="orbit"></i>
+      <i data-lucide="planet"></i>
       <h2>Orion</h2>
     </div>
-    
+
+    <div class="status-indicator">
+      <span class="dot"></span> Orion Online
+    </div>
+
     <nav class="nav-menu">
       <button class="nav-btn active"><i data-lucide="message-square"></i> Chat</button>
-      <button class="nav-btn"><i data-lucide="folder"></i> Arquivos & PDFs</button>
-      <button class="nav-btn"><i data-lucide="database"></i> Memória</button>
+      <button class="nav-btn"><i data-lucide="file-text"></i> Documentos</button>
+      <button class="nav-btn"><i data-lucide="image"></i> Visão</button>
       <button class="nav-btn"><i data-lucide="settings"></i> Configurações</button>
     </nav>
 
-    <div class="status-indicator">
-      <span class="dot"></span> WS Conectado
+    <div class="theme-selector">
+      <p>Temas</p>
+      <button class="theme-btn" onclick="setTheme('')">Cyber Space</button>
+      <button class="theme-btn" onclick="setTheme('theme-nebula')">Nebulosa</button>
+      <button class="theme-btn" onclick="setTheme('theme-solaris')">Solaris</button>
+      <button class="theme-btn" onclick="setTheme('theme-matrix')">Matrix</button>
     </div>
   </aside>
 
-  <!-- Área Principal -->
   <main class="main-content">
-    
-    <!-- Núcleo Animado: Planeta Saturno Vivo -->
     <div class="core-container">
-      <div class="saturn-system">
+      <div class="saturn-system" id="saturn-system">
         <div class="saturn-atmosphere"></div>
         <div class="saturn-ring ring-outer"></div>
         <div class="saturn-ring ring-inner"></div>
         <div class="saturn-planet"></div>
       </div>
-      <p id="status-text">Orion Online</p>
+      <p id="status-text">Preparado para conexão.</p>
     </div>
 
-    <!-- Histórico do Chat -->
     <div class="chat-container" id="chat-box">
       <div class="message assistant">
-        Olá! Sou o Orion. Como posso te ajudar hoje?
+        Olá, Comandante. Sou o Orion. Pronto para explorar dados, imagens e novos universos.
       </div>
     </div>
 
-    <!-- Ações Rápidas & Upload -->
     <div class="quick-actions">
-      <button onclick="sendQuickAction('Pesquisar na web')" class="btn-action">
+      <button class="btn-action" onclick="sendQuickAction('pesquisar: notícias de tecnologia de hoje')">
         <i data-lucide="search"></i> Pesquisa Web
       </button>
-      
-      <!-- Botão para carregar PDFs -->
-      <label class="btn-action" style="cursor: pointer;">
-        <i data-lucide="file-text"></i> Carregar PDF
-        <input type="file" id="pdf-upload" accept=".pdf" style="display: none;" onchange="uploadPDF(this)">
-      </label>
 
-      <button onclick="sendQuickAction('Limpar conversa')" class="btn-action">
+      <label class="btn-action" for="pdf-upload">
+        <i data-lucide="file-text"></i> Carregar PDF
+      </label>
+      <input type="file" id="pdf-upload" accept=".pdf" style="display:none;" onchange="uploadPDF(this)">
+
+      <label class="btn-action" for="image-upload">
+        <i data-lucide="image"></i> Enviar Imagem
+      </label>
+      <input type="file" id="image-upload" accept="image/*" style="display:none;" onchange="uploadImage(this)">
+
+      <button class="btn-action" onclick="sendQuickAction('limpar conversa')">
         <i data-lucide="trash-2"></i> Limpar Chat
       </button>
     </div>
 
-    <!-- Campo de Entrada / Comando -->
     <div class="input-container">
-      <button id="mic-btn" class="icon-btn"><i data-lucide="mic"></i></button>
+      <button id="mic-btn" class="icon-btn" onclick="toggleMic()"><i data-lucide="mic"></i></button>
       <input type="text" id="user-input" placeholder="Digite ou fale um comando..." onkeydown="handleKeyPress(event)">
-      <button onclick="sendMessage()" class="send-btn"><i data-lucide="send"></i></button>
+      <button class="send-btn" onclick="sendMessage()"><i data-lucide="send"></i></button>
     </div>
-
   </main>
 
   <script src="/static/js/app.js"></script>
-  <script>lucide.createIcons();</script>
+  <script>
+    function setTheme(themeClass) {
+      document.body.className = themeClass;
+    }
+    lucide.createIcons();
+  </script>
 </body>
 </html>
