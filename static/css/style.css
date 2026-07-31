@@ -1,5 +1,5 @@
 :root {
-  /* Tema Padrão: Cyber Space */
+  /* Tema 1: Cyber Space (Padrão Azul/Ciano) */
   --bg-primary: #030712;
   --bg-secondary: rgba(10, 20, 40, 0.7);
   --planet-color1: #00f0ff;
@@ -12,13 +12,37 @@
   --bg-pattern: radial-gradient(circle at 50% 20%, rgba(0, 240, 255, 0.1) 0%, transparent 70%);
 }
 
-/* Exemplo de Tema Futuro (Futuramente você pode ativar adicionando class="theme-nebula" no body) */
+/* Tema 2: Nebulosa Roxa */
 body.theme-nebula {
-  --bg-primary: #0d021a;
-  --planet-color1: #bf00ff;
-  --planet-color2: #4b0082;
-  --ring-color: rgba(238, 130, 238, 0.6);
-  --border-glow: rgba(191, 0, 255, 0.3);
+  --bg-primary: #0b021a;
+  --bg-secondary: rgba(25, 10, 40, 0.75);
+  --planet-color1: #d946ef;
+  --planet-color2: #7e22ce;
+  --ring-color: rgba(217, 70, 239, 0.6);
+  --border-glow: rgba(217, 70, 239, 0.3);
+  --bg-pattern: radial-gradient(circle at 50% 20%, rgba(217, 70, 239, 0.15) 0%, transparent 70%);
+}
+
+/* Tema 3: Sol Dourado / Supernova */
+body.theme-solaris {
+  --bg-primary: #1a0c02;
+  --bg-secondary: rgba(40, 20, 10, 0.75);
+  --planet-color1: #ffb703;
+  --planet-color2: #fb8500;
+  --ring-color: rgba(255, 183, 3, 0.6);
+  --border-glow: rgba(255, 183, 3, 0.3);
+  --bg-pattern: radial-gradient(circle at 50% 20%, rgba(255, 183, 3, 0.15) 0%, transparent 70%);
+}
+
+/* Tema 4: Matrix Verde Cyber */
+body.theme-matrix {
+  --bg-primary: #021a0a;
+  --bg-secondary: rgba(10, 40, 20, 0.75);
+  --planet-color1: #10b981;
+  --planet-color2: #047857;
+  --ring-color: rgba(16, 185, 129, 0.6);
+  --border-glow: rgba(16, 185, 129, 0.3);
+  --bg-pattern: radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
 }
 
 * {
