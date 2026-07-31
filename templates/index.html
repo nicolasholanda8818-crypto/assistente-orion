@@ -45,11 +45,18 @@
       </div>
     </div>
 
-    <!-- Ações Rápidas -->
+    <!-- Ações Rápidas & Upload -->
     <div class="quick-actions">
       <button onclick="sendQuickAction('Pesquisar na web')" class="btn-action">
         <i data-lucide="search"></i> Pesquisa Web
       </button>
+      
+      <!-- Botão para carregar PDFs -->
+      <label class="btn-action" style="cursor: pointer;">
+        <i data-lucide="file-text"></i> Carregar PDF
+        <input type="file" id="pdf-upload" accept=".pdf" style="display: none;" onchange="uploadPDF(this)">
+      </label>
+
       <button onclick="sendQuickAction('Limpar conversa')" class="btn-action">
         <i data-lucide="trash-2"></i> Limpar Chat
       </button>

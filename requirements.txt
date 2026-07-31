@@ -4,3 +4,5 @@ websockets
 openai
 jinja2
 python-multipart
+pypdf
+duckduckgo-search

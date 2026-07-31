@@ -4,9 +4,46 @@ const socket = new WebSocket(`${wsProtocol}//${window.location.host}/ws/${client
 
 const chatBox = document.getElementById("chat-box");
 const userInput = document.getElementById("user-input");
+const micBtn = document.getElementById("mic-btn");
 
+// --- SÍNTESE DE VOZ (ORION FALA) ---
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel(); // Para falas anteriores
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'pt-BR';
+    utterance.rate = 1.0; // Velocidade natural
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+// --- RECONHECIMENTO DE VOZ (VOCÊ FALA) ---
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SpeechRecognition) {
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'pt-BR';
+  recognition.continuous = false;
+
+  micBtn.addEventListener("click", () => {
+    recognition.start();
+    micBtn.style.color = "#ff0055"; // Efeito visual gravando
+  });
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    userInput.value = transcript;
+    sendMessage();
+    micBtn.style.color = "#00f0ff";
+  };
+
+  recognition.onerror = () => { micBtn.style.color = "#00f0ff"; };
+  recognition.onend = () => { micBtn.style.color = "#00f0ff"; };
+}
+
+// --- MENSAGENS E WEBSOCKET ---
 socket.onmessage = function(event) {
   addMessage(event.data, "assistant");
+  speak(event.data); // Orion responde e fala em áudio
 };
 
 function sendMessage() {
@@ -19,8 +56,17 @@ function sendMessage() {
 }
 
 function sendQuickAction(action) {
-  addMessage(action, "user");
-  socket.send(action);
+  if (action === "Pesquisar na web") {
+    const query = prompt("O que você deseja pesquisar na web?");
+    if (query) {
+      const fullCommand = `pesquisar: ${query}`;
+      addMessage(`🔍 Pesquisando: ${query}`, "user");
+      socket.send(fullCommand);
+    }
+  } else if (action === "Limpar conversa") {
+    chatBox.innerHTML = "";
+    addMessage("Memória limpa! Como posso ajudar?", "assistant");
+  }
 }
 
 function handleKeyPress(e) {
@@ -33,4 +79,31 @@ function addMessage(text, sender) {
   msgDiv.innerText = text;
   chatBox.appendChild(msgDiv);
   chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// --- UPLOAD DE PDF ---
+function uploadPDF(fileInput) {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("session_id", clientId);
+
+  addMessage(`📄 Enviando arquivo PDF: ${file.name}...`, "user");
+
+  fetch("/upload-pdf/", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      addMessage(data.response, "assistant");
+      speak(data.response);
+    } else {
+      addMessage("Erro ao ler o PDF: " + data.message, "assistant");
+    }
+  })
+  .catch(err => addMessage("Erro no envio do PDF.", "assistant"));
 }

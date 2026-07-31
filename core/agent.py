@@ -1,35 +1,33 @@
 import os
 from openai import OpenAI
 from core.memory import MemoryManager
+from core.tools import OrionTools
 
 class OrionAgent:
-    """
-    O Cérebro do Orion: gerencia as chamadas para a API de Inteligência Artificial
-    integrando o histórico de conversas e o prompt de sistema.
-    """
     def __init__(self, api_key=None, model="gpt-4o-mini"):
-        # Puxa a chave da API do ambiente ou usa a passada por parâmetro
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.client = OpenAI(api_key=self.api_key)
         self.model = model
         self.memory = MemoryManager()
+        self.tools = OrionTools()
 
     def process_message(self, session_id: str, user_message: str) -> str:
-        """
-        Processa a mensagem do usuário, envia para a LLM junto com o histórico
-        e retorna a resposta mantendo o contexto.
-        """
         if not user_message.strip():
-            return "Por favor, digite ou fale algo para eu poder ajudar."
+            return "Por favor, envie um comando para eu ajudar."
 
-        # 1. Adiciona a mensagem do usuário na memória da sessão
+        # Se o usuário pedir pesquisa na web explicitamente ou via comando
+        if user_message.lower().startswith("pesquisar:") or "pesquise na web" in user_message.lower():
+            query = user_message.replace("pesquisar:", "").replace("pesquise na web", "").strip()
+            search_context = self.tools.search_web(query)
+            user_message = (
+                f"[RESULTADOS DA WEB PARA: '{query}']\n{search_context}\n\n"
+                "[INSTRUÇÃO]: Responda ao usuário com base nesses dados."
+            )
+
         self.memory.add_message(session_id, "user", user_message)
-
-        # 2. Pega todo o histórico atualizado (System Prompt + Histórico)
         messages_history = self.memory.get_history(session_id)
 
         try:
-            # 3. Chama a API da IA
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages_history,
@@ -37,15 +35,16 @@ class OrionAgent:
             )
 
             bot_reply = response.choices[0].message.content
-
-            # 4. Salva a resposta do Orion no histórico
             self.memory.add_message(session_id, "assistant", bot_reply)
-
             return bot_reply
 
         except Exception as e:
-            return (
-                f"Erro de conexão com o cérebro do Orion: {str(e)} "
-                "(Nota: se estiver usando o modelo da OpenAI, certifique-se de que a biblioteca `openai` está instalada "
-                "no seu ambiente executando `pip install openai`)."
-            )
+            return f"Erro no cérebro do Orion: {str(e)}"
+
+    def process_pdf_context(self, session_id: str, pdf_text: str, filename: str) -> str:
+        """Injeta o texto de um PDF como contexto da conversa."""
+        context_msg = (
+            f"[DOCUMENTO CARREGADO: {filename}]\nConteúdo:\n{pdf_text[:3000]}...\n\n"
+            "[INSTRUÇÃO]: Confirme ao usuário que leu o documento e está pronto para tirar dúvidas sobre ele."
+        )
+        return self.process_message(session_id, context_msg)
