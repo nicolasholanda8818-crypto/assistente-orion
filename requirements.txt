@@ -7,3 +7,4 @@ python-multipart
 pypdf
 duckduckgo-search
 pillow
+pydantic-settings
