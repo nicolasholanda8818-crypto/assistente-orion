@@ -4,5 +4,6 @@ websockets
 openai
 jinja2
 python-multipart
+pydantic-settings
 pypdf
 duckduckgo-search
