@@ -116,6 +116,23 @@ body {
   transform: translateX(4px);
 }
 
+.icon-btn.active,
+.icon-btn.listening-active {
+  border-color: var(--planet-color1);
+  color: var(--planet-color1);
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.45);
+  transform: scale(1.06);
+}
+
+.icon-btn.listening-active {
+  animation: mic-pulse 1.2s infinite alternate;
+}
+
+@keyframes mic-pulse {
+  from { box-shadow: 0 0 20px rgba(0, 240, 255, 0.35); }
+  to { box-shadow: 0 0 30px rgba(0, 240, 255, 0.65); }
+}
+
 .status-indicator {
   display: flex;
   align-items: center;

@@ -1,12 +1,79 @@
 const clientId = "user_" + Math.random().toString(36).substring(7);
 const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-const socket = new WebSocket(`${wsProtocol}//${window.location.host}/ws/${clientId}`);
+let socket = null;
+let reconnectDelay = 1000;
+const reconnectBaseDelay = 1000;
+const maxReconnectDelay = 30000;
+let reconnectTimer = null;
+let micActive = false;
 
 const chatBox = document.getElementById("chat-box");
 const userInput = document.getElementById("user-input");
 const micBtn = document.getElementById("mic-btn");
 const saturnSystem = document.querySelector(".saturn-system");
 const statusText = document.getElementById("status-text");
+
+function updateConnectionStatus(message, isError = false) {
+  statusText.innerText = message;
+  statusText.style.color = isError ? "#ff6b6b" : "#00f0ff";
+}
+
+function scheduleReconnect() {
+  if (reconnectTimer) return;
+  reconnectTimer = window.setTimeout(() => {
+    reconnectTimer = null;
+    connectSocket();
+  }, reconnectDelay);
+  reconnectDelay = Math.min(maxReconnectDelay, reconnectDelay * 1.5);
+}
+
+function handleSocketMessage(event) {
+  const data = JSON.parse(event.data);
+
+  if (data.thought) {
+    statusText.innerText = data.thought;
+  }
+
+  addMessage(data.reply, "assistant");
+  speak(data.reply);
+}
+
+function connectSocket() {
+  const socketUrl = `${wsProtocol}//${window.location.host}/ws/${clientId}`;
+  socket = new WebSocket(socketUrl);
+
+  socket.addEventListener("open", () => {
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+    reconnectDelay = reconnectBaseDelay;
+    updateConnectionStatus("Orion Online");
+  });
+
+  socket.addEventListener("message", handleSocketMessage);
+
+  socket.addEventListener("close", () => {
+    updateConnectionStatus("Reconectando...", true);
+    scheduleReconnect();
+  });
+
+  socket.addEventListener("error", () => {
+    updateConnectionStatus("Conexão instável...", true);
+  });
+}
+
+window.addEventListener("online", () => {
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    connectSocket();
+  }
+});
+
+window.addEventListener("offline", () => {
+  updateConnectionStatus("Sem internet. Tentando reconectar...", true);
+});
+
+connectSocket();
 
 function setCoreState(state) {
   saturnSystem.classList.remove("listening", "speaking");
@@ -65,59 +132,157 @@ function uploadImage(fileInput) {
   });
 }
 
-// --- SÍNTESE DE VOZ (ORION FALA) ---
-function speak(text) {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel(); // Para falas anteriores
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'pt-BR';
-    utterance.rate = 1.0; // Velocidade natural
-    window.speechSynthesis.speak(utterance);
+// --- MÓDULO DE ÁUDIO OTIMIZADO PARA MOBILE (STT & TTS) ---
+let recognition = null;
+let isListening = false;
+let ttsUnlocked = false;
+
+// Desbloqueia áudio no mobile na primeira interação do usuário
+document.addEventListener('click', function unlockAudio() {
+  if (!ttsUnlocked && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const silentUtterance = new SpeechSynthesisUtterance('');
+    window.speechSynthesis.speak(silentUtterance);
+    ttsUnlocked = true;
+    document.removeEventListener('click', unlockAudio);
   }
-}
+}, { once: true });
 
-// --- RECONHECIMENTO DE VOZ (VOCÊ FALA) ---
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (SpeechRecognition) {
-  const recognition = new SpeechRecognition();
-  recognition.lang = 'pt-BR';
-  recognition.continuous = false;
+function initSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  
+  if (!SpeechRecognition) {
+    console.warn("Reconhecimento de voz não suportado neste navegador.");
+    return null;
+  }
 
-  micBtn.addEventListener("click", () => {
-    recognition.start();
-    micBtn.style.color = "#ff0055"; // Efeito visual gravando
-  });
+  const rec = new SpeechRecognition();
+  rec.lang = 'pt-BR';
+  rec.continuous = false;
+  rec.interimResults = false;
 
-  recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    userInput.value = transcript;
-    sendMessage();
-    micBtn.style.color = "#00f0ff";
+  rec.onstart = function() {
+    isListening = true;
+    updateMicButtonUI(true);
+    setCoreState("listening");
+    if (navigator.vibrate) navigator.vibrate(50);
   };
 
-  recognition.onerror = () => { micBtn.style.color = "#00f0ff"; };
-  recognition.onend = () => { micBtn.style.color = "#00f0ff"; };
+  rec.onresult = function(event) {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById("user-input").value = transcript;
+    sendMessage();
+  };
+
+  rec.onerror = function(event) {
+    console.error("Erro no microfone:", event.error);
+    stopListening();
+  };
+
+  rec.onend = function() {
+    stopListening();
+  };
+
+  return rec;
 }
 
-// --- MENSAGENS E WEBSOCKET ---
-socket.onmessage = function(event) {
-  const data = JSON.parse(event.data);
-
-  if (data.thought) {
-    statusText.innerText = data.thought; // Exibe a ação do agente ativo
+function toggleMic() {
+  if (!recognition) {
+    recognition = initSpeechRecognition();
   }
 
-  addMessage(data.reply, "assistant");
-  speak(data.reply);
-};
+  if (!recognition) {
+    alert("Seu navegador não suporta entrada por voz. Tente usar o Chrome no Android ou Safari no iOS.");
+    return;
+  }
+
+  if (isListening) {
+    recognition.stop();
+  } else {
+    window.speechSynthesis.cancel();
+    recognition.start();
+  }
+}
+
+function stopListening() {
+  isListening = false;
+  updateMicButtonUI(false);
+  setCoreState("idle");
+}
+
+function updateMicButtonUI(active) {
+  const micBtn = document.getElementById("mic-btn");
+  if (!micBtn) return;
+
+  if (active) {
+    micBtn.classList.add("listening-active");
+  } else {
+    micBtn.classList.remove("listening-active");
+  }
+}
+
+function speak(text) {
+  if (!text || !('speechSynthesis' in window)) return;
+
+  window.speechSynthesis.cancel();
+
+  const cleanText = text.replace(/[*#_`~]/g, '').trim();
+
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+  utterance.lang = 'pt-BR';
+  utterance.rate = 1.05;
+  utterance.pitch = 1.0;
+
+  const voices = window.speechSynthesis.getVoices();
+  const ptVoice = voices.find(v => v.lang.includes('pt-BR') || v.lang.includes('pt_BR'));
+  if (ptVoice) {
+    utterance.voice = ptVoice;
+  }
+
+  utterance.onstart = function() {
+    setCoreState("speaking");
+  };
+
+  utterance.onend = function() {
+    setCoreState("idle");
+  };
+
+  utterance.onerror = function() {
+    setCoreState("idle");
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const micBtn = document.getElementById("mic-btn");
+  if (micBtn) {
+    micBtn.onclick = toggleMic;
+  }
+});
 
 function sendMessage() {
   const text = userInput.value.trim();
   if (!text) return;
 
   addMessage(text, "user");
-  socket.send(text);
+  if (socket?.readyState === WebSocket.OPEN) {
+    socket.send(text);
+  } else {
+    addMessage("Conexão perdida. Tentando reconectar...", "assistant");
+    connectSocket();
+  }
   userInput.value = "";
+}
+
+function sendThroughSocket(payload) {
+  if (socket?.readyState === WebSocket.OPEN) {
+    socket.send(payload);
+    return true;
+  }
+  addMessage("Conexão perdida. Tentando reconectar...", "assistant");
+  connectSocket();
+  return false;
 }
 
 function sendQuickAction(action) {
@@ -126,7 +291,7 @@ function sendQuickAction(action) {
     if (query) {
       const fullCommand = `pesquisar: ${query}`;
       addMessage(`🔍 Pesquisando: ${query}`, "user");
-      socket.send(fullCommand);
+      sendThroughSocket(fullCommand);
     }
   } else if (action === "Limpar conversa") {
     chatBox.innerHTML = "";
