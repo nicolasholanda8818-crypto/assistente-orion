@@ -29,14 +29,23 @@ class MemoryManager:
     def _load_full_system_prompt(self) -> str:
         """Carrega e une os prompts modulares da pasta prompts/."""
         prompts_dir = "prompts"
-        files = ["system_prompt.txt", "tools_prompt.txt", "coder_prompt.txt"]
         combined_prompt = []
 
-        for filename in files:
-            filepath = os.path.join(prompts_dir, filename)
-            if os.path.exists(filepath):
-                with open(filepath, "r", encoding="utf-8") as f:
-                    combined_prompt.append(f.read().strip())
+        if os.path.isdir(prompts_dir):
+            files = sorted(
+                [f for f in os.listdir(prompts_dir) if f.endswith(".txt")],
+                key=lambda name: (0 if name == "system_prompt.txt" else 1, name)
+            )
+
+            for filename in files:
+                filepath = os.path.join(prompts_dir, filename)
+                try:
+                    with open(filepath, "r", encoding="utf-8") as f:
+                        text = f.read().strip()
+                        if text:
+                            combined_prompt.append(text)
+                except (OSError, IOError):
+                    continue
 
         if not combined_prompt:
             return "Você é o Orion, uma IA avançada estilo Saturno Vivo."
