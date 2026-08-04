@@ -35,6 +35,10 @@ class OrionAgent:
         thought_process = route_info["thought"]
         additional_context = route_info["context"]
 
+        # 1.1. Atualiza perfil do usuário e tom com base na mensagem
+        if user_message.strip():
+            self.memory.extract_and_update_profile(session_id, user_message)
+
         # Se for execução direta de código, já retorna o resultado
         if agent_name == "Code & Math Specialist":
             return {"reply": additional_context, "thought": thought_process}
