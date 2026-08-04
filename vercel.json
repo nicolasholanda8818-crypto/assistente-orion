@@ -1,58 +1,14 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
-  "headers": [
+  "builds": [
     {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
+      "src": "api/index.py",
+      "use": "@vercel/python"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "/frontend/index.html"
-    },
-    {
-      "source": "/game.html",
-      "destination": "/frontend/game.html"
-    },
-    {
-      "source": "/offline.html",
-      "destination": "/frontend/offline.html"
-    },
-    {
-      "source": "/manifest.webmanifest",
-      "destination": "/frontend/manifest.webmanifest"
-    },
-    {
-      "source": "/service-worker.js",
-      "destination": "/frontend/service-worker.js"
-    },
-    {
-      "source": "/assets/(.*)",
-      "destination": "/frontend/assets/$1"
+      "src": "/(.*)",
+      "dest": "api/index.py"
     }
   ]
 }
